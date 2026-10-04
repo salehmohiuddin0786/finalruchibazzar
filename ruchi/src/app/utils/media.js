@@ -1,4 +1,4 @@
-export const getMediaUrl = (path, apiBase = "http://localhost:5000/api") => {
+export const getMediaUrl = (path, apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api") => {
   if (!path) return "";
 
   const value = String(path).trim();

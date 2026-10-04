@@ -24,6 +24,10 @@ app.use(
       "http://localhost:3003",
       "http://localhost:3004",
       "http://localhost:3005",
+      "http://localhost:4000",
+      "http://localhost:4001",
+      "http://localhost:4002",
+      "http://localhost:4003",
       "https://ruchibazaar.in"
     ],
     credentials: true,

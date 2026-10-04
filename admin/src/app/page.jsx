@@ -21,6 +21,8 @@ import {
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+
 const Dashboard = () => {
   const router = useRouter();
 
@@ -145,7 +147,7 @@ const Dashboard = () => {
       }
 
       const response = await fetch(
-        "http://localhost:5000/api/partner/dashboard",
+        `${API_URL}/partner/dashboard`,
         {
           method: "GET",
           headers: {

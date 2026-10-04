@@ -47,7 +47,7 @@ const Page = () => {
   const router = useRouter();
   const { user, isAuthenticated, loading: authLoading, logout } = useAuth();
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
   const currencySymbol = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "₹";
 
   const [activeTab, setActiveTab] = useState("profile");

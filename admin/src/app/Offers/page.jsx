@@ -170,7 +170,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000";
 
 // Custom hook for sidebar management
 const useSidebar = () => {

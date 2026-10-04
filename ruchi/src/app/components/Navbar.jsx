@@ -48,7 +48,7 @@ const Navbar = () => {
   const locationRef = useRef(null);
   const mobileSearchRef = useRef(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
 
   const getCartId = () => {
     if (typeof window === "undefined") return null;

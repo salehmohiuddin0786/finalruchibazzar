@@ -24,9 +24,10 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
-const AUTH_BASE_API = "http://localhost:5000/api/auth";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const AUTH_BASE_API = `${API_BASE}/auth`;
 const AUTH_API = `${AUTH_BASE_API}/register`;
-const RESTAURANT_API = "http://localhost:5000/api/restaurants";
+const RESTAURANT_API = `${API_BASE}/restaurants`;
 
 const parseApiResponse = async (response) => {
   const text = await response.text();

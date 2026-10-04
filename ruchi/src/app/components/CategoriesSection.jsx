@@ -22,7 +22,7 @@ const Categories = () => {
   const scrollContainerRef = useRef(null);
   const sectionRef = useRef(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
 
   useEffect(() => {
     const sectionEl = sectionRef.current;

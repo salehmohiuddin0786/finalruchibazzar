@@ -39,7 +39,7 @@ const Page = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showCopyMessage, setShowCopyMessage] = useState(false);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
 
   // Fetch offers from backend
   useEffect(() => {

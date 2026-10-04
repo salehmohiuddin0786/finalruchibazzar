@@ -18,21 +18,21 @@ A full-stack monorepo featuring customer storefront, partner portals, super admi
 ```bash
 cd ruchi-backend
 npm install
-npm run dev # or npm start
+npm run dev # Runs on http://localhost:7000
 ```
 
 ### 2. Customer Application
 ```bash
 cd ruchi
 npm install
-npm run dev # Runs on http://localhost:3000
+npm run dev # Runs on http://localhost:4000
 ```
 
 ### 3. Restaurant Partner Portal
 ```bash
 cd admin
 npm install
-npm run dev # Runs on http://localhost:3001
+npm run dev # Runs on http://localhost:4001
 ```
 
 ### 4. Delivery Partner Portal

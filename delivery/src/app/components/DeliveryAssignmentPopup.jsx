@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CheckCircle, Clock, IndianRupee, MapPin, Package, X, XCircle } from "lucide-react";
 import { deliveryApi, getDeliveryToken } from "../lib/deliveryApi";
 
-const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api").replace(/\/api\/?$/, "");
+const API_ORIGIN = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api").replace(/\/api\/?$/, "");
 
 const getStoredPartnerId = () => {
   if (typeof window === "undefined") return null;

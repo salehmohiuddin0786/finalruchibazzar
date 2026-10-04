@@ -30,7 +30,7 @@ export default function PartnerWithUsPage() {
             </p>
             <div className="pt-2">
               <a
-                href="http://localhost:3001/register"
+                href={process.env.NEXT_PUBLIC_ADMIN_URL ? `${process.env.NEXT_PUBLIC_ADMIN_URL}/register` : "http://localhost:4001/register"}
                 className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-white text-red-600 font-bold hover:bg-red-50 transition-all shadow-md active:scale-95"
               >
                 Register as Restaurant Partner

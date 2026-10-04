@@ -33,7 +33,7 @@ import {
 import Sidebar from "../components/Sidebar";
 import Header from "../components/Header";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000";
 
 const getMediaUrl = (path) => {
   if (!path) return "";

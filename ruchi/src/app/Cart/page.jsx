@@ -55,7 +55,7 @@ const CartPage = () => {
   const [promoSuccess, setPromoSuccess] = useState(false);
   const [promoError, setPromoError] = useState("");
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
   const currencySymbol = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || "₹";
 
   const getCartId = () => {

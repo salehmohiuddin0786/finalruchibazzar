@@ -7,6 +7,8 @@ import { Chrome } from "lucide-react";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+
 const parseApiResponse = async (response) => {
   const text = await response.text();
 
@@ -76,7 +78,7 @@ export default function DeliveryPartnerLogin() {
         ? { email: identifier, password: formData.password }
         : { phone: identifier, password: formData.password };
 
-      const response = await fetch("http://localhost:5000/api/delivery-partner/login", {
+      const response = await fetch(`${API_URL}/delivery-partner/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(loginPayload),
@@ -118,7 +120,7 @@ export default function DeliveryPartnerLogin() {
       const firebaseResult = await signInWithPopup(auth, provider);
       const firebaseIdToken = await firebaseResult.user.getIdToken();
 
-      const response = await fetch("http://localhost:5000/api/delivery-partner/google", {
+      const response = await fetch(`${API_URL}/delivery-partner/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ firebaseIdToken }),

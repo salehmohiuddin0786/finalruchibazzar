@@ -32,7 +32,7 @@ import {
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 
-const API_URL = "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
 const SOCKET_URL = API_URL.replace(/\/api\/?$/, "");
 
 const ensureSocketIo = () =>

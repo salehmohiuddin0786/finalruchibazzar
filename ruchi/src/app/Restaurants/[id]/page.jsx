@@ -28,7 +28,7 @@ const RestaurantMenuPage = () => {
   const [cartLoading, setCartLoading] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
   const currencySymbol = process.env.NEXT_PUBLIC_CURRENCY_SYMBOL || '₹';
 
   const normalizeListResponse = (data, key) => {

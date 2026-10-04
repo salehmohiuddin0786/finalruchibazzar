@@ -58,7 +58,7 @@ const Page = () => {
   const [copiedId, setCopiedId] = useState(null);
   const [userRole, setUserRole] = useState(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
   const socketUrl = apiUrl.replace(/\/api\/?$/, '');
 
   const ensureSocketIo = () =>

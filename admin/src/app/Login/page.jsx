@@ -18,6 +18,8 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { auth } from "../firebase";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+
 const UNDER_REVIEW_CODE = "RESTAURANT_UNDER_REVIEW";
 const UNDER_REVIEW_MESSAGE =
   "Your restaurant account is being reviewed by our admin team. You can login after approval.";
@@ -163,7 +165,7 @@ const Login = () => {
     try {
       setIsLoading(true);
 
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -215,7 +217,7 @@ const Login = () => {
       const firebaseResult = await signInWithPopup(auth, provider);
       const firebaseIdToken = await firebaseResult.user.getIdToken();
 
-      const response = await fetch("http://localhost:5000/api/auth/google-portal", {
+      const response = await fetch(`${API_URL}/auth/google-portal`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

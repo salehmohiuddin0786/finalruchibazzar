@@ -7,7 +7,7 @@ const { ensureDeliveryAssignmentSchema } = require("./services/schema.service");
 
 require("dotenv").config();
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 7000;
 
 const server = http.createServer(app);
 
