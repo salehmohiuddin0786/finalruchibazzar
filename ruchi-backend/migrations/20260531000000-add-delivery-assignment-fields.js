@@ -7,11 +7,7 @@ const deliveryStatuses = [
   "PICKED",
   "ON_THE_WAY",
   "DELIVERED",
-  "not_assigned",
-  "assigned",
-  "picked",
-  "on_the_way",
-  "delivered",
+  "CANCELLED",
 ];
 
 module.exports = {

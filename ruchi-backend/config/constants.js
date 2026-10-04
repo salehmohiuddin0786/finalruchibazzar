@@ -27,11 +27,7 @@ const DELIVERY_STATUS = {
   PICKED: "PICKED",
   ON_THE_WAY: "ON_THE_WAY",
   DELIVERED: "DELIVERED",
-  LEGACY_NOT_ASSIGNED: "not_assigned",
-  LEGACY_ASSIGNED: "assigned",
-  LEGACY_PICKED: "picked",
-  LEGACY_ON_THE_WAY: "on_the_way",
-  LEGACY_DELIVERED: "delivered",
+  CANCELLED: "CANCELLED",
 };
 
 // Payment Status

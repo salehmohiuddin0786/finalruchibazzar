@@ -18,6 +18,7 @@ const normalizeDeliveryStatus = (status) => {
     PICKED: "picked",
     ON_THE_WAY: "on_the_way",
     DELIVERED: "delivered",
+    CANCELLED: "cancelled",
   };
   return map[status] || status || "not_assigned";
 };

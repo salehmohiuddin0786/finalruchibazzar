@@ -39,6 +39,13 @@ exports.ensureDeliveryAssignmentSchema = async () => {
 
     await sequelize.query("UPDATE Orders SET status = 'pending' WHERE status IS NULL OR status = ''");
 
+    try {
+      await sequelize.query("UPDATE Orders SET deliveryStatus = UPPER(deliveryStatus) WHERE deliveryStatus IS NOT NULL AND deliveryStatus != ''");
+      await sequelize.query("UPDATE Orders SET deliveryStatus = 'NOT_ASSIGNED' WHERE deliveryStatus IS NULL OR deliveryStatus = ''");
+    } catch {
+      // Ignore if table/columns don't exist yet
+    }
+
     await queryInterface.changeColumn("Orders", "deliveryStatus", {
       type: Sequelize.ENUM(
         "NOT_ASSIGNED",
@@ -47,16 +54,10 @@ exports.ensureDeliveryAssignmentSchema = async () => {
         "PICKED",
         "ON_THE_WAY",
         "DELIVERED",
-        "not_assigned",
-        "assigned",
-        "picked",
-        "on_the_way",
-        "delivered"
+        "CANCELLED"
       ),
       defaultValue: "NOT_ASSIGNED",
     });
-
-    await sequelize.query("UPDATE Orders SET deliveryStatus = 'NOT_ASSIGNED' WHERE deliveryStatus IS NULL OR deliveryStatus = ''");
 
     await addColumnIfMissing(queryInterface, Sequelize, "Orders", "assignmentExpiresAt", {
       type: Sequelize.DATE,
