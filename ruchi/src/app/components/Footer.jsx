@@ -19,7 +19,7 @@ const Footer = () => {
         <div className="absolute bottom-20 left-1/4 w-32 h-32 bg-red-400/5 rounded-full blur-2xl"></div>
       </div>
 
-      <div className="container mx-auto px-4 py-12 relative z-10">
+      <div className="container mx-auto px-4 pt-10 pb-28 lg:py-12 relative z-10">
         
         {/* Decorative Top Border */}
         <div className="flex justify-center mb-12">

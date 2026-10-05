@@ -914,8 +914,8 @@ const Navbar = () => {
         </div>
       )}
 
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-lg">
-        <div className="grid grid-cols-5 h-16">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
+        <div className="grid grid-cols-5 h-14 sm:h-16">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.path;
@@ -924,18 +924,18 @@ const Navbar = () => {
               <button
                 key={item.path}
                 onClick={() => navigateTo(item.path)}
-                className={`flex flex-col items-center justify-center transition-colors relative ${
-                  active ? "text-red-600" : "text-gray-900 hover:text-red-600"
+                className={`flex flex-col items-center justify-center transition-colors relative py-1 px-0.5 ${
+                  active ? "text-red-600 font-semibold" : "text-gray-700 hover:text-red-600"
                 }`}
               >
-                <Icon className="w-5 h-5 sm:w-6 sm:h-6" />
+                <Icon className="w-5 h-5" />
 
-                <span className="text-[10px] sm:text-xs font-medium mt-1">
+                <span className="text-[10px] tracking-tight leading-tight mt-1 truncate max-w-full text-center">
                   {item.label}
                 </span>
 
                 {item.badge && cartItemsCount > 0 && (
-                  <span className="absolute -top-1 right-1/4 bg-red-500 text-white text-[10px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center">
+                  <span className="absolute top-1 right-[20%] bg-red-500 text-white text-[10px] font-bold min-w-4 h-4 px-1 rounded-full flex items-center justify-center">
                     {cartItemsCount > 9 ? "9+" : cartItemsCount}
                   </span>
                 )}
@@ -944,8 +944,6 @@ const Navbar = () => {
           })}
         </div>
       </div>
-
-      <div className="h-16 lg:hidden" />
 
       <style jsx>{`
         .no-scrollbar::-webkit-scrollbar {

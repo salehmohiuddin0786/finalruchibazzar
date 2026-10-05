@@ -303,7 +303,7 @@ const RestaurantsPage = () => {
     <>
       <Navbar />
 
-      <div className="bg-gray-50 min-h-screen">
+      <div className="bg-gray-50 min-h-screen pb-16 lg:pb-0">
         {/* Hero Section */}
         <div className="relative bg-gradient-to-br from-orange-500 via-red-500 to-pink-500 overflow-hidden">
           <div className="absolute inset-0">
@@ -312,14 +312,14 @@ const RestaurantsPage = () => {
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl" style={{ animation: 'spinSlow 20s linear infinite' }}></div>
           </div>
 
-          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+          <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 md:py-24">
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 bg-white/20 backdrop-blur-sm rounded-full px-4 py-2 mb-6" style={{ animation: 'fadeDown 0.6s ease forwards' }}>
-                <Sparkles className="w-5 h-5 text-yellow-300" style={{ animation: 'spinSlow 3s linear infinite' }} />
-                <span className="text-white font-medium">2,500+ Happy Customers Today</span>
+              <div className="inline-flex items-center gap-1.5 sm:gap-2 bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 sm:px-4 sm:py-2 mb-4 sm:mb-6" style={{ animation: 'fadeDown 0.6s ease forwards' }}>
+                <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-300" style={{ animation: 'spinSlow 3s linear infinite' }} />
+                <span className="text-white text-xs sm:text-sm font-medium">2,500+ Happy Customers Today</span>
               </div>
 
-              <h1 className="text-4xl md:text-7xl font-black text-white mb-6 leading-tight" style={{ animation: 'fadeUp 0.6s ease forwards 0.1s', opacity: 0 }}>
+              <h1 className="text-3xl sm:text-5xl md:text-7xl font-black text-white mb-3 sm:mb-6 leading-tight" style={{ animation: 'fadeUp 0.6s ease forwards 0.1s', opacity: 0 }}>
                 Discover & Order
                 <br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 to-amber-300">
@@ -327,7 +327,7 @@ const RestaurantsPage = () => {
                 </span>
               </h1>
 
-              <p className="text-lg md:text-xl text-white/90 mb-8 max-w-2xl mx-auto" style={{ animation: 'fadeUp 0.6s ease forwards 0.2s', opacity: 0 }}>
+              <p className="text-sm sm:text-lg md:text-xl text-white/90 mb-6 sm:mb-8 max-w-2xl mx-auto px-2" style={{ animation: 'fadeUp 0.6s ease forwards 0.2s', opacity: 0 }}>
                 Fresh, fast, and delivered to your door. Explore the best restaurants in your city.
               </p>
 
@@ -335,16 +335,16 @@ const RestaurantsPage = () => {
               <div className="max-w-2xl mx-auto" style={{ animation: 'fadeUp 0.6s ease forwards 0.3s', opacity: 0 }}>
                 <div className="relative group">
                   <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
-                  <div className="relative bg-white rounded-2xl shadow-2xl">
-                    <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400" />
+                  <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl">
+                    <Search className="absolute left-3.5 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
                     <input
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search for restaurants, cuisines, or dishes..."
-                      className="w-full pl-14 pr-24 py-5 bg-white rounded-2xl focus:outline-none text-gray-900 text-lg"
+                      placeholder="Search restaurants, dishes..."
+                      className="w-full pl-11 sm:pl-14 pr-20 sm:pr-24 py-3.5 sm:py-5 bg-white rounded-xl sm:rounded-2xl focus:outline-none text-gray-900 text-sm sm:text-lg"
                     />
-                    <button className="absolute right-3 top-1/2 -translate-y-1/2 px-6 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-xl hover:shadow-lg transition-all duration-300">
+                    <button className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 px-4 sm:px-6 py-2 bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs sm:text-base font-semibold rounded-lg sm:rounded-xl hover:shadow-lg transition-all duration-300">
                       Search
                     </button>
                   </div>
@@ -352,7 +352,7 @@ const RestaurantsPage = () => {
               </div>
 
               {/* Stats */}
-              <div className="flex flex-wrap justify-center gap-8 mt-12" style={{ animation: 'fadeUp 0.6s ease forwards 0.4s', opacity: 0 }}>
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2.5 sm:gap-6 mt-6 sm:mt-12 max-w-md sm:max-w-none mx-auto" style={{ animation: 'fadeUp 0.6s ease forwards 0.4s', opacity: 0 }}>
                 {[
                   { icon: Truck, value: "30min", label: "Avg. Delivery" },
                   { icon: Shield, value: `${restaurants.length}+`, label: "Restaurants" },
@@ -363,12 +363,12 @@ const RestaurantsPage = () => {
                   return (
                     <div
                       key={item.label}
-                      className="flex items-center gap-3 bg-white/10 backdrop-blur-sm rounded-2xl px-6 py-3"
+                      className="flex items-center gap-2.5 sm:gap-3 bg-white/15 backdrop-blur-sm rounded-xl sm:rounded-2xl px-3.5 sm:px-6 py-2.5 sm:py-3 text-left"
                     >
-                      <Icon className="w-6 h-6 text-white" />
-                      <div className="text-left">
-                        <div className="font-bold text-xl text-white">{item.value}</div>
-                        <div className="text-sm text-white/80">{item.label}</div>
+                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white flex-shrink-0" />
+                      <div>
+                        <div className="font-bold text-base sm:text-xl text-white">{item.value}</div>
+                        <div className="text-[11px] sm:text-sm text-white/85 leading-tight">{item.label}</div>
                       </div>
                     </div>
                   );
