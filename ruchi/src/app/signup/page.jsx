@@ -317,11 +317,11 @@ export default function RegisterPage() {
                 />
                 <span className="text-sm text-gray-600">
                   I agree to the{' '}
-                  <Link href="/terms" className="text-purple-600 hover:text-purple-500 hover:underline">
+                  <Link href="/terms-and-conditions" className="text-purple-600 hover:text-purple-500 hover:underline">
                     Terms of Service
                   </Link>{' '}
                   and{' '}
-                  <Link href="/privacy" className="text-purple-600 hover:text-purple-500 hover:underline">
+                  <Link href="/privacy-policy" className="text-purple-600 hover:text-purple-500 hover:underline">
                     Privacy Policy
                   </Link>
                 </span>

@@ -44,7 +44,7 @@ export default function LoginPage() {
         router.push('/');
       } else if (result.user?.role === 'partner') {
         setError('Please use the partner login portal');
-        setTimeout(() => router.push('/Login'), 2000);
+        setTimeout(() => router.push('/partner-with-us'), 2000);
       } else if (result.user?.role === 'admin') {
         setError('Please use the admin login portal');
         setTimeout(() => router.push('/admin/login'), 2000);
@@ -272,8 +272,8 @@ export default function LoginPage() {
           <div className="text-center">
             <p className="text-xs text-gray-500">
               Are you a restaurant partner?{' '}
-              <Link href="/Login" className="text-purple-600 hover:text-purple-500 hover:underline">
-                Partner Login
+              <Link href="/partner-with-us" className="text-purple-600 hover:text-purple-500 hover:underline">
+                Partner Portal
               </Link>
             </p>
           </div>
