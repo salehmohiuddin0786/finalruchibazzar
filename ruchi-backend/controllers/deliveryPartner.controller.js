@@ -409,7 +409,7 @@ const loginDeliveryPartner = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "Delivery partner not found",
+        message: "Invalid credentials",
       });
     }
 

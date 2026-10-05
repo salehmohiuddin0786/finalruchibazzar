@@ -42,6 +42,15 @@ const createDish = async (req, res) => {
       });
     }
 
+    if (req.user && req.user.role === "partner") {
+      if (restaurant.ownerId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only add dishes to your own restaurant.",
+        });
+      }
+    }
+
     const dish = await Dish.create({
       name,
       description: description || null,
@@ -155,13 +164,24 @@ const updateDish = async (req, res) => {
   try {
     const id = Number(req.params.id);
 
-    const dish = await Dish.findByPk(id);
+    const dish = await Dish.findByPk(id, {
+      include: [{ model: Restaurant, as: "restaurant" }],
+    });
 
     if (!dish) {
       return res.status(404).json({
         success: false,
         message: "Dish not found"
       });
+    }
+
+    if (req.user && req.user.role === "partner") {
+      if (dish.restaurant && dish.restaurant.ownerId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only update dishes for your own restaurant.",
+        });
+      }
     }
 
     const updates = {};
@@ -207,13 +227,24 @@ const deleteDish = async (req, res) => {
   try {
     const id = Number(req.params.id);
 
-    const dish = await Dish.findByPk(id);
+    const dish = await Dish.findByPk(id, {
+      include: [{ model: Restaurant, as: "restaurant" }],
+    });
 
     if (!dish) {
       return res.status(404).json({
         success: false,
         message: "Dish not found"
       });
+    }
+
+    if (req.user && req.user.role === "partner") {
+      if (dish.restaurant && dish.restaurant.ownerId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only delete dishes for your own restaurant.",
+        });
+      }
     }
 
     await dish.destroy();

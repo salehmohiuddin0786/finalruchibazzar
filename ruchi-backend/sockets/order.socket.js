@@ -1,3 +1,5 @@
+const { getAllowedOrigins } = require("../config/corsOptions");
+
 let io;
 
 exports.initSocket = (server) => {
@@ -5,31 +7,43 @@ exports.initSocket = (server) => {
 
   io = socketIO(server, {
     cors: {
-      origin: "*",
+      origin: getAllowedOrigins(),
+      credentials: true,
       methods: ["GET", "POST"],
     },
   });
 
   io.on("connection", (socket) => {
-    console.log("Socket connected:", socket.id);
     let connectedDeliveryPartnerId = null;
 
     socket.on("joinUserRoom", (userId) => {
-      socket.join(`user_${userId}`);
+      const cleanId = Number(userId);
+      if (cleanId > 0) {
+        socket.join(`user_${cleanId}`);
+      }
     });
 
     socket.on("joinRestaurantRoom", (restaurantId) => {
-      socket.join(`restaurant_${restaurantId}`);
+      const cleanId = Number(restaurantId);
+      if (cleanId > 0) {
+        socket.join(`restaurant_${cleanId}`);
+      }
     });
 
     socket.on("joinDeliveryRoom", (partnerId) => {
-      connectedDeliveryPartnerId = Number(partnerId);
-      socket.join(`delivery_${partnerId}`);
+      const cleanId = Number(partnerId);
+      if (cleanId > 0) {
+        connectedDeliveryPartnerId = cleanId;
+        socket.join(`delivery_${cleanId}`);
+      }
     });
 
     socket.on("registerDeliveryPartner", (partnerId) => {
-      connectedDeliveryPartnerId = Number(partnerId);
-      socket.join(`delivery_${partnerId}`);
+      const cleanId = Number(partnerId);
+      if (cleanId > 0) {
+        connectedDeliveryPartnerId = cleanId;
+        socket.join(`delivery_${cleanId}`);
+      }
     });
 
     socket.on("joinAdminRoom", () => {
@@ -37,7 +51,6 @@ exports.initSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Socket disconnected:", socket.id);
       if (connectedDeliveryPartnerId) {
         const { handlePartnerDisconnected } = require("../services/deliveryAssignment.service");
         handlePartnerDisconnected(connectedDeliveryPartnerId).catch((error) => {
@@ -51,13 +64,13 @@ exports.initSocket = (server) => {
 };
 
 exports.emitOrderCreated = (order) => {
-  if (!io) return;
+  if (!io || !order) return;
   io.to(`restaurant_${order.restaurantId}`).emit("newOrder", order);
   io.to(`user_${order.userId}`).emit("orderPlaced", order);
 };
 
 exports.emitOrderStatusUpdate = (order) => {
-  if (!io) return;
+  if (!io || !order) return;
   io.to(`user_${order.userId}`).emit("orderStatusUpdated", order);
   io.to(`restaurant_${order.restaurantId}`).emit("orderStatusUpdated", order);
 
@@ -90,22 +103,22 @@ exports.emitDeliveryLocationUpdate = (order) => {
 };
 
 exports.emitDeliveryRequest = (partnerId, payload) => {
-  if (!io) return;
+  if (!io || !partnerId) return;
   io.to(`delivery_${partnerId}`).emit("deliveryAssignmentRequest", payload);
 };
 
 exports.emitDeliveryRequestExpired = (partnerId, payload) => {
-  if (!io) return;
+  if (!io || !partnerId) return;
   io.to(`delivery_${partnerId}`).emit("deliveryAssignmentExpired", payload);
 };
 
 exports.emitDeliveryRequestRejected = (partnerId, payload) => {
-  if (!io) return;
+  if (!io || !partnerId) return;
   io.to(`delivery_${partnerId}`).emit("deliveryAssignmentRejected", payload);
 };
 
 exports.emitDeliveryAssigned = (order, partner) => {
-  if (!io) return;
+  if (!io || !order || !partner) return;
 
   const payload = {
     orderId: order.id,
@@ -121,7 +134,7 @@ exports.emitDeliveryAssigned = (order, partner) => {
 };
 
 exports.emitDeliveryNotAssigned = (order) => {
-  if (!io) return;
+  if (!io || !order) return;
 
   const payload = {
     orderId: order.id,

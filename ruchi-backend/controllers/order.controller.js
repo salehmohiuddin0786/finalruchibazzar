@@ -401,6 +401,16 @@ exports.getRestaurantOrders = async (req, res) => {
       });
     }
 
+    if (req.user && req.user.role === "partner") {
+      const restaurant = await Restaurant.findByPk(restaurantId);
+      if (!restaurant || restaurant.ownerId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only view orders for your own restaurant.",
+        });
+      }
+    }
+
     const orders = await Order.findAll({
       where: { restaurantId },
       include: [
@@ -457,6 +467,23 @@ exports.getOrderById = async (req, res) => {
       });
     }
 
+    if (req.user && req.user.role !== "admin") {
+      const isCustomer = order.userId === req.user.id;
+      const isRestaurantOwner = order.restaurant && order.restaurant.ownerId === req.user.id;
+      const isAssignedDelivery =
+        order.deliveryPartnerId === req.user.id ||
+        (order.deliveryPartner &&
+          (order.deliveryPartner.phone === req.user.phone ||
+            order.deliveryPartner.email === req.user.email));
+
+      if (!isCustomer && !isRestaurantOwner && !isAssignedDelivery) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You are not authorized to view this order.",
+        });
+      }
+    }
+
     return res.status(200).json({
       success: true,
       order: formatOrder(order),
@@ -480,13 +507,24 @@ exports.updateOrderStatus = async (req, res) => {
   try {
     const { status, deliveryPartnerId } = req.body;
 
-    const order = await Order.findByPk(req.params.id);
+    const order = await Order.findByPk(req.params.id, {
+      include: [{ model: Restaurant, as: "restaurant" }],
+    });
 
     if (!order) {
       return res.status(404).json({
         success: false,
         message: "Order not found",
       });
+    }
+
+    if (req.user && req.user.role === "partner") {
+      if (!order.restaurant || order.restaurant.ownerId !== req.user.id) {
+        return res.status(403).json({
+          success: false,
+          message: "Access denied. You can only update orders for your own restaurant.",
+        });
+      }
     }
 
     const updates = { status };

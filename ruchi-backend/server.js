@@ -6,6 +6,10 @@ const { initSocket } = require("./sockets/order.socket");
 const { ensureDeliveryAssignmentSchema } = require("./services/schema.service");
 
 require("dotenv").config();
+const { validateEnv } = require("./config/envValidator");
+
+// Validate critical configuration on startup
+validateEnv();
 
 const PORT = process.env.PORT || 7000;
 

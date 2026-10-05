@@ -1,45 +1,42 @@
 const express = require("express");
 const router = express.Router();
-const multer = require("multer");
+const upload = require("../middlewares/upload.middleware");
+const { protect } = require("../middlewares/auth.middleware");
+const { authorize } = require("../middlewares/role.middleware");
 
 const dishController = require("../controllers/dish.controller");
 
 // ===============================
-// MULTER CONFIG
-// ===============================
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, Date.now() + "-" + file.originalname);
-  },
-});
-
-const upload = multer({ storage });
-
-// ===============================
-// CREATE DISH
+// CREATE DISH (Admin or Partner)
 // ===============================
 router.post(
   "/",
-  upload.single("image"),   // ✅ REQUIRED
+  protect,
+  authorize("partner", "admin"),
+  upload.single("image"),
   dishController.createDish
 );
 
 // ===============================
-// UPDATE DISH
+// UPDATE DISH (Admin or Partner)
 // ===============================
 router.put(
   "/:id",
-  upload.single("image"),   // ✅ REQUIRED
+  protect,
+  authorize("partner", "admin"),
+  upload.single("image"),
   dishController.updateDish
 );
 
 // ===============================
-// DELETE DISH
+// DELETE DISH (Admin or Partner)
 // ===============================
-router.delete("/:id", dishController.deleteDish);
+router.delete(
+  "/:id",
+  protect,
+  authorize("partner", "admin"),
+  dishController.deleteDish
+);
 
 // ===============================
 // GET ALL DISHES

@@ -1,52 +1,68 @@
 const express = require("express");
 const cors = require("cors");
+const helmet = require("helmet");
 const path = require("path");
 
-const apiLimiter = require("./middlewares/rateLimit.middleware");
+const { corsOptions } = require("./config/corsOptions");
+const { apiLimiter, authLimiter, orderLimiter } = require("./middlewares/rateLimit.middleware");
 const { errorHandler } = require("./middlewares/error.middleware");
 
 const userRoutes = require("./routes/user.routes");
 
 const app = express();
 
+// Trust reverse proxy (Nginx, Cloudflare, AWS ALB) for accurate IP rate limiting and protocol detection
+app.set("trust proxy", 1);
+
 /*
 |--------------------------------------------------------------------------
-| Global Middlewares
+| Security HTTP Headers (Helmet)
 |--------------------------------------------------------------------------
 */
-
 app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "http://localhost:3001",
-      "http://localhost:3002",
-      "http://localhost:3003",
-      "http://localhost:3004",
-      "http://localhost:3005",
-      "http://localhost:4000",
-      "http://localhost:4001",
-      "http://localhost:4002",
-      "http://localhost:4003",
-      "https://ruchibazaar.in"
-    ],
-    credentials: true,
+  helmet({
+    // Allow static assets (like food images in /uploads) to be loaded by frontends running on different origins/ports
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: false, // Keep disabled on API server to prevent breaking API consumers
   })
 );
 
-// ✅ Body parsers
+/*
+|--------------------------------------------------------------------------
+| CORS Configuration
+|--------------------------------------------------------------------------
+*/
+app.use(cors(corsOptions));
+
+// ✅ Body parsers with safe payload size limits
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-// ✅ Static uploads
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+// ✅ Static uploads (served safely)
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    dotfiles: "ignore",
+    index: false,
+    maxAge: "1d",
+  })
+);
 
 /*
 |--------------------------------------------------------------------------
 | Rate Limiting
 |--------------------------------------------------------------------------
 */
+// Global API rate limit
 app.use("/api", apiLimiter);
+
+// Strict rate limit on authentication endpoints (brute-force defense)
+app.use("/api/auth", authLimiter);
+app.use("/api/delivery-partner/login", authLimiter);
+app.use("/api/delivery-partner/signup", authLimiter);
+
+// Specific rate limit on order placement
+app.use("/api/orders", orderLimiter);
 
 /*
 |--------------------------------------------------------------------------
@@ -92,6 +108,7 @@ app.get("/", (req, res) => {
   res.json({
     success: true,
     message: "🚀 Ruchi Bazaar API is running",
+    environment: process.env.NODE_ENV || "development",
   });
 });
 

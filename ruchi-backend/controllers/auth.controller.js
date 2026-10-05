@@ -175,33 +175,9 @@ const register = async (req, res) => {
     const existingPhone = await User.findOne({ where: { phone } });
 
     if (existingPhone) {
-      if (existingEmail && existingEmail.id !== existingPhone.id) {
-        return res.status(400).json({
-          success: false,
-          message: "This email is already used by another account",
-        });
-      }
-
-      existingPhone.name = name;
-      existingPhone.email = email;
-      existingPhone.role = userRole;
-      existingPhone.isVerified = true;
-      existingPhone.authProvider = isGoogleRegistration ? "google" : "password";
-      existingPhone.password = password ? await bcrypt.hash(password, 10) : null;
-
-      await existingPhone.save();
-
-      const restaurant = await Restaurant.findOne({
-        where: { ownerId: existingPhone.id },
-      });
-      const token = generateToken(existingPhone.id);
-
-      return res.status(200).json({
-        success: true,
-        message: "User updated successfully",
-        token,
-        user: formatUserResponse(existingPhone),
-        restaurant,
+      return res.status(400).json({
+        success: false,
+        message: "Phone number already registered. Please login.",
       });
     }
 
@@ -287,7 +263,7 @@ const login = async (req, res) => {
       message: "Login successful",
       requiresOtp: false,
       token,
-      user,
+      user: formatUserResponse(user),
       restaurant,
     });
   } catch (error) {
@@ -410,7 +386,7 @@ const loginPartner = async (req, res) => {
     if (!user || !user.password) {
       return res.status(400).json({
         success: false,
-        message: "Partner not found",
+        message: "Invalid credentials",
       });
     }
 
@@ -432,7 +408,7 @@ const loginPartner = async (req, res) => {
       success: true,
       message: "Partner login successful",
       token,
-      user,
+      user: formatUserResponse(user),
       restaurant,
     });
   } catch (error) {
@@ -466,18 +442,12 @@ const signupMainAdmin = async (req, res) => {
     const adminCount = await User.count({ where: { role: ROLES.ADMIN } });
     const configuredSignupCode = process.env.MAINADMIN_SIGNUP_CODE;
 
-    if (adminCount > 0) {
-      if (!configuredSignupCode) {
+    // In production or when code is set, require valid signup code
+    if (configuredSignupCode || process.env.NODE_ENV === "production" || adminCount > 0) {
+      if (!configuredSignupCode || signupCode !== configuredSignupCode) {
         return res.status(403).json({
           success: false,
-          message: "Admin signup is locked. Configure MAINADMIN_SIGNUP_CODE to invite more admins.",
-        });
-      }
-
-      if (signupCode !== configuredSignupCode) {
-        return res.status(403).json({
-          success: false,
-          message: "Invalid admin signup code",
+          message: "Valid admin authorization signup code is required",
         });
       }
     }
@@ -538,7 +508,7 @@ const loginMainAdmin = async (req, res) => {
     if (!user || !user.password) {
       return res.status(400).json({
         success: false,
-        message: "Main admin account not found",
+        message: "Invalid credentials",
       });
     }
 
