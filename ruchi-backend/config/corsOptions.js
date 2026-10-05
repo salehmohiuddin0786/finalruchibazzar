@@ -10,7 +10,10 @@ const DEFAULT_ORIGINS = [
   "http://localhost:4002",
   "http://localhost:4003",
   "https://ruchibazaar.in",
-  "https://www.ruchibazaar.in",
+"https://www.ruchibazaar.in",
+"https://admin.ruchibazaar.in",
+"https://delivery.ruchibazaar.in",
+"https://mainadmin.ruchibazaar.in",
 ];
 
 const getAllowedOrigins = () => {
