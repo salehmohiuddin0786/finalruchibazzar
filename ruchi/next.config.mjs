@@ -1,29 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async redirects() {
+  async rewrites() {
     return [
       {
         source: '/Login',
         destination: '/login',
-        permanent: true,
       },
+    ];
+  },
+  async redirects() {
+    return [
       {
         source: '/privacy',
         destination: '/privacy-policy',
         permanent: true,
       },
       {
-        source: '/Privacy',
-        destination: '/privacy-policy',
-        permanent: true,
-      },
-      {
         source: '/terms',
-        destination: '/terms-and-conditions',
-        permanent: true,
-      },
-      {
-        source: '/Terms',
         destination: '/terms-and-conditions',
         permanent: true,
       },

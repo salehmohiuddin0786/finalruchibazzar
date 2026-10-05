@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
-  async redirects() {
+  async rewrites() {
     return [
       {
         source: '/login',
         destination: '/Login',
-        permanent: true,
       },
     ];
   },
