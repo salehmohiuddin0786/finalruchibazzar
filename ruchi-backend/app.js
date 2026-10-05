@@ -23,6 +23,8 @@ app.use(
   helmet({
     // Allow static assets (like food images in /uploads) to be loaded by frontends running on different origins/ports
     crossOriginResourcePolicy: { policy: "cross-origin" },
+    // Allow OAuth popups (e.g. Google Sign-In) to communicate with parent window without COOP blocking window.closed
+    crossOriginOpenerPolicy: { policy: "same-origin-allow-popups" },
     contentSecurityPolicy: false, // Keep disabled on API server to prevent breaking API consumers
   })
 );
