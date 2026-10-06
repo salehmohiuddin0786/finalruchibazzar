@@ -53,10 +53,34 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       get() {
         const value = this.getDataValue("cuisines");
-        return value ? JSON.parse(value) : [];
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [String(parsed)];
+        } catch {
+          return typeof value === "string"
+            ? value.split(",").map((s) => s.trim()).filter(Boolean)
+            : [];
+        }
       },
       set(value) {
-        this.setDataValue("cuisines", JSON.stringify(value || []));
+        if (Array.isArray(value)) {
+          this.setDataValue("cuisines", JSON.stringify(value));
+        } else if (typeof value === "string") {
+          try {
+            const parsed = JSON.parse(value);
+            this.setDataValue(
+              "cuisines",
+              JSON.stringify(Array.isArray(parsed) ? parsed : [value])
+            );
+          } catch {
+            const arrayVal = value.split(",").map((s) => s.trim()).filter(Boolean);
+            this.setDataValue("cuisines", JSON.stringify(arrayVal));
+          }
+        } else {
+          this.setDataValue("cuisines", JSON.stringify([]));
+        }
       },
     },
 
@@ -90,10 +114,33 @@ module.exports = (sequelize) => {
       type: DataTypes.TEXT,
       get() {
         const value = this.getDataValue("outletPhotos");
-        return value ? JSON.parse(value) : [];
+        if (!value) return [];
+        if (Array.isArray(value)) return value;
+        try {
+          const parsed = JSON.parse(value);
+          return Array.isArray(parsed) ? parsed : [String(parsed)];
+        } catch {
+          return typeof value === "string"
+            ? value.split(",").map((s) => s.trim()).filter(Boolean)
+            : [];
+        }
       },
       set(value) {
-        this.setDataValue("outletPhotos", JSON.stringify(value || []));
+        if (Array.isArray(value)) {
+          this.setDataValue("outletPhotos", JSON.stringify(value));
+        } else if (typeof value === "string") {
+          try {
+            const parsed = JSON.parse(value);
+            this.setDataValue(
+              "outletPhotos",
+              JSON.stringify(Array.isArray(parsed) ? parsed : [value])
+            );
+          } catch {
+            this.setDataValue("outletPhotos", JSON.stringify(value ? [value] : []));
+          }
+        } else {
+          this.setDataValue("outletPhotos", JSON.stringify([]));
+        }
       },
     },
 

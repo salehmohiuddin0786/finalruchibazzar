@@ -117,6 +117,9 @@ const safeJsonParse = (value, fallback = []) => {
     const parsed = JSON.parse(value);
     return Array.isArray(parsed) ? parsed : fallback;
   } catch {
+    if (typeof value === "string") {
+      return value.split(",").map((s) => s.trim()).filter(Boolean);
+    }
     return fallback;
   }
 };

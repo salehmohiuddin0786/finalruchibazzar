@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import React, { useEffect, useState, useRef, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   Search, Filter, Star, Clock, MapPin, ChevronRight, Heart,
   CheckCircle, Truck, Shield, Zap, Flame, Leaf, Sparkles,
@@ -35,8 +35,9 @@ const SkeletonCard = () => (
   </div>
 );
 
-const RestaurantsPage = () => {
+const RestaurantsPageContent = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const mainContentRef = useRef(null);
 
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -61,6 +62,18 @@ const RestaurantsPage = () => {
   useEffect(() => {
     fetchRestaurants();
   }, []);
+
+  useEffect(() => {
+    if (!searchParams) return;
+    const cat = searchParams.get("category");
+    const q = searchParams.get("search") || searchParams.get("q");
+    if (cat) {
+      setSelectedCategory(cat.toLowerCase());
+    }
+    if (q) {
+      setSearchQuery(q);
+    }
+  }, [searchParams]);
 
   const getRandomColor = () => {
     const colors = [
@@ -961,4 +974,16 @@ const RestaurantsPage = () => {
   );
 };
 
-export default RestaurantsPage;
+export default function RestaurantsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-500"></div>
+        </div>
+      }
+    >
+      <RestaurantsPageContent />
+    </Suspense>
+  );
+}

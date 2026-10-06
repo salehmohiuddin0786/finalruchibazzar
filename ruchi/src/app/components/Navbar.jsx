@@ -292,7 +292,7 @@ const Navbar = () => {
 
     if (!finalQuery) return;
 
-    router.push(`/search?q=${encodeURIComponent(finalQuery)}`);
+    router.push(`/Restaurants?search=${encodeURIComponent(finalQuery)}`);
     setSearchQuery("");
     setShowSearchSuggestions(false);
     setIsMobileSearchOpen(false);
@@ -697,7 +697,7 @@ const Navbar = () => {
                         <button
                           key={category.name}
                           onClick={() => {
-                            router.push(`/category/${category.name.toLowerCase()}`);
+                            router.push(`/Restaurants?category=${encodeURIComponent(category.name.toLowerCase())}`);
                             setIsMobileSearchOpen(false);
                           }}
                           className="flex flex-col items-center gap-2 p-3 bg-gray-50 hover:bg-red-50 rounded-xl transition-colors"
@@ -751,7 +751,7 @@ const Navbar = () => {
                 <button
                   key={category.name}
                   onClick={() =>
-                    router.push(`/category/${category.name.toLowerCase()}`)
+                    router.push(`/Restaurants?category=${encodeURIComponent(category.name.toLowerCase())}`)
                   }
                   className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-red-100 rounded-full transition-colors whitespace-nowrap flex-shrink-0"
                 >
