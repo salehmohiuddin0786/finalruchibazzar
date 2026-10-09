@@ -1003,7 +1003,7 @@ const CheckoutPage = () => {
         },
       };
 
-      const response = await fetch(`${apiUrl}/orders`, {
+      const response = await fetch(`${apiUrl}/Orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1860,7 +1860,7 @@ const CheckoutPage = () => {
         )}
 
         <div className="space-y-3">
-          <Link href="/orders" className="block w-full">
+          <Link href="/Orders" className="block w-full">
             <button className="w-full bg-gradient-to-r from-orange-500 to-red-500 text-white px-6 py-3 rounded-xl font-medium hover:shadow-lg transition-all">
               View My Orders
             </button>
