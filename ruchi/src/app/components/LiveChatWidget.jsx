@@ -191,6 +191,11 @@ export default function LiveChatWidget() {
     initConversation();
   }, [initConversation]);
 
+  const isOpenRef = useRef(isOpen);
+  isOpenRef.current = isOpen;
+  const isMinimizedRef = useRef(isMinimized);
+  isMinimizedRef.current = isMinimized;
+
   // Setup Socket.IO connection
   useEffect(() => {
     let isSubscribed = true;
@@ -199,7 +204,7 @@ export default function LiveChatWidget() {
       .then((io) => {
         if (!isSubscribed) return;
         const socket = io(SOCKET_BASE, {
-          transports: ["websocket", "polling"],
+          transports: ["polling", "websocket"],
           reconnectionAttempts: 8,
           reconnectionDelay: 2000,
         });
@@ -234,7 +239,7 @@ export default function LiveChatWidget() {
               return [...prev, message];
             });
 
-            if (isOpen && !isMinimized) {
+            if (isOpenRef.current && !isMinimizedRef.current) {
               markConversationRead(conversation.id);
             } else {
               setUnreadCount((c) => c + 1);
@@ -266,7 +271,7 @@ export default function LiveChatWidget() {
         socketRef.current.disconnect();
       }
     };
-  }, [conversation?.id, isOpen, isMinimized]);
+  }, [user?.id]);
 
   // Join room when conversation ID becomes available
   useEffect(() => {

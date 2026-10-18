@@ -365,25 +365,25 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-2 px-4">
-        <div className="max-w-7xl mx-auto flex justify-between items-center text-xs sm:text-sm">
-          <div className="flex items-center gap-2 sm:gap-4 flex-wrap">
-            <div className="flex items-center gap-1.5">
-              <Truck size={14} className="sm:w-4 sm:h-4 animate-pulse" />
+      <div className="bg-gradient-to-r from-red-500 to-orange-500 text-white py-2 px-3 sm:px-4 w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto flex justify-between items-center text-xs sm:text-sm gap-2">
+          <div className="flex items-center gap-2 sm:gap-4 flex-wrap shrink truncate">
+            <div className="flex items-center gap-1.5 shrink-0">
+              <Truck size={14} className="sm:w-4 sm:h-4 animate-pulse shrink-0" />
               <span className="whitespace-nowrap">30 min Delivery</span>
             </div>
 
             <span className="hidden xs:inline text-white/80">|</span>
 
-            <div className="hidden xs:flex items-center gap-1.5">
-              <Gift size={14} className="sm:w-4 sm:h-4" />
+            <div className="hidden xs:flex items-center gap-1.5 shrink-0">
+              <Gift size={14} className="sm:w-4 sm:h-4 shrink-0" />
               <span className="whitespace-nowrap">50% OFF First Order</span>
             </div>
           </div>
 
           <button
             onClick={() => navigateTo("/Orders")}
-            className="font-medium hover:text-white/80 transition-colors whitespace-nowrap ml-2"
+            className="font-medium hover:text-white/80 transition-colors whitespace-nowrap ml-2 shrink-0"
           >
             Order Now <span className="hidden xs:inline">→</span>
           </button>
@@ -391,7 +391,7 @@ const Navbar = () => {
       </div>
 
       <nav
-        className={`sticky top-0 z-50 bg-white border-b border-gray-200 transition-shadow duration-200 ${
+        className={`sticky top-0 z-50 bg-white border-b border-gray-200 transition-shadow duration-200 w-full max-w-full overflow-x-clip ${
           isScrolled ? "shadow-lg" : ""
         } ${isMobileSearchOpen ? "shadow-lg" : ""}`}
       >
@@ -462,12 +462,12 @@ const Navbar = () => {
               </div>
             </div>
 
-            <div className="lg:hidden absolute left-1/2 transform -translate-x-1/2">
+            <div className="lg:hidden absolute left-1/2 transform -translate-x-1/2 max-w-[55%] truncate pointer-events-auto">
               <button
                 onClick={() => navigateTo("/")}
-                className="flex items-center gap-2"
+                className="flex items-center gap-1.5 sm:gap-2 max-w-full"
               >
-                <div className="relative w-7 h-7 sm:w-8 sm:h-8">
+                <div className="relative w-6 h-6 sm:w-8 sm:h-8 shrink-0">
                   <Image
                     src="/Logo.png"
                     alt="Ruchi Bazaar Logo"
@@ -477,7 +477,7 @@ const Navbar = () => {
                     priority
                   />
                 </div>
-                <span className="font-black text-base sm:text-lg text-gray-900">
+                <span className="font-black text-sm sm:text-lg text-gray-900 truncate">
                   Ruchi Bazaar
                 </span>
               </button>
@@ -755,8 +755,8 @@ const Navbar = () => {
           </div>
         )}
 
-        <div className="lg:hidden px-4 pb-3">
-          <div className="flex gap-2 overflow-x-auto no-scrollbar">
+        <div className="lg:hidden px-3 sm:px-4 pb-3 w-full max-w-full overflow-hidden">
+          <div className="flex gap-2 overflow-x-auto no-scrollbar w-full max-w-full touch-pan-x">
             {popularCategories.map((category) => {
               const Icon = category.icon;
 
@@ -766,10 +766,10 @@ const Navbar = () => {
                   onClick={() =>
                     router.push(`/Restaurants?category=${encodeURIComponent(category.name.toLowerCase())}`)
                   }
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-red-100 rounded-full transition-colors whitespace-nowrap flex-shrink-0"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gray-100 hover:bg-red-100 rounded-full transition-colors whitespace-nowrap shrink-0"
                 >
-                  <Icon className="w-4 h-4 text-gray-900" />
-                  <span className="text-sm font-medium text-gray-900">
+                  <Icon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-900" />
+                  <span className="text-xs sm:text-sm font-medium text-gray-900">
                     {category.name}
                   </span>
                 </button>
@@ -956,8 +956,8 @@ const Navbar = () => {
         </div>
       )}
 
-      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg pb-[env(safe-area-inset-bottom,0px)]">
-        <div className="grid grid-cols-5 h-14 sm:h-16">
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-gray-200 shadow-lg pb-[env(safe-area-inset-bottom,0px)] w-full max-w-full">
+        <div className="grid grid-cols-5 h-14 sm:h-16 w-full max-w-full">
           {navItems.map((item) => {
             const Icon = item.icon;
             const active = pathname === item.path;

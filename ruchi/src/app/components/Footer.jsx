@@ -11,7 +11,7 @@ import {
 
 const Footer = () => {
   return (
-    <footer className="bg-[#111827] text-white overflow-hidden">
+    <footer className="relative bg-[#111827] text-white overflow-hidden w-full max-w-full">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-20 -left-20 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
@@ -275,13 +275,13 @@ const Footer = () => {
             <div className="flex flex-col md:flex-row justify-between items-center">
               <div className="mb-4 md:mb-0">
                 <p className="text-sm text-gray-400 mb-3">We Accept:</p>
-                <div className="flex space-x-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   {['VISA', 'MC', 'UPI', 'PP', 'COD'].map((method, idx) => (
                     <div 
                       key={idx}
-                      className="w-14 h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center border border-gray-700/50 hover:border-red-500/50 transition-all duration-300 hover:scale-110 shadow-lg"
+                      className="w-11 sm:w-14 h-8 sm:h-9 bg-gradient-to-br from-gray-800 to-gray-900 rounded-lg flex items-center justify-center border border-gray-700/50 hover:border-red-500/50 transition-all duration-300 hover:scale-105 shadow-lg shrink-0"
                     >
-                      <span className="text-xs font-bold bg-gradient-to-r from-gray-300 to-gray-100 bg-clip-text text-transparent">
+                      <span className="text-[10px] sm:text-xs font-bold bg-gradient-to-r from-gray-300 to-gray-100 bg-clip-text text-transparent">
                         {method}
                       </span>
                     </div>

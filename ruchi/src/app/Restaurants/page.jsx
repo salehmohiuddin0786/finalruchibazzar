@@ -365,7 +365,7 @@ const RestaurantsPageContent = () => {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2.5 sm:gap-6 mt-6 sm:mt-12 max-w-md sm:max-w-none mx-auto" style={{ animation: 'fadeUp 0.6s ease forwards 0.4s', opacity: 0 }}>
+              <div className="grid grid-cols-2 sm:flex sm:flex-wrap justify-center gap-2 sm:gap-6 mt-6 sm:mt-12 max-w-full sm:max-w-none mx-auto w-full px-1" style={{ animation: 'fadeUp 0.6s ease forwards 0.4s', opacity: 0 }}>
                 {[
                   { icon: Truck, value: "30min", label: "Avg. Delivery" },
                   { icon: Shield, value: `${restaurants.length}+`, label: "Restaurants" },
@@ -376,12 +376,12 @@ const RestaurantsPageContent = () => {
                   return (
                     <div
                       key={item.label}
-                      className="flex items-center gap-2.5 sm:gap-3 bg-white/15 backdrop-blur-sm rounded-xl sm:rounded-2xl px-3.5 sm:px-6 py-2.5 sm:py-3 text-left"
+                      className="flex items-center gap-2 sm:gap-3 bg-white/15 backdrop-blur-sm rounded-xl sm:rounded-2xl px-2.5 sm:px-6 py-2.5 sm:py-3 text-left w-full sm:w-auto min-w-0"
                     >
-                      <Icon className="w-5 h-5 sm:w-6 sm:h-6 text-white flex-shrink-0" />
-                      <div>
-                        <div className="font-bold text-base sm:text-xl text-white">{item.value}</div>
-                        <div className="text-[11px] sm:text-sm text-white/85 leading-tight">{item.label}</div>
+                      <Icon className="w-4 h-4 sm:w-6 sm:h-6 text-white shrink-0" />
+                      <div className="min-w-0">
+                        <div className="font-bold text-sm sm:text-xl text-white truncate">{item.value}</div>
+                        <div className="text-[10px] sm:text-sm text-white/85 leading-tight truncate">{item.label}</div>
                       </div>
                     </div>
                   );
@@ -391,28 +391,28 @@ const RestaurantsPageContent = () => {
           </div>
 
           {/* Wave Divider */}
-          <div className="absolute bottom-0 left-0 right-0">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full">
+          <div className="absolute bottom-0 left-0 right-0 overflow-hidden pointer-events-none w-full max-w-full">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full block" preserveAspectRatio="none">
               <path fill="#f9fafb" fillOpacity="1" d="M0,256L48,240C96,224,192,192,288,192C384,192,480,224,576,224C672,224,768,192,864,176C960,160,1056,160,1152,176C1248,192,1344,224,1392,240L1440,256L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
             </svg>
           </div>
         </div>
 
-        <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main ref={mainContentRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 w-full max-w-full">
           {/* Categories Section */}
-          <div className="mb-12" style={{ animation: 'fadeUp 0.6s ease forwards', opacity: 0 }}>
-            <div className="flex items-center justify-between mb-6">
+          <div className="mb-8 sm:mb-12 w-full max-w-full overflow-hidden" style={{ animation: 'fadeUp 0.6s ease forwards', opacity: 0 }}>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">Explore Categories</h2>
-                <p className="text-gray-500 mt-1">Find your favorite cuisine</p>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">Explore Categories</h2>
+                <p className="text-gray-500 text-xs sm:text-sm mt-0.5 sm:mt-1">Find your favorite cuisine</p>
               </div>
-              <button className="text-red-500 font-semibold flex items-center gap-1 hover:gap-2 transition-all">
-                View All <ChevronRight className="w-4 h-4" />
+              <button className="text-red-500 font-semibold text-xs sm:text-sm flex items-center gap-1 hover:gap-2 transition-all shrink-0">
+                View All <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               </button>
             </div>
 
-            <div className="overflow-x-auto no-scrollbar">
-              <div className="flex gap-4 pb-4">
+            <div className="w-full max-w-full overflow-x-auto no-scrollbar touch-pan-x">
+              <div className="flex gap-3 sm:gap-4 pb-4 min-w-max">
                 {categories.map((category, idx) => {
                   const Icon = category.icon;
                   return (
@@ -452,32 +452,32 @@ const RestaurantsPageContent = () => {
           </div>
 
           {/* Filters and Controls Bar */}
-          <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 mb-8 sticky top-20 z-30 backdrop-blur-sm bg-white/95" style={{ animation: 'fadeUp 0.6s ease forwards 0.1s', opacity: 0 }}>
+          <div className="bg-white rounded-2xl shadow-lg p-3 sm:p-4 md:p-6 mb-8 sticky top-16 sm:top-20 z-30 backdrop-blur-sm bg-white/95 w-full max-w-full overflow-hidden" style={{ animation: 'fadeUp 0.6s ease forwards 0.1s', opacity: 0 }}>
             <div className="flex flex-col lg:flex-row gap-4 justify-between items-center">
               {/* Results Count */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center">
+              <div className="flex items-center gap-3 w-full lg:w-auto">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl flex items-center justify-center shrink-0">
                   <ChefHat className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-gray-900">
+                  <h3 className="font-bold text-gray-900 text-sm sm:text-base">
                     {sortedRestaurants.length} Restaurants Found
                   </h3>
-                  <p className="text-sm text-gray-500">Showing best matches for you</p>
+                  <p className="text-xs sm:text-sm text-gray-500">Showing best matches for you</p>
                 </div>
               </div>
 
               {/* Controls */}
-              <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+              <div className="flex flex-wrap gap-2 sm:gap-3 w-full lg:w-auto">
                 {/* Search Input */}
-                <div className="relative flex-1 lg:w-80">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <div className="relative flex-1 min-w-[180px] w-full lg:w-80">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   <input
                     type="text"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Search restaurants..."
-                    className="w-full pl-10 pr-10 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
+                    className="w-full pl-9 sm:pl-10 pr-9 sm:pr-10 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-200 transition-all duration-300"
                   />
                   {searchQuery && (
                     <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -816,27 +816,27 @@ const RestaurantsPageContent = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-8">
+              <div className="grid grid-cols-3 gap-2 sm:gap-6 md:gap-8 w-full max-w-full">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                    <Truck className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2">
+                    <Truck className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">Free</div>
-                  <div className="text-sm text-white/80">Delivery</div>
+                  <div className="text-base sm:text-2xl font-bold text-white">Free</div>
+                  <div className="text-xs sm:text-sm text-white/80">Delivery</div>
                 </div>
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                    <Shield className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2">
+                    <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">100%</div>
-                  <div className="text-sm text-white/80">Secure</div>
+                  <div className="text-base sm:text-2xl font-bold text-white">100%</div>
+                  <div className="text-xs sm:text-sm text-white/80">Secure</div>
                 </div>
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-2">
-                    <Clock className="w-8 h-8 text-white" />
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto mb-2">
+                    <Clock className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <div className="text-2xl font-bold text-white">24/7</div>
-                  <div className="text-sm text-white/80">Support</div>
+                  <div className="text-base sm:text-2xl font-bold text-white">24/7</div>
+                  <div className="text-xs sm:text-sm text-white/80">Support</div>
                 </div>
               </div>
             </div>

@@ -836,39 +836,39 @@ const Page = () => {
       )}
       
       {/* Animated Background Elements */}
-      <div className="bg-white fixed inset-0 overflow-hidden pointer-events-none -z-10">
-        <div className="absolute top-20 left-20 w-72 h-72 bg-gradient-to-br from-red-200/20 to-red-300/10 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-80 h-80 bg-gradient-to-br from-rose-200/20 to-pink-300/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-orange-200/10 to-yellow-200/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <div className="bg-white fixed inset-0 overflow-hidden pointer-events-none -z-10 w-full max-w-full">
+        <div className="absolute top-20 left-10 sm:left-20 w-48 sm:w-72 h-48 sm:h-72 bg-gradient-to-br from-red-200/20 to-red-300/10 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-20 right-10 sm:right-20 w-56 sm:w-80 h-56 sm:h-80 bg-gradient-to-br from-rose-200/20 to-pink-300/10 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 sm:w-96 h-64 sm:h-96 bg-gradient-to-br from-orange-200/10 to-yellow-200/10 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
       {/* Hero Section */}
-      <section className="relative bg-gradient-to-br from-white via-red-50/30 to-white overflow-hidden">
-        <div className="container mx-auto px-4 pt-8 sm:pt-12 lg:pt-16 pb-16 sm:pb-20 lg:pb-24 relative z-10">
+      <section className="relative bg-gradient-to-br from-white via-red-50/30 to-white overflow-hidden w-full max-w-full">
+        <div className="container mx-auto px-4 pt-8 sm:pt-12 lg:pt-16 pb-16 sm:pb-20 lg:pb-24 relative z-10 w-full max-w-full">
           {/* Animated Header */}
-          <div className="text-center mb-10 sm:mb-14 relative">
+          <div className="text-center mb-10 sm:mb-14 relative w-full max-w-full">
             <div className="absolute -top-8 sm:-top-10 left-1/2 transform -translate-x-1/2">
               <Sparkles className="w-6 h-6 sm:w-8 sm:h-8 text-red-500 animate-spin-slow" />
             </div>
             
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight animate-slide-up px-2">
+            <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-black mb-4 sm:mb-6 leading-tight animate-slide-up px-2 break-words">
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-red-600 via-red-500 to-orange-500 bg-clip-text text-transparent animate-gradient">
                   Order Food.
                 </span>
-                <Heart className="absolute -top-2 -right-6 sm:-top-4 sm:-right-8 w-5 h-5 sm:w-8 sm:h-8 text-red-500 animate-bounce fill-red-400/20" />
+                <Heart className="absolute -top-2 -right-3 sm:-top-4 sm:-right-8 w-4 h-4 sm:w-8 sm:h-8 text-red-500 animate-bounce fill-red-400/20" />
               </span>
               <br className="hidden xs:block" />
               <span className="text-gray-900 relative">
                 Discover the best restaurants.
-                <Sparkle className="absolute -right-4 sm:-right-6 top-1/2 w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 animate-pulse" />
+                <Sparkle className="absolute -right-2 sm:-right-6 top-1/2 w-4 h-4 sm:w-6 sm:h-6 text-yellow-400 animate-pulse" />
               </span>
               <br className="hidden xs:block" />
               <span className="relative inline-block mt-2 sm:mt-0">
                 <span className="bg-gradient-to-r from-orange-500 to-red-600 bg-clip-text text-transparent relative">
                   Ruchi Bazaar it!
                 </span>
-                <div className="absolute -inset-1 bg-gradient-to-r from-red-400 to-orange-500 blur opacity-20 rounded-full animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-red-400 to-orange-500 blur opacity-20 rounded-full animate-pulse"></div>
               </span>
             </h1>
             
@@ -881,9 +881,9 @@ const Page = () => {
           </div>
 
           {/* Search Section */}
-          <div className="max-w-3xl mx-auto relative px-2 sm:px-0">
+          <div className="max-w-3xl mx-auto relative px-2 sm:px-0 w-full max-w-full">
             {/* Trending Banner */}
-            <div className="flex items-center justify-center gap-2 mb-5 sm:mb-6 overflow-x-auto pb-2 no-scrollbar">
+            <div className="flex items-center justify-start sm:justify-center gap-2 mb-5 sm:mb-6 overflow-x-auto pb-2 no-scrollbar w-full max-w-full touch-pan-x">
               <div className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-gradient-to-r from-red-50 to-red-100 rounded-full border border-red-200 whitespace-nowrap">
                 <Navigation className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
                 <span className="text-xs sm:text-sm font-medium text-red-700">Live Tracking</span>
@@ -972,7 +972,7 @@ const Page = () => {
                   </div>
                   
                   {/* Weather */}
-                  <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar">
+                  <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 overflow-x-auto w-full sm:w-auto pb-1 sm:pb-0 no-scrollbar touch-pan-x max-w-full">
                     {weatherConditions.map((weather, idx) => (
                       <div key={idx} className="flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1.5 sm:py-2 bg-white rounded-lg border border-gray-200 hover:scale-105 transition-transform cursor-pointer flex-shrink-0">
                         <weather.icon className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-blue-500 flex-shrink-0" />
@@ -1068,26 +1068,26 @@ const Page = () => {
       )}
 
       {/* Popular Dishes Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-white to-red-50/30">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-white to-red-50/30 overflow-hidden w-full max-w-full">
+        <div className="container mx-auto px-4 w-full max-w-full">
           {/* Section Header with Animation */}
-          <div className="text-center mb-12 relative">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-red-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl mb-6 border border-red-200/50 shadow-lg">
-              <Flame className="w-6 h-6 text-red-600 animate-pulse" />
-              <span className="font-bold text-red-700 text-lg">Trending Now</span>
-              <Sparkles className="w-5 h-5 text-yellow-500 animate-spin-slow" />
+          <div className="text-center mb-12 relative w-full max-w-full">
+            <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-red-500/10 to-orange-500/10 backdrop-blur-sm rounded-2xl mb-6 border border-red-200/50 shadow-lg">
+              <Flame className="w-5 h-5 sm:w-6 sm:h-6 text-red-600 animate-pulse" />
+              <span className="font-bold text-red-700 text-sm sm:text-lg">Trending Now</span>
+              <Sparkles className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500 animate-spin-slow" />
             </div>
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4">
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 break-words">
               <span className="text-gray-900">Popular</span>{' '}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-red-600 via-red-500 to-orange-500 bg-clip-text text-transparent">
                   Dishes
                 </span>
-                <Crown className="absolute -top-6 -right-8 w-8 h-8 text-yellow-500 rotate-12" />
+                <Crown className="absolute -top-4 -right-4 sm:-top-6 sm:-right-8 w-5 h-5 sm:w-8 sm:h-8 text-yellow-500 rotate-12" />
               </span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Most ordered dishes this week from top restaurants
             </p>
           </div>
@@ -1294,26 +1294,26 @@ const Page = () => {
       <WhyChooseUs />
 
       {/* Popular Restaurants Section */}
-      <section className="py-16 md:py-20 bg-gradient-to-b from-red-50/30 to-white">
-        <div className="container mx-auto px-4">
+      <section className="py-16 md:py-20 bg-gradient-to-b from-red-50/30 to-white overflow-hidden w-full max-w-full">
+        <div className="container mx-auto px-4 w-full max-w-full">
           {/* Section Header */}
-          <div className="text-center mb-12 relative">
-            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-sm rounded-2xl mb-6 border border-orange-200/50 shadow-lg">
-              <Crown className="w-6 h-6 text-orange-600 animate-bounce" />
-              <span className="font-bold text-orange-700 text-lg">Top Rated</span>
-              <Target className="w-5 h-5 text-red-500 animate-pulse" />
+          <div className="text-center mb-12 relative w-full max-w-full">
+            <div className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-r from-orange-500/10 to-red-500/10 backdrop-blur-sm rounded-2xl mb-6 border border-orange-200/50 shadow-lg">
+              <Crown className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600 animate-bounce" />
+              <span className="font-bold text-orange-700 text-sm sm:text-lg">Top Rated</span>
+              <Target className="w-4 h-4 sm:w-5 sm:h-5 text-red-500 animate-pulse" />
             </div>
             
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black mb-4">
+            <h2 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black mb-4 break-words">
               <span className="text-gray-900">Popular</span>{' '}
               <span className="relative inline-block">
                 <span className="bg-gradient-to-r from-orange-600 via-red-500 to-red-600 bg-clip-text text-transparent">
                   Restaurants
                 </span>
-                <Rocket className="absolute -top-6 -right-8 w-8 h-8 text-orange-500 -rotate-12" />
+                <Rocket className="absolute -top-4 -right-4 sm:-top-6 sm:-right-8 w-5 h-5 sm:w-8 sm:h-8 text-orange-500 -rotate-12" />
               </span>
             </h2>
-            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+            <p className="text-sm sm:text-base md:text-lg text-gray-600 max-w-2xl mx-auto px-2">
               Hand-picked top restaurants with amazing offers
             </p>
           </div>

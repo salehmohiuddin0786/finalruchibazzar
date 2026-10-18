@@ -33,7 +33,7 @@ const WhyChooseUs = () => {
   return (
     <div className="py-16 sm:py-20 bg-gradient-to-b from-gray-50 to-red-50/50 relative overflow-hidden">
       {/* Background Pattern - Optimized for mobile */}
-      <div className="absolute inset-0 opacity-30 md:opacity-50">
+      <div className="absolute inset-0 opacity-30 md:opacity-50 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-32 h-32 bg-red-200 rounded-full mix-blend-multiply filter blur-xl animate-blob"></div>
         <div className="absolute top-40 right-10 w-32 h-32 bg-amber-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-20 left-1/2 w-32 h-32 bg-rose-200 rounded-full mix-blend-multiply filter blur-xl animate-blob animation-delay-4000"></div>

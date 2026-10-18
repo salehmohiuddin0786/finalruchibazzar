@@ -261,10 +261,10 @@ const GroceriesPage = () => {
      
       <div className="bg-white min-h-screen">
         {/* Hero Section */}
-        <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 py-8 overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
+        <div className="relative bg-gradient-to-r from-green-500 to-emerald-600 py-8 overflow-hidden w-full max-w-full">
+          <div className="absolute inset-0 overflow-hidden pointer-events-none">
+            <div className="absolute top-0 right-0 w-60 h-60 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20 pointer-events-none"></div>
+            <div className="absolute bottom-0 left-0 w-60 h-60 bg-white/10 rounded-full blur-3xl translate-y-20 -translate-x-20 pointer-events-none"></div>
           </div>
           
           <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -380,10 +380,10 @@ const GroceriesPage = () => {
           </div>
 
           {/* Deals Banner */}
-          <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 p-8 text-white">
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
-              <div className="absolute -bottom-20 -left-20 w-60 h-60 bg-white/10 rounded-full blur-3xl"></div>
+          <div className="mb-8 relative overflow-hidden rounded-2xl bg-gradient-to-r from-red-500 via-pink-500 to-purple-500 p-6 sm:p-8 text-white w-full max-w-full">
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              <div className="absolute top-0 right-0 w-60 h-60 bg-white/10 rounded-full blur-3xl -translate-y-20 translate-x-20 pointer-events-none"></div>
+              <div className="absolute bottom-0 left-0 w-60 h-60 bg-white/10 rounded-full blur-3xl translate-y-20 -translate-x-20 pointer-events-none"></div>
             </div>
             
             <div className="relative flex flex-col md:flex-row items-center justify-between">
@@ -419,9 +419,9 @@ const GroceriesPage = () => {
                 }
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <select className="appearance-none bg-white border-2 border-gray-200 rounded-xl py-3 pl-4 pr-12 focus:outline-none focus:border-green-500">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4 w-full sm:w-auto">
+              <div className="relative flex-1 sm:flex-initial min-w-[170px]">
+                <select className="w-full appearance-none bg-white border-2 border-gray-200 rounded-xl py-2.5 sm:py-3 pl-3 sm:pl-4 pr-10 sm:pr-12 text-xs sm:text-sm md:text-base focus:outline-none focus:border-green-500">
                   <option>Sort by: Recommended</option>
                   <option>Price: Low to High</option>
                   <option>Price: High to Low</option>
@@ -429,11 +429,11 @@ const GroceriesPage = () => {
                   <option>Newest First</option>
                 </select>
                 <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <ChevronDown className="w-5 h-5 text-gray-500" />
+                  <ChevronDown className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                 </div>
               </div>
-              <button className="lg:hidden flex items-center gap-2 px-4 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl hover:shadow-lg">
-                <Filter className="w-5 h-5" />
+              <button className="lg:hidden flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2.5 sm:py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white text-xs sm:text-sm font-semibold rounded-xl hover:shadow-lg shrink-0">
+                <Filter className="w-4 h-4 sm:w-5 sm:h-5" />
                 <span>Filters</span>
               </button>
             </div>
