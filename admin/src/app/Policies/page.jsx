@@ -261,7 +261,9 @@ export default function PartnerPoliciesPage() {
                         Partner Priority Helpline
                       </h3>
                       <p className="text-gray-600">Dedicated phone line for active kitchen issues:</p>
-                      <p className="font-bold text-red-600 text-base">+91 98765 43210</p>
+                      <a href="tel:+919876543210" className="font-bold text-red-600 hover:underline text-base block">
+                        +91 98765 43210
+                      </a>
                       <p className="text-gray-500 text-xs">Operating: 8:00 AM – 11:30 PM IST</p>
                     </div>
 
@@ -271,7 +273,9 @@ export default function PartnerPoliciesPage() {
                         Merchant Dispute Email
                       </h3>
                       <p className="text-gray-600">For settlement queries and commission reviews:</p>
-                      <p className="font-bold text-red-600 text-base">partnercare@ruchibazaar.in</p>
+                      <a href="mailto:partnercare@ruchibazaar.in" className="font-bold text-red-600 hover:underline text-base block">
+                        partnercare@ruchibazaar.in
+                      </a>
                       <p className="text-gray-500 text-xs">Turnaround: 24 to 48 hours</p>
                     </div>
                   </div>

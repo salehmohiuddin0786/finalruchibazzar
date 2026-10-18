@@ -1680,22 +1680,57 @@ const CheckoutPage = () => {
         </div>
 
         <div className="p-6">
+          {/* Online Payment Notice Banner */}
+          <div className="mb-6 p-4 rounded-xl bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200/80 flex items-start gap-3">
+            <div className="p-2 bg-amber-100 rounded-lg text-amber-700 shrink-0 mt-0.5">
+              <FiCreditCard className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-bold text-gray-900 text-sm">Online Payments Coming Soon</span>
+                <span className="px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 text-[10px] font-bold uppercase tracking-wider">
+                  In Integration
+                </span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed">
+                We&apos;re working to bring you secure and convenient online payments (Cards, UPI, Netbanking). 
+                Currently, <strong>Cash on Delivery (COD)</strong> is fully active for all orders. Thank you for your patience!
+              </p>
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-            {["card", "debit", "upi", "cash"].map((method) => (
+            {[
+              { id: "cash", label: "Cash on Delivery", isAvailable: true },
+              { id: "upi", label: "UPI", isAvailable: false },
+              { id: "card", label: "Credit Card", isAvailable: false },
+              { id: "debit", label: "Debit Card", isAvailable: false },
+            ].map(({ id: method, label, isAvailable }) => (
               <label
                 key={method}
-                className={`border-2 rounded-xl p-4 cursor-pointer transition-all ${
-                  paymentMethod === method
-                    ? "border-orange-500 bg-orange-50 shadow-md"
-                    : "border-gray-200 hover:border-gray-300"
+                className={`border-2 rounded-xl p-4 transition-all relative flex flex-col justify-between ${
+                  !isAvailable
+                    ? "border-gray-200 bg-gray-50/80 opacity-75 cursor-not-allowed"
+                    : paymentMethod === method
+                    ? "border-orange-500 bg-orange-50 shadow-md cursor-pointer"
+                    : "border-gray-200 hover:border-gray-300 cursor-pointer"
                 }`}
               >
+                {!isAvailable && (
+                  <span className="absolute -top-2.5 right-2 px-1.5 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-bold uppercase tracking-wider shadow-xs">
+                    Soon
+                  </span>
+                )}
+
                 <input
                   type="radio"
                   name="paymentMethod"
                   value={method}
+                  disabled={!isAvailable}
                   checked={paymentMethod === method}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  onChange={(e) => {
+                    if (isAvailable) setPaymentMethod(e.target.value);
+                  }}
                   className="hidden"
                 />
 
@@ -1723,17 +1758,11 @@ const CheckoutPage = () => {
                   )}
 
                   <span
-                    className={`text-sm font-medium ${
-                      paymentMethod === method ? "text-orange-500" : "text-gray-600"
+                    className={`text-xs sm:text-sm font-medium text-center ${
+                      paymentMethod === method ? "text-orange-600 font-bold" : "text-gray-600"
                     }`}
                   >
-                    {method === "card"
-                      ? "Credit Card"
-                      : method === "debit"
-                      ? "Debit Card"
-                      : method === "upi"
-                      ? "UPI"
-                      : "Cash"}
+                    {label}
                   </span>
                 </div>
               </label>

@@ -225,7 +225,9 @@ export default function DeliveryPoliciesPage() {
                     Fleet SOS Helpline
                   </h3>
                   <p className="text-gray-600">Active during your delivery shift:</p>
-                  <p className="font-bold text-emerald-700 text-base">1800-123-789</p>
+                  <a href="tel:+911800123789" className="font-bold text-emerald-700 hover:underline text-base block">
+                    1800-123-789
+                  </a>
                   <p className="text-gray-500 text-xs">Available 24/7 for live route support</p>
                 </div>
 
@@ -235,7 +237,9 @@ export default function DeliveryPoliciesPage() {
                     Rider Payout Desk
                   </h3>
                   <p className="text-gray-600">For banking and incentive reviews:</p>
-                  <p className="font-bold text-emerald-700 text-base">riders@ruchibazaar.in</p>
+                  <a href="mailto:riders@ruchibazaar.in" className="font-bold text-emerald-700 hover:underline text-base block">
+                    riders@ruchibazaar.in
+                  </a>
                   <p className="text-gray-500 text-xs">Resolutions within 24 hours</p>
                 </div>
               </div>
