@@ -20,10 +20,14 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  signInWithCredential,
 } from 'firebase/auth';
 import { auth } from '../firebase';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  '839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com';
 
 export default function LoginPage() {
   const { register, handleSubmit, formState: { errors } } = useForm();
@@ -35,9 +39,10 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
-  // Listen for redirect result on page load (essential for mobile & redirect flows)
   useEffect(() => {
     let isMounted = true;
+
+    // 1. Process redirect result if redirected back
     async function processRedirectResult() {
       try {
         const result = await getRedirectResult(auth);
@@ -69,8 +74,74 @@ export default function LoginPage() {
       }
     }
     processRedirectResult();
+
+    // 2. Initialize Google Identity Services (GIS) - eliminates storage partitioning & sessionStorage issues completely
+    const handleGISCredentialResponse = async (response) => {
+      if (!response?.credential || !isMounted) return;
+      setGoogleLoading(true);
+      setError('');
+      try {
+        const credential = GoogleAuthProvider.credential(response.credential);
+        const userCredential = await signInWithCredential(auth, credential);
+        const firebaseIdToken = await userCredential.user.getIdToken();
+
+        const res = await axios.post(`${API_URL}/auth/google`, {
+          firebaseIdToken,
+        });
+
+        if (res.data.success) {
+          await login({ token: res.data.token, user: res.data.user });
+          router.push('/');
+        } else {
+          setError(res.data.message || 'Google login failed');
+        }
+      } catch (err) {
+        console.error('GIS login error:', err);
+        setError(err.response?.data?.message || err.message || 'Google login failed');
+      } finally {
+        if (isMounted) setGoogleLoading(false);
+      }
+    };
+
+    const initGIS = () => {
+      if (typeof window !== 'undefined' && window.google?.accounts?.id) {
+        try {
+          window.google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleGISCredentialResponse,
+            auto_select: false,
+            cancel_on_tap_outside: true,
+          });
+
+          const btnContainer = document.getElementById('google-gis-button');
+          if (btnContainer && !btnContainer.hasChildNodes()) {
+            window.google.accounts.id.renderButton(btnContainer, {
+              theme: 'outline',
+              size: 'large',
+              type: 'standard',
+              text: 'continue_with',
+              shape: 'rectangular',
+              logo_alignment: 'left',
+              width: 360,
+            });
+          }
+        } catch (e) {
+          console.warn('GIS init error:', e);
+        }
+      }
+    };
+
+    initGIS();
+    const interval = setInterval(() => {
+      if (window.google?.accounts?.id) {
+        initGIS();
+        clearInterval(interval);
+      }
+    }, 400);
+
     return () => {
       isMounted = false;
+      clearInterval(interval);
     };
   }, [login, router]);
 
@@ -330,24 +401,28 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={handleGoogleLogin}
-            disabled={googleLoading || loading}
-            className="w-full border border-gray-300 bg-white text-gray-700 py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
-          >
-            {googleLoading ? (
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-b-2 border-gray-700 rounded-full animate-spin" />
-                <span>Connecting...</span>
-              </div>
-            ) : (
-              <>
-                <Chrome className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Continue with Google</span>
-              </>
-            )}
-          </button>
+          <div className="w-full flex flex-col items-center justify-center space-y-3">
+            <div id="google-gis-button" className="w-full flex justify-center min-h-[44px]"></div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              disabled={googleLoading || loading}
+              className="w-full border border-gray-300 bg-white text-gray-700 py-2 sm:py-2.5 rounded-lg font-semibold hover:bg-gray-50 focus:ring-4 focus:ring-gray-200 transition duration-200 disabled:opacity-70 disabled:cursor-not-allowed flex items-center justify-center space-x-2 text-sm"
+            >
+              {googleLoading ? (
+                <div className="flex items-center justify-center space-x-2">
+                  <div className="w-4 h-4 sm:w-5 sm:h-5 border-t-2 border-b-2 border-gray-700 rounded-full animate-spin" />
+                  <span>Connecting...</span>
+                </div>
+              ) : (
+                <>
+                  <Chrome className="h-4 w-4 sm:h-5 sm:w-5" />
+                  <span>Continue with Google</span>
+                </>
+              )}
+            </button>
+          </div>
 
           <div className="text-center pt-3 sm:pt-4 border-t border-gray-200">
             <p className="text-xs sm:text-sm text-gray-600">

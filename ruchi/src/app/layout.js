@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import LiveChatWidget from "./components/LiveChatWidget.jsx";
@@ -146,6 +147,7 @@ export default function RootLayout({ children }) {
           {children}
           <LiveChatWidget />
         </AuthProvider>
+        <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />
       </body>
     </html>
   );
