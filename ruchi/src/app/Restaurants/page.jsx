@@ -626,6 +626,8 @@ const RestaurantsPageContent = () => {
                       <img
                         src={restaurant.imageUrl}
                         alt={restaurant.name}
+                        loading="lazy"
+                        decoding="async"
                         className={`w-full h-full object-cover transition-all duration-700 ${
                           hoveredCard === restaurant.id ? "scale-110" : "scale-100"
                         } ${loadedImages[restaurant.id] ? "opacity-100" : "opacity-0"}`}

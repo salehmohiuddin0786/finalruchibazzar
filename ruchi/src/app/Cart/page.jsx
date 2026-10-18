@@ -647,6 +647,8 @@ const CartPage = () => {
                                 <img
                                   src={getMediaUrl(item.dish.image, apiUrl)}
                                   alt={item.dish?.name || "Dish"}
+                                  loading="lazy"
+                                  decoding="async"
                                   className="w-full h-full object-cover"
                                   onError={hideBrokenImage}
                                 />

@@ -113,8 +113,11 @@ export default function FoodSafetyPage() {
           </h3>
           <p className="text-xs sm:text-sm text-slate-700">
             If you ever receive food that smells off, has broken hygiene seals, or contains foreign matter, <strong>do not consume it</strong>. 
-            Report it immediately via &quot;My Orders&quot; or email our dedicated quality team at <strong>safety@ruchibazaar.in</strong> with photos. 
-            We initiate an immediate full refund and dispatch an audit team to inspect the merchant kitchen.
+            Report it immediately via &quot;My Orders&quot; or email our dedicated quality team at{" "}
+            <a href="mailto:safety@ruchibazaar.in" className="text-red-700 hover:underline font-bold">
+              safety@ruchibazaar.in
+            </a>{" "}
+            with photos. We initiate an immediate full refund and dispatch an audit team to inspect the merchant kitchen.
           </p>
         </section>
       </div>

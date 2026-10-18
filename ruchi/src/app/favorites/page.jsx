@@ -1,5 +1,6 @@
 "use client"
 import React, { useState } from 'react'
+import Link from 'next/link'
 import Navbar from '../components/Navbar'
 import Footer from '../components/Footer'
 import { 
@@ -391,12 +392,18 @@ const Page = () => {
                     {searchQuery ? 'Try searching for something else' : 'Start adding your favorite restaurants, stores, and items to see them here!'}
                   </p>
                   <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <button className="bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors duration-300">
+                    <Link
+                      href="/Restaurants"
+                      className="bg-orange-500 text-white px-8 py-3 rounded-lg font-semibold hover:bg-orange-600 transition-colors duration-300 inline-flex items-center justify-center min-h-[44px]"
+                    >
                       Browse Restaurants
-                    </button>
-                    <button className="border-2 border-orange-500 text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors duration-300">
+                    </Link>
+                    <Link
+                      href="/Groceries"
+                      className="border-2 border-orange-500 text-orange-500 px-8 py-3 rounded-lg font-semibold hover:bg-orange-50 transition-colors duration-300 inline-flex items-center justify-center min-h-[44px]"
+                    >
                       Shop Groceries
-                    </button>
+                    </Link>
                   </div>
                 </div>
               ) : (

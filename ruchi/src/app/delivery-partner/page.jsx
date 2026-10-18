@@ -151,7 +151,11 @@ export default function DeliveryPartnerPage() {
         <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-1">
           <p className="font-bold text-slate-900">Delivery Fleet Helpdesk</p>
           <p className="text-xs sm:text-sm">
-            Have questions about onboarding or rider payouts? Email <strong>riders@ruchibazaar.in</strong> or visit our City Fleet Hub.
+            Have questions about onboarding or rider payouts? Email{" "}
+            <a href="mailto:riders@ruchibazaar.in" className="text-red-600 hover:underline font-bold">
+              riders@ruchibazaar.in
+            </a>{" "}
+            or visit our City Fleet Hub.
           </p>
         </section>
       </div>

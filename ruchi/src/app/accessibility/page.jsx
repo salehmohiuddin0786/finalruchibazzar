@@ -98,9 +98,19 @@ export default function AccessibilityPage() {
           <p className="text-xs sm:text-sm text-slate-700">
             Encountered an accessibility barrier on our website or app? We welcome your feedback and will work quickly to assist you:
           </p>
-          <div className="text-xs sm:text-sm text-slate-700 space-y-1 pt-1">
-            <p><strong>Email:</strong> accessibility@ruchibazaar.in</p>
-            <p><strong>Toll-Free Voice Helpline:</strong> 1800-123-456</p>
+          <div className="text-xs sm:text-sm text-slate-700 space-y-1.5 pt-1">
+            <p>
+              <strong>Email:</strong>{" "}
+              <a href="mailto:accessibility@ruchibazaar.in" className="text-red-600 hover:underline font-medium">
+                accessibility@ruchibazaar.in
+              </a>
+            </p>
+            <p>
+              <strong>Toll-Free Voice Helpline:</strong>{" "}
+              <a href="tel:+911800123456" className="text-red-600 hover:underline font-medium">
+                1800-123-456
+              </a>
+            </p>
           </div>
         </section>
       </div>

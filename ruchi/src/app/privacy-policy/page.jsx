@@ -174,10 +174,26 @@ export default function PrivacyPolicyPage() {
           <p className="text-slate-700">
             For questions regarding this policy or to exercise your privacy rights, contact our Data Protection Officer:
           </p>
-          <div className="text-xs sm:text-sm text-slate-700 space-y-1 pt-1">
-            <p><strong>Email:</strong> privacy@ruchibazaar.in</p>
-            <p><strong>Grievance Desk:</strong> grievance@ruchibazaar.in</p>
-            <p><strong>Helpline:</strong> 1800-123-456 (9:00 AM – 7:00 PM IST)</p>
+          <div className="text-xs sm:text-sm text-slate-700 space-y-1.5 pt-1">
+            <p>
+              <strong>Email:</strong>{" "}
+              <a href="mailto:privacy@ruchibazaar.in" className="text-red-600 hover:underline font-medium">
+                privacy@ruchibazaar.in
+              </a>
+            </p>
+            <p>
+              <strong>Grievance Desk:</strong>{" "}
+              <a href="mailto:grievance@ruchibazaar.in" className="text-red-600 hover:underline font-medium">
+                grievance@ruchibazaar.in
+              </a>
+            </p>
+            <p>
+              <strong>Helpline:</strong>{" "}
+              <a href="tel:+911800123456" className="text-red-600 hover:underline font-medium">
+                1800-123-456
+              </a>{" "}
+              (9:00 AM – 7:00 PM IST)
+            </p>
           </div>
         </section>
       </div>

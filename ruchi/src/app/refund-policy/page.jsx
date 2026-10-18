@@ -118,7 +118,7 @@ export default function RefundPolicyPage() {
           <ul className="list-disc pl-6 space-y-1.5 text-slate-700">
             <li>This occurs when bank gateway handshakes fail or time out.</li>
             <li>Bank systems automatically reverse the transaction to your source account within <strong>24 to 48 hours</strong>.</li>
-            <li>If the amount does not reflect after 48 hours, share the 12-digit UPI reference number (UTR) with support@ruchibazaar.in for instant trace.</li>
+            <li>If the amount does not reflect after 48 hours, share the 12-digit UPI reference number (UTR) with <a href="mailto:support@ruchibazaar.in" className="text-red-600 hover:underline font-semibold">support@ruchibazaar.in</a> for instant trace.</li>
           </ul>
         </section>
 

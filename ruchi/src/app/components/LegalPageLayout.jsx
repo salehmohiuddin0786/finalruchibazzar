@@ -169,12 +169,16 @@ export default function LegalPageLayout({
                 </p>
                 <div className="space-y-1.5 text-xs text-slate-700">
                   <div className="flex items-center gap-2">
-                    <Phone className="w-3.5 h-3.5 text-red-500" />
-                    <span className="font-semibold">1800-123-456</span>
+                    <Phone className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    <a href="tel:+911800123456" className="font-semibold hover:text-red-600 transition-colors">
+                      1800-123-456
+                    </a>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Mail className="w-3.5 h-3.5 text-red-500" />
-                    <span>support@ruchibazaar.in</span>
+                    <Mail className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                    <a href="mailto:support@ruchibazaar.in" className="hover:text-red-600 transition-colors truncate">
+                      support@ruchibazaar.in
+                    </a>
                   </div>
                 </div>
                 <Link

@@ -788,11 +788,12 @@ const Page = () => {
                       ? 'Ready to satisfy your cravings? Place your first order!'
                       : 'Your order history will appear here once you place orders'}
                   </p>
-                  <Link href="/">
-                    <button className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2">
-                      <ShoppingBag className="w-5 h-5" />
-                      Browse Restaurants
-                    </button>
+                  <Link
+                    href="/Restaurants"
+                    className="px-8 py-4 bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl font-semibold hover:from-orange-600 hover:to-orange-700 transition-all transform hover:scale-105 shadow-lg inline-flex items-center gap-2 min-h-[44px]"
+                  >
+                    <ShoppingBag className="w-5 h-5" />
+                    Browse Restaurants
                   </Link>
                 </div>
               )}

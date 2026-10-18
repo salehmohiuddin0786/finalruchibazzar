@@ -264,8 +264,21 @@ const Navbar = () => {
       }
     };
 
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setIsMenuOpen(false);
+        setIsMobileSearchOpen(false);
+        setShowSearchSuggestions(false);
+        setShowLocationMenu(false);
+      }
+    };
+
     document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", handler);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, [isMenuOpen, isMobileSearchOpen]);
 
   useEffect(() => {
@@ -767,63 +780,72 @@ const Navbar = () => {
       </nav>
 
       {isMenuOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div
+          className="lg:hidden fixed inset-0 z-50"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Mobile Navigation Menu"
+        >
           <div
-            className="absolute inset-0 bg-gray-900/20 backdrop-blur-md animate-fadeIn"
+            className="absolute inset-0 bg-gray-900/40 backdrop-blur-xs transition-opacity duration-200"
             onClick={() => setIsMenuOpen(false)}
           />
 
           <div
             ref={menuRef}
-            className="absolute left-0 top-0 w-80 max-w-[90%] h-full bg-white shadow-xl animate-slideIn"
+            className="absolute left-0 top-0 w-80 max-w-[90%] h-full bg-white shadow-2xl flex flex-col z-10 transition-transform duration-200"
           >
             <div className="h-full flex flex-col">
-              <div className="p-6 border-b border-gray-200">
-                <div className="flex items-center justify-between mb-6">
+              <div className="p-5 border-b border-gray-100">
+                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="relative w-12 h-12">
+                    <div className="relative w-10 h-10">
                       <Image
                         src="/Logo.png"
                         alt="Ruchi Bazaar Logo"
                         fill
-                        sizes="48px"
+                        sizes="40px"
                         style={{ objectFit: "contain" }}
                         className="rounded-xl"
                       />
                     </div>
 
                     <div>
-                      <h2 className="font-bold text-gray-900 text-lg">
+                      <h2 className="font-bold text-gray-900 text-base leading-tight">
                         Ruchi Bazaar
                       </h2>
-                      <p className="text-sm text-gray-600">Fresh & Fast</p>
+                      <p className="text-xs text-gray-500">Fresh & Fast Delivery</p>
                     </div>
                   </div>
 
                   <button
                     onClick={() => setIsMenuOpen(false)}
-                    className="p-2 hover:bg-gray-100 rounded-lg text-gray-900"
+                    className="p-2 hover:bg-gray-100 rounded-lg text-gray-700 min-h-[44px] min-w-[44px] flex items-center justify-center"
+                    aria-label="Close menu"
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
-                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center">
+                <button
+                  onClick={() => navigateTo("/profile")}
+                  className="w-full flex items-center gap-3 p-3 bg-gradient-to-r from-orange-50 to-amber-50 hover:from-orange-100 hover:to-amber-100 border border-orange-100/60 rounded-xl transition-all text-left min-h-[44px]"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-orange-500 rounded-full flex items-center justify-center shrink-0">
                     <User className="w-5 h-5 text-white" />
                   </div>
 
-                  <div>
-                    <p className="font-semibold text-gray-900">Welcome Back!</p>
-                    <p className="text-sm text-gray-600">
-                      Sign in for better experience
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-gray-900 text-sm">My Account</p>
+                    <p className="text-xs text-gray-600 truncate">
+                      Manage profile & orders
                     </p>
                   </div>
-                </div>
+                </button>
               </div>
 
-              <div className="flex-1 overflow-y-auto py-4">
-                <div className="px-4">
+              <div className="flex-1 overflow-y-auto py-3 px-4">
+                <div className="space-y-1">
                   {navItems.map((item) => {
                     const Icon = item.icon;
                     const active = pathname === item.path;
@@ -832,81 +854,101 @@ const Navbar = () => {
                       <button
                         key={item.path}
                         onClick={() => navigateTo(item.path)}
-                        className={`flex items-center gap-4 w-full p-3 rounded-lg mb-2 transition-colors ${
+                        className={`flex items-center gap-3.5 w-full p-3 rounded-xl transition-colors min-h-[44px] ${
                           active
                             ? "bg-red-50 text-red-600 font-semibold"
-                            : "hover:bg-gray-100 text-gray-900"
+                            : "hover:bg-gray-50 text-gray-800"
                         }`}
                       >
-                        <Icon className="w-5 h-5" />
-                        <span className="text-base">{item.label}</span>
+                        <Icon className="w-5 h-5 shrink-0" />
+                        <span className="text-sm">{item.label}</span>
 
                         {item.badge && cartItemsCount > 0 && (
-                          <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                          <span className="ml-auto bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">
                             {cartItemsCount > 9 ? "9+" : cartItemsCount}
                           </span>
                         )}
                       </button>
                     );
                   })}
+
+                  <button
+                    onClick={() => navigateTo("/Groceries")}
+                    className={`flex items-center gap-3.5 w-full p-3 rounded-xl transition-colors min-h-[44px] ${
+                      pathname === "/Groceries"
+                        ? "bg-red-50 text-red-600 font-semibold"
+                        : "hover:bg-gray-50 text-gray-800"
+                    }`}
+                  >
+                    <ShoppingBag className="w-5 h-5 shrink-0 text-emerald-600" />
+                    <span className="text-sm">Groceries & Essentials</span>
+                  </button>
+
+                  <button
+                    onClick={() => navigateTo("/favorites")}
+                    className={`flex items-center gap-3.5 w-full p-3 rounded-xl transition-colors min-h-[44px] ${
+                      pathname === "/favorites"
+                        ? "bg-red-50 text-red-600 font-semibold"
+                        : "hover:bg-gray-50 text-gray-800"
+                    }`}
+                  >
+                    <Heart className="w-5 h-5 shrink-0 text-rose-500" />
+                    <span className="text-sm">Saved Favorites</span>
+                  </button>
                 </div>
 
-                <div className="mt-6 px-4">
-                  <h3 className="text-sm font-semibold text-gray-900 mb-3 px-3">
-                    Your Location
+                <div className="mt-6 pt-5 border-t border-gray-100">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-3 px-1">
+                    Your Delivery Location
                   </h3>
 
                   <button
                     onClick={getCurrentLocation}
                     disabled={isGettingLocation}
-                    className="w-full text-left px-3 py-3 rounded-lg mb-3 bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-3 disabled:opacity-70"
+                    className="w-full text-left p-3 rounded-xl mb-2 bg-red-50 hover:bg-red-100 transition-colors flex items-center gap-3 disabled:opacity-70 min-h-[44px]"
                   >
-                    <Navigation className="w-4 h-4 text-red-600" />
+                    <Navigation className="w-4 h-4 text-red-600 shrink-0" />
 
-                    <div>
-                      <span className="font-medium text-red-600">
+                    <div className="min-w-0 flex-1">
+                      <span className="font-medium text-sm text-red-600 block">
                         {isGettingLocation
-                          ? "Getting location..."
+                          ? "Detecting location..."
                           : "Use Current Location"}
                       </span>
 
                       {locationError && (
-                        <p className="text-xs text-red-500 mt-1">
+                        <p className="text-xs text-red-500 mt-0.5">
                           {locationError}
                         </p>
                       )}
                     </div>
                   </button>
 
-                  <h4 className="text-xs font-medium text-gray-500 mb-2 px-3">
-                    Popular Locations
-                  </h4>
-
                   <div className="space-y-1">
                     {locations.map((location) => (
                       <button
                         key={location.id}
                         onClick={() => handleLocationSelect(location)}
-                        className={`w-full text-left px-3 py-3 rounded-lg transition-colors flex items-center gap-3 ${
+                        className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors flex items-center gap-3 min-h-[40px] text-sm ${
                           userLocation === location.name
                             ? "bg-red-50 text-red-600 font-medium"
-                            : "hover:bg-gray-100 text-gray-900"
+                            : "hover:bg-gray-50 text-gray-700"
                         }`}
                       >
-                        <MapPin className="w-4 h-4" />
-                        {location.name}
+                        <MapPin className="w-4 h-4 shrink-0 text-gray-400" />
+                        <span className="truncate">{location.name}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              <div className="p-6 border-t border-gray-200">
+              <div className="p-4 border-t border-gray-100 bg-gray-50/50">
                 <button
-                  onClick={() => navigateTo("/Orders")}
-                  className="w-full py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-lg hover:from-red-600 hover:to-orange-600 transition-all duration-200"
+                  onClick={() => navigateTo("/Restaurants")}
+                  className="w-full py-3 bg-gradient-to-r from-red-500 to-orange-500 text-white font-semibold rounded-xl hover:from-red-600 hover:to-orange-600 shadow-md shadow-orange-500/20 transition-all min-h-[44px]"
                 >
-                  Order Now
+                  Browse All Restaurants
                 </button>
               </div>
             </div>

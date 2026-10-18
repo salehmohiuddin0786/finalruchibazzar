@@ -195,7 +195,14 @@ export default function PartnerWithUsPage() {
         <section className="p-5 rounded-xl bg-slate-50 border border-slate-200 text-slate-700 space-y-1">
           <p className="font-bold text-slate-900">Have questions about partnering with us?</p>
           <p className="text-xs sm:text-sm">
-            Contact our Merchant Onboarding Desk at <strong>partners@ruchibazaar.in</strong> or call <strong>+91 98765 43210</strong>.
+            Contact our Merchant Onboarding Desk at{" "}
+            <a href="mailto:partners@ruchibazaar.in" className="text-red-600 hover:underline font-bold">
+              partners@ruchibazaar.in
+            </a>{" "}
+            or call{" "}
+            <a href="tel:+919876543210" className="text-red-600 hover:underline font-bold">
+              +91 98765 43210
+            </a>.
           </p>
         </section>
       </div>

@@ -44,7 +44,14 @@ export default function GrievancePage() {
                 <h3 className="font-semibold text-slate-900">Level 1: 24/7 Customer Care Helpdesk</h3>
                 <p className="text-xs sm:text-sm text-slate-600 mt-1">
                   For active delivery delays, missing food items, payment deductions, or app queries. 
-                  Contact our in-app chat or email <strong>support@ruchibazaar.in</strong> (Toll-Free: 1800-123-456).
+                  Contact our in-app chat or email{" "}
+                  <a href="mailto:support@ruchibazaar.in" className="text-red-600 hover:underline font-bold">
+                    support@ruchibazaar.in
+                  </a>{" "}
+                  (Toll-Free:{" "}
+                  <a href="tel:+911800123456" className="text-red-600 hover:underline font-bold">
+                    1800-123-456
+                  </a>).
                 </p>
                 <div className="mt-2 text-xs font-semibold text-emerald-700">
                   ⚡ Average Resolution Time: 2 to 4 hours (Acknowledge: Instant)
@@ -102,8 +109,18 @@ export default function GrievancePage() {
               <div className="text-xs sm:text-sm text-slate-700 space-y-1.5">
                 <p><strong>Name:</strong> Vikram Deshmukh</p>
                 <p><strong>Designation:</strong> Head of Consumer Grievances</p>
-                <p><strong>Email:</strong> grievance@ruchibazaar.in</p>
-                <p><strong>Helpline:</strong> +91 22 6789 0123</p>
+                <p>
+                  <strong>Email:</strong>{" "}
+                  <a href="mailto:grievance@ruchibazaar.in" className="text-red-600 hover:underline font-medium">
+                    grievance@ruchibazaar.in
+                  </a>
+                </p>
+                <p>
+                  <strong>Helpline:</strong>{" "}
+                  <a href="tel:+912267890123" className="text-red-600 hover:underline font-medium">
+                    +91 22 6789 0123
+                  </a>
+                </p>
                 <p><strong>Hours:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
                 <p><strong>Address:</strong> Corporate Tower B, 4th Floor, BKC, Mumbai, Maharashtra 400051</p>
               </div>
@@ -117,8 +134,18 @@ export default function GrievancePage() {
               <div className="text-xs sm:text-sm text-slate-700 space-y-1.5">
                 <p><strong>Name:</strong> Ananya Sengupta</p>
                 <p><strong>Designation:</strong> Legal Counsel &amp; Nodal Head</p>
-                <p><strong>Email:</strong> nodal@ruchibazaar.in</p>
-                <p><strong>Helpline:</strong> +91 22 6789 0124</p>
+                <p>
+                  <strong>Email:</strong>{" "}
+                  <a href="mailto:nodal@ruchibazaar.in" className="text-orange-600 hover:underline font-medium">
+                    nodal@ruchibazaar.in
+                  </a>
+                </p>
+                <p>
+                  <strong>Helpline:</strong>{" "}
+                  <a href="tel:+912267890124" className="text-orange-600 hover:underline font-medium">
+                    +91 22 6789 0124
+                  </a>
+                </p>
                 <p><strong>Hours:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
                 <p><strong>Address:</strong> Corporate Tower B, 4th Floor, BKC, Mumbai, Maharashtra 400051</p>
               </div>

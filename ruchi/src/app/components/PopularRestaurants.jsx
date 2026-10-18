@@ -1,9 +1,12 @@
 "use client";
 import React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Star, Clock, ArrowRight, ShoppingCart, Sparkles, Flame, Zap, Award } from 'lucide-react';
 import Image from 'next/image';
 
 const PopularRestaurants = () => {
+  const router = useRouter();
   const popularRestaurants = [
     { 
       id: 1,
@@ -76,13 +79,16 @@ const PopularRestaurants = () => {
             </p>
           </div>
           
-          <button className="group relative px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold rounded-2xl hover:from-gray-800 hover:to-gray-900 transition-all duration-300 hover:scale-105 shadow-2xl hover:shadow-red-500/20">
+          <Link
+            href="/Restaurants"
+            className="group relative px-8 py-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold rounded-2xl hover:from-gray-800 hover:to-gray-900 transition-all duration-300 hover:scale-105 shadow-2xl hover:shadow-red-500/20 inline-flex items-center min-h-[44px]"
+          >
             <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-2xl blur-lg opacity-0 group-hover:opacity-70 transition-opacity duration-500"></div>
             <div className="relative flex items-center gap-3">
               <span className="text-lg">View All Restaurants</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" />
             </div>
-          </button>
+          </Link>
         </div>
 
         {/* Stats Bar */}
@@ -202,12 +208,15 @@ const PopularRestaurants = () => {
                   <p className="text-gray-600 mb-6 leading-relaxed">{restaurant.cuisine}</p>
                   
                   {/* Order Button */}
-                  <button className="w-full group/btn relative px-6 py-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold rounded-xl hover:from-red-600 hover:to-orange-600 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/30 flex items-center justify-center gap-3">
+                  <Link
+                    href={`/Restaurants?search=${encodeURIComponent(restaurant.name)}`}
+                    className="w-full group/btn relative px-6 py-4 bg-gradient-to-r from-gray-900 to-gray-800 text-white font-bold rounded-xl hover:from-red-600 hover:to-orange-600 transition-all duration-500 hover:shadow-2xl hover:shadow-red-500/30 flex items-center justify-center gap-3 min-h-[44px]"
+                  >
                     <div className="absolute inset-0 bg-gradient-to-r from-red-500 to-orange-500 rounded-xl blur-md opacity-0 group-hover/btn:opacity-70 transition-opacity duration-500"></div>
                     <ShoppingCart className="w-5 h-5 relative z-10" />
                     <span className="relative z-10">Order Now</span>
                     <ArrowRight className="w-4 h-4 relative z-10 opacity-0 -translate-x-2 group-hover/btn:opacity-100 group-hover/btn:translate-x-0 transition-all duration-300" />
-                  </button>
+                  </Link>
                 </div>
               </div>
             </div>

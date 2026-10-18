@@ -60,15 +60,18 @@ const Footer = () => {
               </p>
               <div className="flex space-x-3">
                 {[
-                  { icon: Facebook, color: 'hover:bg-red-600' },
-                  { icon: Twitter, color: 'hover:bg-blue-500' },
-                  { icon: Instagram, color: 'hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500' },
-                  { icon: Youtube, color: 'hover:bg-red-600' }
+                  { icon: Facebook, label: 'Facebook', href: 'https://facebook.com/ruchibazaar', color: 'hover:bg-red-600' },
+                  { icon: Twitter, label: 'Twitter / X', href: 'https://twitter.com/ruchibazaar', color: 'hover:bg-blue-500' },
+                  { icon: Instagram, label: 'Instagram', href: 'https://instagram.com/ruchibazaar', color: 'hover:bg-gradient-to-r hover:from-pink-500 hover:to-purple-500' },
+                  { icon: Youtube, label: 'YouTube', href: 'https://youtube.com/@ruchibazaar', color: 'hover:bg-red-600' }
                 ].map((social, idx) => (
                   <a 
                     key={idx}
-                    href="#" 
-                    className={`w-10 h-10 bg-gray-800/80 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${social.color} shadow-lg hover:shadow-xl`}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Follow Ruchi Bazaar on ${social.label}`}
+                    className={`w-10 h-10 bg-gray-800/80 rounded-full flex items-center justify-center transition-all duration-300 hover:scale-110 ${social.color} shadow-lg hover:shadow-xl min-h-[40px] min-w-[40px]`}
                   >
                     <social.icon className="w-5 h-5" />
                   </a>
@@ -146,8 +149,8 @@ const Footer = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">Email us at</p>
-                    <a href="mailto:support@ruchibazaar.com" className="text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300">
-                      ✉️ support@ruchibazaar.com
+                    <a href="mailto:support@ruchibazaar.in" className="text-base sm:text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300 break-all">
+                      ✉️ support@ruchibazaar.in
                     </a>
                   </div>
                 </li>
@@ -157,8 +160,8 @@ const Footer = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">Head Office</p>
-                    <p className="text-sm text-[#D1D5DB] font-medium">123 Food Street, Mumbai</p>
-                    <p className="text-xs text-gray-400">Maharashtra 400001</p>
+                    <p className="text-sm text-[#D1D5DB] font-medium">Bandra Kurla Complex (BKC)</p>
+                    <p className="text-xs text-gray-400">Mumbai, Maharashtra 400051</p>
                   </div>
                 </li>
               </ul>
