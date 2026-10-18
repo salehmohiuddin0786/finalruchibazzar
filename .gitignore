@@ -37,3 +37,9 @@ Thumbs.db
 # Turbopack & Cache
 .turbo/
 */.turbo/
+
+# Mobile Artifacts
+dist-apks/
+dist-aabs/
+*.apk
+*.aab
