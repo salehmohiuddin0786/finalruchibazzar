@@ -15,6 +15,9 @@ const AuditLog = require("./auditLog.model")(sequelize);
 const Cart = require("./cart.model")(sequelize);
 const UserAddress = require("./userAddress.model")(sequelize);
 
+const SupportConversation = require("./supportConversation.model")(sequelize);
+const SupportMessage = require("./supportMessage.model")(sequelize);
+
 /* ================= ASSOCIATIONS ================= */
 const initAssociations = () => {
 
@@ -31,6 +34,11 @@ const initAssociations = () => {
   User.hasMany(UserAddress, { foreignKey: "userId", as: "addresses" });
   UserAddress.belongsTo(User, { foreignKey: "userId", as: "user" });
 
+  User.hasMany(SupportConversation, { foreignKey: "userId", as: "supportConversations" });
+  SupportConversation.belongsTo(User, { foreignKey: "userId", as: "user" });
+
+  SupportConversation.hasMany(SupportMessage, { foreignKey: "conversationId", as: "messages" });
+  SupportMessage.belongsTo(SupportConversation, { foreignKey: "conversationId", as: "conversation" });
 
   /* ---------- RESTAURANT ---------- */
   Restaurant.hasMany(Dish, { foreignKey: "restaurantId", as: "dishes" });
@@ -94,4 +102,6 @@ module.exports = {
   AuditLog,
   Cart,
   UserAddress,
+  SupportConversation,
+  SupportMessage,
 };

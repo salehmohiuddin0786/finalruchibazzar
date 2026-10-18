@@ -99,6 +99,7 @@ app.use("/api/offers", require("./routes/offer.routes"));
 app.use("/api/banners", require("./routes/banner.routes"));
 app.use("/api/cart", require("./routes/cart.routes"));
 app.use("/api/Cart", require("./routes/cart.routes"));
+app.use("/api/support-chat", require("./routes/supportChat.routes"));
 app.use("/api", require("./routes/recaptcha.routes"));
 
 /*

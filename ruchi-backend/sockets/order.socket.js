@@ -50,6 +50,28 @@ exports.initSocket = (server) => {
       socket.join("admin");
     });
 
+    socket.on("joinChatRoom", (conversationId) => {
+      if (conversationId) {
+        socket.join(`chat_${conversationId}`);
+      }
+    });
+
+    socket.on("leaveChatRoom", (conversationId) => {
+      if (conversationId) {
+        socket.leave(`chat_${conversationId}`);
+      }
+    });
+
+    socket.on("chatTyping", ({ conversationId, senderName, isTyping }) => {
+      if (conversationId) {
+        socket.to(`chat_${conversationId}`).emit("chatTyping", {
+          conversationId,
+          senderName,
+          isTyping,
+        });
+      }
+    });
+
     socket.on("disconnect", () => {
       if (connectedDeliveryPartnerId) {
         const { handlePartnerDisconnected } = require("../services/deliveryAssignment.service");
@@ -145,4 +167,22 @@ exports.emitDeliveryNotAssigned = (order) => {
 
   io.to(`restaurant_${order.restaurantId}`).emit("deliveryNotAssigned", payload);
   io.to("admin").emit("deliveryNotAssigned", payload);
+};
+
+exports.emitChatMessage = (conversationId, message, conversation) => {
+  if (!io || !conversationId) return;
+
+  // Emit to users listening to this specific conversation room
+  io.to(`chat_${conversationId}`).emit("newChatMessage", {
+    conversationId,
+    message,
+    conversation,
+  });
+
+  // Also notify admins monitoring the support inbox
+  io.to("admin").emit("adminChatUpdate", {
+    conversationId,
+    message,
+    conversation,
+  });
 };
