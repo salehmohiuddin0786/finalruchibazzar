@@ -138,21 +138,29 @@ export default function RegisterPage() {
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
 
+      // On mobile devices, mobile Chrome/Safari opens popups as separate tabs and severs window.opener,
+      // which leads to the "missing initial state" error. signInWithRedirect preserves state in the same tab.
+      const isMobile =
+        typeof navigator !== 'undefined' &&
+        (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+          navigator.userAgent
+        ) || (typeof window !== 'undefined' && window.innerWidth <= 768));
+
+      if (isMobile) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+
       let firebaseResult = null;
       try {
         firebaseResult = await signInWithPopup(auth, provider);
       } catch (popupError) {
-        const isMobile =
-          typeof navigator !== 'undefined' &&
-          /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
         if (
           popupError.code === 'auth/popup-blocked' ||
           popupError.code === 'auth/popup-closed-by-user' ||
-          popupError.code === 'auth/cancelled-popup-request' ||
-          (isMobile && popupError.code === 'auth/missing-initial-state')
+          popupError.code === 'auth/cancelled-popup-request'
         ) {
-          console.warn('Popup interrupted, falling back to redirect sign-in:', popupError);
+          console.warn('Popup blocked/closed, redirecting:', popupError);
           await signInWithRedirect(auth, provider);
           return;
         }
@@ -188,7 +196,13 @@ export default function RegisterPage() {
         );
       }
     } finally {
-      setGoogleLoading(false);
+      const isMobile =
+        typeof navigator !== 'undefined' &&
+        (/Android|webOS|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+          (typeof window !== 'undefined' && window.innerWidth <= 768));
+      if (!isMobile) {
+        setGoogleLoading(false);
+      }
     }
   };
 

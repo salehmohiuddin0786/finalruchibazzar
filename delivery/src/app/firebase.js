@@ -2,13 +2,16 @@ import { getApps, initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const getAuthDomain = () => {
+  if (process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) {
+    return process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
+  }
   if (typeof window !== "undefined") {
-    const host = window.location.host;
-    if (host.includes("ruchibazaar.in")) {
-      return host;
+    const hostname = window.location.hostname;
+    if (hostname.includes("ruchibazaar.in")) {
+      return "delivery.ruchibazaar.in";
     }
   }
-  return process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || "ruchibazzar-6eb3b.firebaseapp.com";
+  return "ruchibazzar-6eb3b.firebaseapp.com";
 };
 
 const firebaseConfig = {
