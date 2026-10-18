@@ -23,6 +23,8 @@ import {
   signInWithCredential,
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { Capacitor } from '@capacitor/core';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
 const GOOGLE_CLIENT_ID =
@@ -35,6 +37,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [isNative, setIsNative] = useState(false);
 
   const { login } = useAuth();
   const router = useRouter();
@@ -42,7 +45,16 @@ export default function LoginPage() {
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Process redirect result if redirected back
+    // Detect if running inside Capacitor Android/iOS native app
+    try {
+      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+        setIsNative(true);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 1. Process redirect result if redirected back (Web flow)
     async function processRedirectResult() {
       try {
         const result = await getRedirectResult(auth);
@@ -75,7 +87,7 @@ export default function LoginPage() {
     }
     processRedirectResult();
 
-    // 2. Initialize Google Identity Services (GIS) - eliminates storage partitioning & sessionStorage issues completely
+    // 2. Initialize Google Identity Services (GIS) for Web (skipped in native app)
     const handleGISCredentialResponse = async (response) => {
       if (!response?.credential || !isMounted) return;
       setGoogleLoading(true);
@@ -104,6 +116,10 @@ export default function LoginPage() {
     };
 
     const initGIS = () => {
+      // Do not run web GIS iframe inside native Capacitor APK
+      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+        return;
+      }
       if (typeof window !== 'undefined' && window.google?.accounts?.id) {
         try {
           window.google.accounts.id.initialize({
@@ -182,6 +198,60 @@ export default function LoginPage() {
     setError('');
 
     try {
+      // 1. Native Capacitor flow (Android APK)
+      const isNativeApp =
+        typeof window !== 'undefined' &&
+        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+
+      if (isNativeApp) {
+        try {
+          await GoogleSignIn.initialize({
+            clientId: GOOGLE_CLIENT_ID,
+          });
+
+          const result = await GoogleSignIn.signIn();
+          if (!result?.idToken) {
+            throw new Error('No ID token returned from Google Sign-In');
+          }
+
+          const credential = GoogleAuthProvider.credential(result.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const firebaseIdToken = await userCredential.user.getIdToken();
+
+          const response = await axios.post(`${API_URL}/auth/google`, {
+            firebaseIdToken,
+          });
+
+          if (response.data.success) {
+            await login({ token: response.data.token, user: response.data.user });
+            router.push('/');
+          } else {
+            setError(response.data.message || 'Google login failed');
+          }
+        } catch (nativeError) {
+          console.error('Native Google Sign-In error:', nativeError);
+          const msg = nativeError?.message || '';
+          if (
+            msg.includes('SIGN_IN_CANCELED') ||
+            msg.includes('canceled') ||
+            msg.includes('cancelled') ||
+            nativeError?.code === 'SIGN_IN_CANCELED'
+          ) {
+            // Cancelled or dismissed by user
+          } else {
+            setError(
+              msg ||
+                nativeError?.response?.data?.message ||
+                'Google sign-in was cancelled or failed.'
+            );
+          }
+        } finally {
+          setGoogleLoading(false);
+        }
+        return;
+      }
+
+      // 2. Web browser flow (popups or redirect)
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -402,7 +472,9 @@ export default function LoginPage() {
           </div>
 
           <div className="w-full flex flex-col items-center justify-center space-y-3">
-            <div id="google-gis-button" className="w-full flex justify-center min-h-[44px]"></div>
+            {!isNative && (
+              <div id="google-gis-button" className="w-full flex justify-center min-h-[44px]"></div>
+            )}
 
             <button
               type="button"

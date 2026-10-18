@@ -25,6 +25,8 @@ import {
   signInWithCredential,
 } from 'firebase/auth';
 import { auth } from '../firebase';
+import { Capacitor } from '@capacitor/core';
+import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
 const GOOGLE_CLIENT_ID =
@@ -38,6 +40,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [isNative, setIsNative] = useState(false);
   const router = useRouter();
 
   const password = watch('password');
@@ -51,7 +54,16 @@ export default function RegisterPage() {
   useEffect(() => {
     let isMounted = true;
 
-    // 1. Listen for redirect result on page load
+    // Detect if running inside Capacitor Android/iOS native app
+    try {
+      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+        setIsNative(true);
+      }
+    } catch (e) {
+      // ignore
+    }
+
+    // 1. Listen for redirect result on page load (Web flow)
     async function processRedirectResult() {
       try {
         const result = await getRedirectResult(auth);
@@ -83,7 +95,7 @@ export default function RegisterPage() {
     }
     processRedirectResult();
 
-    // 2. Initialize Google Identity Services (GIS)
+    // 2. Initialize Google Identity Services (GIS) for Web (skipped on native)
     const handleGISCredentialResponse = async (response) => {
       if (!response?.credential || !isMounted) return;
       setGoogleLoading(true);
@@ -111,6 +123,10 @@ export default function RegisterPage() {
     };
 
     const initGIS = () => {
+      // Do not run web GIS iframe inside native Capacitor APK
+      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+        return;
+      }
       if (typeof window !== 'undefined' && window.google?.accounts?.id) {
         try {
           window.google.accounts.id.initialize({
@@ -205,6 +221,59 @@ export default function RegisterPage() {
     setError('');
 
     try {
+      // 1. Native Capacitor flow (Android APK)
+      const isNativeApp =
+        typeof window !== 'undefined' &&
+        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+
+      if (isNativeApp) {
+        try {
+          await GoogleSignIn.initialize({
+            clientId: GOOGLE_CLIENT_ID,
+          });
+
+          const result = await GoogleSignIn.signIn();
+          if (!result?.idToken) {
+            throw new Error('No ID token returned from Google Sign-In');
+          }
+
+          const credential = GoogleAuthProvider.credential(result.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const firebaseIdToken = await userCredential.user.getIdToken();
+
+          const response = await axios.post(`${API_URL}/auth/google`, {
+            firebaseIdToken,
+          });
+
+          if (response.data.success) {
+            saveSessionAndRedirect(response.data);
+          } else {
+            setError(response.data.message || 'Google signup failed');
+          }
+        } catch (nativeError) {
+          console.error('Native Google Sign-In error:', nativeError);
+          const msg = nativeError?.message || '';
+          if (
+            msg.includes('SIGN_IN_CANCELED') ||
+            msg.includes('canceled') ||
+            msg.includes('cancelled') ||
+            nativeError?.code === 'SIGN_IN_CANCELED'
+          ) {
+            // Dismissed by user
+          } else {
+            setError(
+              msg ||
+                nativeError?.response?.data?.message ||
+                'Google sign-in was cancelled or failed.'
+            );
+          }
+        } finally {
+          setGoogleLoading(false);
+        }
+        return;
+      }
+
+      // 2. Web browser flow (popups or redirect)
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: 'select_account' });
 
@@ -518,7 +587,9 @@ export default function RegisterPage() {
           </div>
 
           <div className="w-full flex flex-col items-center justify-center space-y-3">
-            <div id="google-gis-signup-button" className="w-full flex justify-center min-h-[44px]"></div>
+            {!isNative && (
+              <div id="google-gis-signup-button" className="w-full flex justify-center min-h-[44px]"></div>
+            )}
 
             <button
               type="button"
