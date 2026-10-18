@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ruchi Bazaar Delivery</string>
+    <string name="title_activity_main">Ruchi Bazaar Delivery</string>
+    <string name="package_name">in.ruchibazaar.delivery</string>
+    <string name="custom_url_scheme">in.ruchibazaar.delivery</string>
+</resources>

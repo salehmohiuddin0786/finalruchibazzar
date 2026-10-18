@@ -1,0 +1,27 @@
+{
+  "appId": "in.ruchibazaar.customer",
+  "appName": "Ruchi Bazaar",
+  "webDir": "public",
+  "server": {
+    "url": "https://ruchibazaar.in",
+    "cleartext": false,
+    "androidScheme": "https",
+    "errorPath": "offline.html"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 2000,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidSplashResourceName": "splash"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#d97706"
+    },
+    "Keyboard": {
+      "resize": "body",
+      "resizeOnFullScreen": true
+    }
+  }
+}
