@@ -14,7 +14,12 @@ import {
   Crown,
   Chrome,
 } from "lucide-react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
+} from "firebase/auth";
 import { auth } from "../firebase";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
@@ -97,6 +102,61 @@ const Login = () => {
       isMounted.current = false;
       clearTimeout(timeout);
       if (redirectTimeoutRef.current) clearTimeout(redirectTimeoutRef.current);
+    };
+  }, [redirectByRole]);
+
+  // Listen for redirect result on page load (essential for mobile & redirect flows)
+  useEffect(() => {
+    let isMounted = true;
+    async function processRedirectResult() {
+      try {
+        const result = await getRedirectResult(auth);
+        if (result && result.user && isMounted) {
+          setIsGoogleLoading(true);
+          const firebaseIdToken = await result.user.getIdToken();
+          const response = await fetch(`${API_URL}/auth/google-portal`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ firebaseIdToken }),
+          });
+
+          const data = await parseApiResponse(response);
+          if (!response.ok) {
+            if (data.code === UNDER_REVIEW_CODE) {
+              setShowUnderReviewPopup(true);
+              return;
+            }
+            throw new Error(data.message || "Google login failed");
+          }
+
+          if (!data.token || !data.user) {
+            throw new Error("Invalid login response from server");
+          }
+
+          saveAuthData(data);
+          redirectTimeoutRef.current = setTimeout(() => {
+            redirectByRole(data.user.role);
+          }, 100);
+        }
+      } catch (err) {
+        console.error("Redirect result error:", err);
+        if (err?.code === "auth/missing-initial-state") {
+          setError(
+            "Google Sign-In session expired or cookies were blocked. Please enable cookies or sign in using your credentials."
+          );
+        } else if (err?.message) {
+          setError(err.message);
+        }
+      } finally {
+        if (isMounted) setIsGoogleLoading(false);
+      }
+    }
+    processRedirectResult();
+    return () => {
+      isMounted = false;
     };
   }, [redirectByRole]);
 
@@ -214,7 +274,32 @@ const Login = () => {
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });
-      const firebaseResult = await signInWithPopup(auth, provider);
+
+      let firebaseResult = null;
+      try {
+        firebaseResult = await signInWithPopup(auth, provider);
+      } catch (popupError) {
+        const isMobile =
+          typeof navigator !== "undefined" &&
+          /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+        if (
+          popupError.code === "auth/popup-blocked" ||
+          popupError.code === "auth/popup-closed-by-user" ||
+          popupError.code === "auth/cancelled-popup-request" ||
+          (isMobile && popupError.code === "auth/missing-initial-state")
+        ) {
+          console.warn("Popup interrupted, falling back to redirect sign-in:", popupError);
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+        throw popupError;
+      }
+
+      if (!firebaseResult?.user) {
+        throw new Error("No user returned from Google authentication");
+      }
+
       const firebaseIdToken = await firebaseResult.user.getIdToken();
 
       const response = await fetch(`${API_URL}/auth/google-portal`, {
@@ -246,7 +331,13 @@ const Login = () => {
       }, 100);
     } catch (err) {
       console.error("Google login error:", err);
-      setError(err.message || "Google login failed");
+      if (err?.code === "auth/missing-initial-state") {
+        setError(
+          "Google Sign-In session state was missing or blocked by the browser. Please check browser cookie settings or use email/password."
+        );
+      } else {
+        setError(err.message || "Google login failed");
+      }
     } finally {
       setIsGoogleLoading(false);
     }

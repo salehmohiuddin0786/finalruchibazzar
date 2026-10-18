@@ -15,6 +15,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: "/__/auth/:path*",
+        destination: "https://ruchibazzar-6eb3b.firebaseapp.com/__/auth/:path*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;
