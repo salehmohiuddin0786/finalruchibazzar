@@ -33,7 +33,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 import { Capacitor } from "@capacitor/core";
-import { GoogleSignIn } from "@capawesome/capacitor-google-sign-in";
 
 const API_URL =
   process.env.NEXT_PUBLIC_API_URL ||
@@ -158,6 +157,7 @@ export default function DeliveryPartnerSignup() {
 
       if (isNativeApp) {
         try {
+          const { GoogleSignIn } = await import("@capawesome/capacitor-google-sign-in");
           await GoogleSignIn.initialize({
             clientId: GOOGLE_CLIENT_ID,
           });

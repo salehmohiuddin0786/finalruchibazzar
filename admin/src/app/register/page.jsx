@@ -27,7 +27,6 @@ import {
 } from "firebase/auth";
 import { auth } from "../firebase";
 import { Capacitor } from "@capacitor/core";
-import { GoogleSignIn } from "@capawesome/capacitor-google-sign-in";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
 const API_BASE =
@@ -224,6 +223,7 @@ const PartnerRegister = () => {
 
       if (isNativeApp) {
         try {
+          const { GoogleSignIn } = await import("@capawesome/capacitor-google-sign-in");
           await GoogleSignIn.initialize({
             clientId: GOOGLE_CLIENT_ID,
           });
