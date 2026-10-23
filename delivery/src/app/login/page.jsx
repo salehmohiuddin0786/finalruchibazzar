@@ -15,7 +15,11 @@ import { auth } from "../firebase";
 import { Capacitor } from "@capacitor/core";
 import { GoogleSignIn } from "@capawesome/capacitor-google-sign-in";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" && window.location.hostname.includes("ruchibazaar.in")
+    ? "https://api.ruchibazaar.in/api"
+    : "http://localhost:7000/api");
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com";
@@ -171,8 +175,7 @@ export default function DeliveryPartnerLogin() {
 
       // Check if running inside Capacitor native app
       const isNativeApp =
-        typeof window !== "undefined" &&
-        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+        typeof window !== "undefined" && Capacitor.isNativePlatform();
 
       if (isNativeApp) {
         try {

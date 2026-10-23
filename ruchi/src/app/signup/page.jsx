@@ -28,7 +28,11 @@ import { auth } from '../firebase';
 import { Capacitor } from '@capacitor/core';
 import { GoogleSignIn } from '@capawesome/capacitor-google-sign-in';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== 'undefined' && window.location.hostname.includes('ruchibazaar.in')
+    ? 'https://api.ruchibazaar.in/api'
+    : 'http://localhost:7000/api');
 const GOOGLE_CLIENT_ID =
   process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
   '839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com';
@@ -56,7 +60,7 @@ export default function RegisterPage() {
 
     // Detect if running inside Capacitor Android/iOS native app
     try {
-      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+      if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
         setIsNative(true);
       }
     } catch (e) {
@@ -124,7 +128,7 @@ export default function RegisterPage() {
 
     const initGIS = () => {
       // Do not run web GIS iframe inside native Capacitor APK
-      if (typeof window !== 'undefined' && (Boolean(window.Capacitor) || Capacitor.isNativePlatform())) {
+      if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
         return;
       }
       if (typeof window !== 'undefined' && window.google?.accounts?.id) {
@@ -223,8 +227,7 @@ export default function RegisterPage() {
     try {
       // 1. Native Capacitor flow (Android APK)
       const isNativeApp =
-        typeof window !== 'undefined' &&
-        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+        typeof window !== 'undefined' && Capacitor.isNativePlatform();
 
       if (isNativeApp) {
         try {

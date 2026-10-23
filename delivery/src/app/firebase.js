@@ -5,12 +5,6 @@ const getAuthDomain = () => {
   if (process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN) {
     return process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN;
   }
-  if (typeof window !== "undefined") {
-    const hostname = window.location.hostname;
-    if (hostname.includes("ruchibazaar.in")) {
-      return "delivery.ruchibazaar.in";
-    }
-  }
   return "ruchibazzar-6eb3b.firebaseapp.com";
 };
 
