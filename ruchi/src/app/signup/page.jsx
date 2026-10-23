@@ -250,8 +250,10 @@ export default function RegisterPage() {
 
           if (response.data.success) {
             saveSessionAndRedirect(response.data);
+            return;
           } else {
             setError(response.data.message || 'Google signup failed');
+            return;
           }
         } catch (nativeError) {
           console.error('Native Google Sign-In error:', nativeError);
@@ -262,18 +264,12 @@ export default function RegisterPage() {
             msg.includes('cancelled') ||
             nativeError?.code === 'SIGN_IN_CANCELED'
           ) {
-            // Dismissed by user
-          } else {
-            setError(
-              msg ||
-                nativeError?.response?.data?.message ||
-                'Google sign-in was cancelled or failed.'
-            );
+            setGoogleLoading(false);
+            return;
           }
-        } finally {
-          setGoogleLoading(false);
+          console.warn('Native Google Sign-In failed, falling back to Web Google Auth:', nativeError);
+          // Fall through to Firebase Web Auth flow below
         }
-        return;
       }
 
       // 2. Web browser flow (popups or redirect)

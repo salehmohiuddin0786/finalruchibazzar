@@ -228,8 +228,10 @@ export default function LoginPage() {
           if (response.data.success) {
             await login({ token: response.data.token, user: response.data.user });
             router.push('/');
+            return;
           } else {
             setError(response.data.message || 'Google login failed');
+            return;
           }
         } catch (nativeError) {
           console.error('Native Google Sign-In error:', nativeError);
@@ -240,18 +242,12 @@ export default function LoginPage() {
             msg.includes('cancelled') ||
             nativeError?.code === 'SIGN_IN_CANCELED'
           ) {
-            // Cancelled or dismissed by user
-          } else {
-            setError(
-              msg ||
-                nativeError?.response?.data?.message ||
-                'Google sign-in was cancelled or failed.'
-            );
+            setGoogleLoading(false);
+            return;
           }
-        } finally {
-          setGoogleLoading(false);
+          console.warn('Native Google Sign-In failed, falling back to Web Google Auth:', nativeError);
+          // Fall through to Firebase Web Auth flow below
         }
-        return;
       }
 
       // 2. Web browser flow (popups or redirect)
