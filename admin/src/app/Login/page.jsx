@@ -19,11 +19,17 @@ import {
   signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
+  signInWithCredential,
 } from "firebase/auth";
 import { auth } from "../firebase";
+import { Capacitor } from "@capacitor/core";
+import { GoogleSignIn } from "@capawesome/capacitor-google-sign-in";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com";
 
 const UNDER_REVIEW_CODE = "RESTAURANT_UNDER_REVIEW";
 const UNDER_REVIEW_MESSAGE =
@@ -271,6 +277,72 @@ const Login = () => {
 
     try {
       setIsGoogleLoading(true);
+
+      // Check if running inside Capacitor Android/iOS native app
+      const isNativeApp =
+        typeof window !== "undefined" &&
+        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+
+      if (isNativeApp) {
+        try {
+          await GoogleSignIn.initialize({
+            clientId: GOOGLE_CLIENT_ID,
+          });
+
+          const result = await GoogleSignIn.signIn();
+          if (!result?.idToken) {
+            throw new Error("No ID token returned from Google Sign-In");
+          }
+
+          const credential = GoogleAuthProvider.credential(result.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const firebaseIdToken = await userCredential.user.getIdToken();
+
+          const response = await fetch(`${API_URL}/auth/google-portal`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Accept: "application/json",
+            },
+            body: JSON.stringify({ firebaseIdToken }),
+          });
+
+          const data = await parseApiResponse(response);
+
+          if (!response.ok) {
+            if (data.code === UNDER_REVIEW_CODE) {
+              setShowUnderReviewPopup(true);
+              return;
+            }
+            throw new Error(data.message || "Google login failed");
+          }
+
+          if (!data.token || !data.user) {
+            throw new Error("Invalid login response from server");
+          }
+
+          saveAuthData(data);
+          redirectTimeoutRef.current = setTimeout(() => {
+            redirectByRole(data.user.role);
+          }, 100);
+        } catch (nativeError) {
+          console.error("Native Google login error:", nativeError);
+          const msg = nativeError?.message || "";
+          if (
+            msg.includes("SIGN_IN_CANCELED") ||
+            msg.includes("canceled") ||
+            msg.includes("cancelled") ||
+            nativeError?.code === "SIGN_IN_CANCELED"
+          ) {
+            // Dismissed by user
+          } else {
+            setError(msg || "Google sign-in was cancelled or failed.");
+          }
+        } finally {
+          setIsGoogleLoading(false);
+        }
+        return;
+      }
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });

@@ -20,11 +20,20 @@ import {
   ArrowLeft,
   Chrome,
 } from "lucide-react";
-import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import {
+  GoogleAuthProvider,
+  signInWithPopup,
+  signInWithCredential,
+} from "firebase/auth";
 import { auth } from "../firebase";
+import { Capacitor } from "@capacitor/core";
+import { GoogleSignIn } from "@capawesome/capacitor-google-sign-in";
 import UnderReviewPopup from "../components/UnderReviewPopup";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const GOOGLE_CLIENT_ID =
+  process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+  "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com";
 const AUTH_BASE_API = `${API_BASE}/auth`;
 const AUTH_API = `${AUTH_BASE_API}/register`;
 const RESTAURANT_API = `${API_BASE}/restaurants`;
@@ -204,6 +213,53 @@ const PartnerRegister = () => {
 
     try {
       setIsGoogleLoading(true);
+
+      // Check if running inside Capacitor native app
+      const isNativeApp =
+        typeof window !== "undefined" &&
+        (Boolean(window.Capacitor) || Capacitor.isNativePlatform());
+
+      if (isNativeApp) {
+        try {
+          await GoogleSignIn.initialize({
+            clientId: GOOGLE_CLIENT_ID,
+          });
+
+          const result = await GoogleSignIn.signIn();
+          if (!result?.idToken) {
+            throw new Error("No ID token returned from Google Sign-In");
+          }
+
+          const credential = GoogleAuthProvider.credential(result.idToken);
+          const userCredential = await signInWithCredential(auth, credential);
+          const verifiedIdToken = await userCredential.user.getIdToken();
+          const googleUser = userCredential.user;
+
+          setFirebaseIdToken(verifiedIdToken);
+          setFormData((prev) => ({
+            ...prev,
+            ownerName: prev.ownerName || googleUser.displayName || result.displayName || "",
+            ownerEmail: googleUser.email || result.email || prev.ownerEmail,
+            restaurantEmail: prev.restaurantEmail || googleUser.email || result.email || "",
+          }));
+        } catch (nativeError) {
+          console.error("Native Google signup error:", nativeError);
+          const msg = nativeError?.message || "";
+          if (
+            msg.includes("SIGN_IN_CANCELED") ||
+            msg.includes("canceled") ||
+            msg.includes("cancelled") ||
+            nativeError?.code === "SIGN_IN_CANCELED"
+          ) {
+            // Dismissed by user
+          } else {
+            setError(msg || "Google sign-in was cancelled or failed.");
+          }
+        } finally {
+          setIsGoogleLoading(false);
+        }
+        return;
+      }
 
       const provider = new GoogleAuthProvider();
       provider.setCustomParameters({ prompt: "select_account" });

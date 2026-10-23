@@ -1,0 +1,68 @@
+{
+  "project_info": {
+    "project_number": "839794263601",
+    "project_id": "ruchibazzar-6eb3b",
+    "storage_bucket": "ruchibazzar-6eb3b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839794263601:android:bc96d692cc5773f8887710",
+        "android_client_info": {
+          "package_name": "in.ruchibazaar.delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDtuqWifdJamUOHzrB78tu9GB5qEC5uXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "839794263601-0p0r5p4lueahhtsg58vuvl5lvtsakk59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839794263601:android:528eb0bf6ad34f39887710",
+        "android_client_info": {
+          "package_name": "in.ruchibazaar.restaurant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDtuqWifdJamUOHzrB78tu9GB5qEC5uXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "839794263601-0p0r5p4lueahhtsg58vuvl5lvtsakk59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
