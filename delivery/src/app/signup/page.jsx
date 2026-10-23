@@ -346,7 +346,7 @@ export default function DeliveryPartnerSignup() {
               disabled={isLoading || isGoogleLoading}
               className={`mt-5 inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold shadow-lg transition disabled:opacity-60 ${
                 firebaseIdToken
-                  ? "bg-green-50 text-green-700"
+                  ? "bg-emerald-50 text-emerald-700"
                   : "bg-white text-gray-800 hover:bg-orange-50"
               }`}
             >
@@ -355,10 +355,24 @@ export default function DeliveryPartnerSignup() {
               ) : (
                 <>
                   {firebaseIdToken ? <CheckCircle size={18} /> : <Chrome size={18} />}
-                  {firebaseIdToken ? "Google account connected" : "Sign up with Google"}
+                  {firebaseIdToken ? "Google Account Connected" : "Sign up with Google"}
                 </>
               )}
             </button>
+
+            {firebaseIdToken && (
+              <div className="mt-4 max-w-md mx-auto p-4 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start gap-3 text-emerald-800 text-sm text-left">
+                <CheckCircle className="h-5 w-5 text-emerald-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">
+                    Google account verified: {formData.email || "Connected"}
+                  </p>
+                  <p className="text-emerald-700 text-xs mt-1">
+                    Your profile is linked. Please enter your mobile number and vehicle information below to complete registration.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
         <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">

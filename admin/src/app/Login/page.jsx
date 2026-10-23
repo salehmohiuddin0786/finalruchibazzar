@@ -63,6 +63,7 @@ const Login = () => {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
+  const [unregisteredPrompt, setUnregisteredPrompt] = useState(false);
   const [showUnderReviewPopup, setShowUnderReviewPopup] = useState(false);
 
   const redirectByRole = useCallback(
@@ -136,6 +137,11 @@ const Login = () => {
           if (!response.ok) {
             if (data.code === UNDER_REVIEW_CODE) {
               setShowUnderReviewPopup(true);
+              return;
+            }
+            if (data.message?.toLowerCase().includes("no admin or partner")) {
+              setUnregisteredPrompt(true);
+              setError("No restaurant partner account found for this Google email.");
               return;
             }
             throw new Error(data.message || "Google login failed");
@@ -317,6 +323,11 @@ const Login = () => {
               setShowUnderReviewPopup(true);
               return;
             }
+            if (data.message?.toLowerCase().includes("no admin or partner")) {
+              setUnregisteredPrompt(true);
+              setError("No restaurant partner account found for this Google email.");
+              return;
+            }
             throw new Error(data.message || "Google login failed");
           }
 
@@ -486,8 +497,19 @@ const Login = () => {
           </div>
 
           {error && (
-            <div className="mb-6 p-3 bg-red-500/20 border border-red-500/50 rounded-xl">
+            <div className="mb-6 p-4 bg-red-500/20 border border-red-500/50 rounded-xl space-y-3">
               <p className="text-sm text-red-200 text-center">{error}</p>
+              {unregisteredPrompt && (
+                <div className="text-center pt-2 border-t border-red-500/30">
+                  <button
+                    type="button"
+                    onClick={() => router.push("/register")}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg text-sm font-semibold hover:bg-red-700 transition"
+                  >
+                    Register as Restaurant Partner <ArrowRight size={16} />
+                  </button>
+                </div>
+              )}
             </div>
           )}
 

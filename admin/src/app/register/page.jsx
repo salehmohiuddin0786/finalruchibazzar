@@ -480,7 +480,7 @@ const PartnerRegister = () => {
             <p className="text-gray-500 mt-1">Step {step} of 6</p>
           </div>
 
-          <div className="mb-6 flex justify-center">
+          <div className="mb-6 flex flex-col items-center">
             <button
               type="button"
               onClick={handleGoogleSignup}
@@ -496,10 +496,24 @@ const PartnerRegister = () => {
               ) : (
                 <>
                   {firebaseIdToken ? <CheckCircle size={18} /> : <Chrome size={18} />}
-                  {firebaseIdToken ? "Google account connected" : "Sign up with Google"}
+                  {firebaseIdToken ? "Google Account Connected" : "Sign up with Google"}
                 </>
               )}
             </button>
+
+            {firebaseIdToken && (
+              <div className="mt-4 w-full p-4 bg-green-50 border border-green-200 rounded-xl flex items-start gap-3 text-green-800 text-sm">
+                <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold">
+                    Google account verified: {formData.ownerEmail || "Connected"}
+                  </p>
+                  <p className="text-green-700 text-xs mt-1">
+                    Your owner details are linked. Please fill in your restaurant name and contact details below to complete your partner registration.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="w-full bg-gray-200 rounded-full h-2 mb-6">

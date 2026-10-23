@@ -58,6 +58,7 @@ export default function DeliveryPartnerLogin() {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [unregisteredPrompt, setUnregisteredPrompt] = useState(false);
 
   // Load saved email if "Remember Me" was checked
   useEffect(() => {
@@ -85,6 +86,11 @@ export default function DeliveryPartnerLogin() {
 
           const data = await parseApiResponse(response);
           if (!response.ok) {
+            if (data.message?.toLowerCase().includes("no delivery partner")) {
+              setUnregisteredPrompt(true);
+              setError("No delivery partner account found for this Google email.");
+              return;
+            }
             throw new Error(data.message || "Google login failed");
           }
 
@@ -201,6 +207,11 @@ export default function DeliveryPartnerLogin() {
           const data = await parseApiResponse(response);
 
           if (!response.ok) {
+            if (data.message?.toLowerCase().includes("no delivery partner")) {
+              setUnregisteredPrompt(true);
+              setError("No delivery partner account found for this Google email.");
+              return;
+            }
             throw new Error(data.message || "Google login failed");
           }
 
@@ -319,13 +330,24 @@ export default function DeliveryPartnerLogin() {
         <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           <form onSubmit={handleSubmit} className="p-6 space-y-5">
             {error && (
-              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md animate-shake">
+              <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md animate-shake space-y-3">
                 <div className="flex items-center">
-                  <svg className="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                   <span className="text-red-700 text-sm">{error}</span>
                 </div>
+                {unregisteredPrompt && (
+                  <div className="pt-2 border-t border-red-200 text-center">
+                    <button
+                      type="button"
+                      onClick={() => router.push("/signup")}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-xs font-semibold transition shadow-sm"
+                    >
+                      Register as Delivery Partner
+                    </button>
+                  </div>
+                )}
               </div>
             )}
 
