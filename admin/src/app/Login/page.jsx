@@ -339,6 +339,7 @@ const Login = () => {
           redirectTimeoutRef.current = setTimeout(() => {
             redirectByRole(data.user.role);
           }, 100);
+          return;
         } catch (nativeError) {
           console.error("Native Google login error:", nativeError);
           const msg = nativeError?.message || "";
@@ -348,14 +349,12 @@ const Login = () => {
             msg.includes("cancelled") ||
             nativeError?.code === "SIGN_IN_CANCELED"
           ) {
-            // Dismissed by user
-          } else {
-            setError(msg || "Google sign-in was cancelled or failed.");
+            setIsGoogleLoading(false);
+            return;
           }
-        } finally {
-          setIsGoogleLoading(false);
+          console.warn("Native Google Sign-In failed, falling back to Web Google Auth:", nativeError);
+          // Fall through to Firebase Web Auth flow below
         }
-        return;
       }
 
       const provider = new GoogleAuthProvider();

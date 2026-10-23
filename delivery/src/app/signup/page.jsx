@@ -178,6 +178,7 @@ export default function DeliveryPartnerSignup() {
             fullName: prev.fullName || googleUser.displayName || result.displayName || "",
             email: googleUser.email || result.email || prev.email,
           }));
+          return;
         } catch (nativeError) {
           console.error("Native Delivery Google signup error:", nativeError);
           const msg = nativeError?.message || "";
@@ -187,14 +188,12 @@ export default function DeliveryPartnerSignup() {
             msg.includes("cancelled") ||
             nativeError?.code === "SIGN_IN_CANCELED"
           ) {
-            // Dismissed by user
-          } else {
-            setError(msg || "Google sign-in was cancelled or failed.");
+            setIsGoogleLoading(false);
+            return;
           }
-        } finally {
-          setIsGoogleLoading(false);
+          console.warn("Native Delivery Google Sign-In failed, falling back to Web Google Auth:", nativeError);
+          // Fall through to Firebase Web Auth flow below
         }
-        return;
       }
 
       const provider = new GoogleAuthProvider();

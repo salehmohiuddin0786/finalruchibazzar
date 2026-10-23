@@ -245,6 +245,7 @@ const PartnerRegister = () => {
             ownerEmail: googleUser.email || result.email || prev.ownerEmail,
             restaurantEmail: prev.restaurantEmail || googleUser.email || result.email || "",
           }));
+          return;
         } catch (nativeError) {
           console.error("Native Google signup error:", nativeError);
           const msg = nativeError?.message || "";
@@ -254,14 +255,12 @@ const PartnerRegister = () => {
             msg.includes("cancelled") ||
             nativeError?.code === "SIGN_IN_CANCELED"
           ) {
-            // Dismissed by user
-          } else {
-            setError(msg || "Google sign-in was cancelled or failed.");
+            setIsGoogleLoading(false);
+            return;
           }
-        } finally {
-          setIsGoogleLoading(false);
+          console.warn("Native Google Sign-In failed, falling back to Web Google Auth:", nativeError);
+          // Fall through to Firebase Web Auth flow below
         }
-        return;
       }
 
       const provider = new GoogleAuthProvider();
