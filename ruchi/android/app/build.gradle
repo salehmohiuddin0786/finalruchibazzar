@@ -4,7 +4,7 @@ android {
     namespace = "in.ruchibazaar.customer"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "in.ruchibazaar.customer"
+        applicationId "ruchibazaar.com"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
