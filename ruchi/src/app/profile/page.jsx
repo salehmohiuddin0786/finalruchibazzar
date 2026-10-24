@@ -111,6 +111,8 @@ const Page = () => {
   });
 
   const [addingPayment, setAddingPayment] = useState(false);
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
 
   const [preferences, setPreferences] = useState({
     notifications: {
@@ -153,6 +155,32 @@ const Page = () => {
   const showError = (message) => {
     setError(message);
     setTimeout(() => setError(null), 4000);
+  };
+
+  const handleDeleteAccount = async () => {
+    try {
+      setDeletingAccount(true);
+      const token = getToken();
+      const res = await fetch(`${apiUrl}/users/profile`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Failed to delete account");
+      setShowDeleteAccountModal(false);
+      showSuccess("Your account and associated data have been permanently deleted.");
+      setTimeout(() => {
+        logout();
+        router.push("/");
+      }, 1500);
+    } catch (err) {
+      showError(err.message || "Could not delete account. Please try again.");
+    } finally {
+      setDeletingAccount(false);
+    }
   };
 
   const getToken = () => localStorage.getItem("token");
@@ -730,6 +758,61 @@ const Page = () => {
             <span className="font-semibold text-gray-800">Favorite Food</span>
           </div>
           <p className="text-gray-700">{userData.favoriteFood}</p>
+        </div>
+      )}
+
+      {/* Account Deletion & Privacy - Google Play Data Safety Compliance */}
+      <div className="bg-rose-50/60 rounded-2xl border border-rose-200 p-6 space-y-3">
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <div>
+            <h3 className="font-bold text-rose-900 flex items-center gap-2 text-base">
+              <Trash2 className="w-5 h-5 text-rose-600" /> Account &amp; Data Deletion
+            </h3>
+            <p className="text-xs sm:text-sm text-rose-700 mt-1 max-w-xl">
+              Permanently delete your account, delivery addresses, and personal profile in compliance with Google Play Data Safety policies.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowDeleteAccountModal(true)}
+            className="px-4 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs sm:text-sm shadow-sm transition"
+          >
+            Delete Account
+          </button>
+        </div>
+      </div>
+
+      {showDeleteAccountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-slate-100">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <div className="text-center space-y-1">
+              <h3 className="text-lg font-bold text-slate-900">Permanently Delete Account?</h3>
+              <p className="text-xs text-slate-500">
+                This action is irreversible. Your profile, contact details, saved addresses, and all associated personal data will be completely wiped from Ruchi Bazaar.
+              </p>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteAccountModal(false)}
+                disabled={deletingAccount}
+                className="flex-1 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-semibold text-xs hover:bg-slate-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAccount}
+                disabled={deletingAccount}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-md shadow-rose-200 transition disabled:opacity-60"
+              >
+                {deletingAccount ? "Deleting..." : "Yes, Delete Account"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

@@ -9,7 +9,9 @@ const {
   addAddress,
   updateAddress,
   deleteAddress,
-  setDefaultAddress
+  setDefaultAddress,
+  deleteAccount,
+  requestAccountDeletion,
 } = require("../controllers/user.controller");
 
 const { protect } = require("../middlewares/auth.middleware");
@@ -34,5 +36,10 @@ router.put("/addresses/:id/default", protect, setDefaultAddress);
 
 // 📍 Update Live Location (for delivery tracking)
 router.put("/location", protect, updateLocation);
+
+// 🗑️ Delete Account & Data (In-app and Web-triggered)
+router.delete("/profile", protect, deleteAccount);
+router.delete("/account", protect, deleteAccount);
+router.post("/delete-request", requestAccountDeletion);
 
 module.exports = router;

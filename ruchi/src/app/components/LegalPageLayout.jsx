@@ -24,7 +24,8 @@ import {
   Sparkles,
   Store,
   Bike,
-  Scale
+  Scale,
+  ShieldAlert
 } from "lucide-react";
 
 const NAV_GROUPS = [
@@ -45,6 +46,7 @@ const NAV_GROUPS = [
       { label: "Food Safety & Quality", href: "/food-safety", icon: Sparkles },
       { label: "Grievance Redressal", href: "/grievance", icon: Scale },
       { label: "Accessibility Statement", href: "/accessibility", icon: HeartHandshake },
+      { label: "Delete Account & Data", href: "/delete-account", icon: ShieldAlert },
     ],
   },
   {
