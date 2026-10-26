@@ -173,13 +173,13 @@ export default function LegalPageLayout({
                   <div className="flex items-center gap-2">
                     <Phone className="w-3.5 h-3.5 text-red-500 shrink-0" />
                     <a href="tel:+911800123456" className="font-semibold hover:text-red-600 transition-colors">
-                      1800-123-456
+                      +91 9985960692
                     </a>
                   </div>
                   <div className="flex items-center gap-2">
                     <Mail className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                    <a href="mailto:support@ruchibazaar.in" className="hover:text-red-600 transition-colors truncate">
-                      support@ruchibazaar.in
+                    <a href="mailto:support@digitalcrowdtech.in" className="hover:text-red-600 transition-colors truncate">
+                      support@digitalcrowdtech.in
                     </a>
                   </div>
                 </div>

@@ -45,12 +45,12 @@ export default function GrievancePage() {
                 <p className="text-xs sm:text-sm text-slate-600 mt-1">
                   For active delivery delays, missing food items, payment deductions, or app queries. 
                   Contact our in-app chat or email{" "}
-                  <a href="mailto:support@ruchibazaar.in" className="text-red-600 hover:underline font-bold">
-                    support@ruchibazaar.in
+                  <a href="mailto:support@digitalcrowdtech.in" className="text-red-600 hover:underline font-bold">
+                    support@digitalcrowdtech.in
                   </a>{" "}
                   (Toll-Free:{" "}
                   <a href="tel:+911800123456" className="text-red-600 hover:underline font-bold">
-                    1800-123-456
+                    +91 9985960692
                   </a>).
                 </p>
                 <div className="mt-2 text-xs font-semibold text-emerald-700">

@@ -52,8 +52,8 @@ export default function ForgotPasswordPage() {
               <p>Contact Ruchi Bazaar Customer Support directly:</p>
               <p className="font-mono text-purple-900 font-bold">
                 Email:{" "}
-                <a href="mailto:support@ruchibazaar.in" className="hover:underline">
-                  support@ruchibazaar.in
+                <a href="mailto:support@digitalcrowdtech.in" className="hover:underline">
+                  support@digitalcrowdtech.in
                 </a>
               </p>
               <p className="font-mono text-purple-900 font-bold">

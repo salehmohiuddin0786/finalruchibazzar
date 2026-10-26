@@ -190,7 +190,7 @@ export default function PrivacyPolicyPage() {
             <p>
               <strong>Helpline:</strong>{" "}
               <a href="tel:+911800123456" className="text-red-600 hover:underline font-medium">
-                1800-123-456
+                +91 9985960692
               </a>{" "}
               (9:00 AM – 7:00 PM IST)
             </p>

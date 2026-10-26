@@ -42,7 +42,7 @@ export default function ContactUsPage() {
             </div>
             <div className="mt-4">
               <a href="tel:1800123456" className="text-red-600 font-extrabold text-lg block hover:underline">
-                1800-123-456
+                +91 9985960692
               </a>
               <span className="text-[11px] text-slate-500">Available 8:00 AM – 11:00 PM</span>
             </div>
@@ -57,8 +57,8 @@ export default function ContactUsPage() {
               <p className="text-xs text-slate-600 mt-1">Direct ticketing &amp; refunds</p>
             </div>
             <div className="mt-4">
-              <a href="mailto:support@ruchibazaar.in" className="text-orange-600 font-bold text-sm block hover:underline truncate">
-                support@ruchibazaar.in
+              <a href="mailto:support@digitalcrowdtech.in" className="text-orange-600 font-bold text-sm block hover:underline truncate">
+                support@digitalcrowdtech.in
               </a>
               <span className="text-[11px] text-slate-500">24/7 Response within 2 hours</span>
             </div>

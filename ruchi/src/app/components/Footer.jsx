@@ -139,7 +139,7 @@ const Footer = () => {
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">24/7 Customer Support</p>
                     <a href="tel:+911800123456" className="text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300">
-                      📞 1800-123-456
+                      📞 +91 9985960692
                     </a>
                   </div>
                 </li>
@@ -149,8 +149,8 @@ const Footer = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">Email us at</p>
-                    <a href="mailto:support@ruchibazaar.in" className="text-base sm:text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300 break-all">
-                      ✉️ support@ruchibazaar.in
+                    <a href="mailto:support@digitalcrowdtech.in" className="text-base sm:text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300 break-all">
+                      ✉️ support@digitalcrowdtech.in
                     </a>
                   </div>
                 </li>
