@@ -257,7 +257,7 @@ export default function RegisterPage() {
           }
         } catch (nativeError) {
           console.error('Native Google Sign-In error:', nativeError);
-          const msg = nativeError?.message || '';
+          const msg = String(nativeError?.message || nativeError || '');
           if (
             msg.includes('SIGN_IN_CANCELED') ||
             msg.includes('canceled') ||
@@ -267,8 +267,37 @@ export default function RegisterPage() {
             setGoogleLoading(false);
             return;
           }
-          console.warn('Native Google Sign-In failed, falling back to Web Google Auth:', nativeError);
-          // Fall through to Firebase Web Auth flow below
+          if (
+            msg.includes('PROVIDER_CONFIGURATION_ERROR') ||
+            msg.includes('not configured') ||
+            msg.includes('10') ||
+            msg.includes('DEVELOPER_ERROR')
+          ) {
+            setError(
+              'Google Sign-In needs this app build SHA-1 fingerprint registered in Firebase / Google Cloud Console. Please sign up with details or register the fingerprint.'
+            );
+            setGoogleLoading(false);
+            return;
+          }
+          console.warn('Native Google Sign-In failed, attempting web popup fallback:', nativeError);
+          try {
+            const provider = new GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const popupResult = await signInWithPopup(auth, provider);
+            if (popupResult?.user) {
+              const firebaseIdToken = await popupResult.user.getIdToken();
+              const response = await axios.post(`${API_URL}/auth/google`, { firebaseIdToken });
+              if (response.data.success) {
+                saveSessionAndRedirect(response.data);
+                return;
+              }
+            }
+          } catch (popupErr) {
+            console.error('Popup fallback also failed:', popupErr);
+            setError(popupErr.message || nativeError.message || 'Google signup failed');
+            setGoogleLoading(false);
+            return;
+          }
         }
       }
 
