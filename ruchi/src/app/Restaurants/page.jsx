@@ -14,7 +14,7 @@ import {
 
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { getMediaUrl } from "../utils/media";
+import { getMediaUrl, hideBrokenImage, getDefaultRestaurantImage } from "../utils/media";
 
 const SkeletonCard = () => (
   <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden animate-pulse">
@@ -96,16 +96,7 @@ const RestaurantsPageContent = () => {
       restaurant.coverImage ||
       restaurant.outletPhotos?.[0];
 
-    if (!image) return "";
-
-    const value = String(image).trim();
-
-  // ✅ base64 image support
-    if (value.startsWith("data:image")) {
-      return value;
-    }
-
-    return getMediaUrl(value, API_BASE);
+    return getMediaUrl(image, API_BASE, "restaurant", restaurant.name, restaurant.cuisine);
   };
 
   const formatMoney = (value, fallbackValue = 0) => {
@@ -635,7 +626,10 @@ const RestaurantsPageContent = () => {
                         } ${loadedImages[restaurant.id] ? "opacity-100" : "opacity-0"}`}
                         onLoad={() => handleImageLoad(restaurant.id)}
                         onError={(event) => {
-                          console.log("Image not loading:", restaurant.imageUrl);
+                          hideBrokenImage(
+                            event,
+                            getDefaultRestaurantImage(restaurant.name, restaurant.cuisine)
+                          );
                           handleImageLoad(restaurant.id);
                         }}
                       />

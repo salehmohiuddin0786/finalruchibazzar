@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { getMediaUrl, hideBrokenImage } from "../utils/media";
+import { getMediaUrl, hideBrokenImage, getDefaultFoodImage } from "../utils/media";
 
 const CartPage = () => {
   const router = useRouter();
@@ -643,22 +643,28 @@ const CartPage = () => {
                         <div key={item.id} className="p-4 sm:p-6">
                           <div className="flex flex-col xs:flex-row gap-4">
                             <div className="w-full xs:w-20 h-20 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
-                              {item.dish?.image ? (
-                                <img
-                                  src={getMediaUrl(item.dish.image, apiUrl)}
-                                  alt={item.dish?.name || "Dish"}
-                                  loading="lazy"
-                                  decoding="async"
-                                  className="w-full h-full object-cover"
-                                  onError={hideBrokenImage}
-                                />
-                              ) : (
-                                <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                                  <span className="text-gray-400 text-2xl">
-                                    🍽️
-                                  </span>
-                                </div>
-                              )}
+                              <img
+                                src={getMediaUrl(
+                                  item.dish?.image,
+                                  apiUrl,
+                                  "dish",
+                                  item.dish?.name,
+                                  item.dish?.category
+                                )}
+                                alt={item.dish?.name || "Dish"}
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover"
+                                onError={(e) =>
+                                  hideBrokenImage(
+                                    e,
+                                    getDefaultFoodImage(
+                                      item.dish?.category,
+                                      item.dish?.name
+                                    )
+                                  )
+                                }
+                              />
                             </div>
 
                             <div className="flex-1 min-w-0">

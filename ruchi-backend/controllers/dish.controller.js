@@ -56,7 +56,7 @@ const createDish = async (req, res) => {
       description: description || null,
       price,
       restaurantId,
-      image: req.file ? req.file.filename : null
+      image: req.file ? `/uploads/${req.file.filename}` : (req.body.image || null)
     });
 
     return res.status(201).json({
@@ -220,7 +220,9 @@ const updateDish = async (req, res) => {
     }
 
     if (req.file) {
-      updates.image = req.file.filename;
+      updates.image = `/uploads/${req.file.filename}`;
+    } else if (req.body.image !== undefined) {
+      updates.image = req.body.image;
     }
 
     await dish.update(updates);

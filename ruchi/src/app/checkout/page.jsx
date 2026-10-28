@@ -30,7 +30,7 @@ import {
 import { FaMoneyBillWave } from "react-icons/fa";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
-import { getMediaUrl, hideBrokenImage } from "../utils/media";
+import { getMediaUrl, hideBrokenImage, getDefaultFoodImage } from "../utils/media";
 
 const steps = ["Cart Review", "Delivery Details", "Payment", "Confirmation"];
 
@@ -1130,18 +1130,26 @@ const CheckoutPage = () => {
                   <div key={item.id} className="p-6 hover:bg-gray-50 transition-colors">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                       <div className="w-20 h-20 flex-shrink-0 relative rounded-xl overflow-hidden shadow-md">
-                        {item.dish?.image ? (
-                          <img
-                            src={getMediaUrl(item.dish.image, apiUrl)}
-                            alt={item.dish?.name || "Dish"}
-                            className="w-full h-full object-cover"
-                            onError={hideBrokenImage}
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-orange-100 to-red-100 rounded-xl flex items-center justify-center">
-                            <span className="text-2xl">🍽️</span>
-                          </div>
-                        )}
+                        <img
+                          src={getMediaUrl(
+                            item.dish?.image,
+                            apiUrl,
+                            "dish",
+                            item.dish?.name,
+                            item.dish?.category
+                          )}
+                          alt={item.dish?.name || "Dish"}
+                          className="w-full h-full object-cover"
+                          onError={(e) =>
+                            hideBrokenImage(
+                              e,
+                              getDefaultFoodImage(
+                                item.dish?.category,
+                                item.dish?.name
+                              )
+                            )
+                          }
+                        />
                       </div>
 
                       <div className="flex-grow">

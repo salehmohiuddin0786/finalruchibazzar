@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 import Navbar from '../../components/Navbar';
 import Footer from '../../components/Footer';
-import { getMediaUrl, hideBrokenImage } from '../../utils/media';
+import { getMediaUrl, hideBrokenImage, getDefaultFoodImage, getDefaultRestaurantImage } from '../../utils/media';
 
 const RestaurantMenuPage = () => {
   const params = useParams();
@@ -131,7 +131,9 @@ const RestaurantMenuPage = () => {
         address: restaurantData.address || 'Location available',
         image: getMediaUrl(
           restaurantData.coverImage || restaurantData.logo || restaurantData.image,
-          apiUrl
+          apiUrl,
+          "restaurant",
+          restaurantData.name
         ),
         isOpen: restaurantData.isOpen !== undefined ? restaurantData.isOpen : true,
         rating: 4.5,
@@ -164,21 +166,24 @@ const RestaurantMenuPage = () => {
       const dishList = normalizeListResponse(data, 'data');
 
       // Transform dishes data
-      const transformedDishes = dishList.map((dish, index) => ({
-        id: dish.id,
-        name: dish.name,
-        description: dish.description || 'Delicious dish prepared with fresh ingredients',
-        price: Number(dish.price ?? dish.mrp ?? dish.salePrice ?? 0),
-        image: getMediaUrl(dish.image, apiUrl),
-        category: getCategoryFromName(dish.name),
-        popular: index < 3,
-        spicy: dish.name.toLowerCase().includes('spicy') || Math.random() > 0.7,
-        vegetarian: dish.name.toLowerCase().includes('veg') || Math.random() > 0.6,
-        preparationTime: '15-20 min',
-        rating: 4.5,
-        reviewCount: Math.floor(Math.random() * 50) + 10,
-        restaurantId: restaurantId
-      }));
+      const transformedDishes = dishList.map((dish, index) => {
+        const cat = getCategoryFromName(dish.name);
+        return {
+          id: dish.id,
+          name: dish.name,
+          description: dish.description || 'Delicious dish prepared with fresh ingredients',
+          price: Number(dish.price ?? dish.mrp ?? dish.salePrice ?? 0),
+          image: getMediaUrl(dish.image, apiUrl, "food", dish.name, cat),
+          category: cat,
+          popular: index < 3,
+          spicy: dish.name.toLowerCase().includes('spicy') || Math.random() > 0.7,
+          vegetarian: dish.name.toLowerCase().includes('veg') || Math.random() > 0.6,
+          preparationTime: '15-20 min',
+          rating: 4.5,
+          reviewCount: Math.floor(Math.random() * 50) + 10,
+          restaurantId: restaurantId
+        };
+      });
       
       setDishes(transformedDishes);
     } catch (err) {
@@ -194,19 +199,19 @@ const RestaurantMenuPage = () => {
   const getSampleDishes = (restaurantName) => {
     if (restaurantName.toLowerCase().includes('biryani')) {
       return [
-        { id: 1, name: 'Hyderabadi Chicken Biryani', description: 'Authentic Hyderabadi dum biryani with tender chicken', price: 350, category: 'Biryani', popular: true, spicy: true, vegetarian: false, preparationTime: '25-30 min', rating: 4.8, reviewCount: 156, restaurantId: restaurantId },
-        { id: 2, name: 'Mutton Biryani', description: 'Slow-cooked mutton biryani with aromatic spices', price: 450, category: 'Biryani', popular: true, spicy: true, vegetarian: false, preparationTime: '30-35 min', rating: 4.9, reviewCount: 203, restaurantId: restaurantId },
-        { id: 3, name: 'Veg Biryani', description: 'Flavorful vegetable biryani with basmati rice', price: 250, category: 'Biryani', popular: false, spicy: false, vegetarian: true, preparationTime: '20-25 min', rating: 4.3, reviewCount: 89, restaurantId: restaurantId },
-        { id: 4, name: 'Chicken 65', description: 'Spicy deep-fried chicken appetizer', price: 280, category: 'Starters', popular: true, spicy: true, vegetarian: false, preparationTime: '15-20 min', rating: 4.6, reviewCount: 112, restaurantId: restaurantId },
-        { id: 5, name: 'Mirchi ka Salan', description: 'Spicy curry made with green chilies', price: 180, category: 'Curries', popular: false, spicy: true, vegetarian: true, preparationTime: '10-15 min', rating: 4.4, reviewCount: 67, restaurantId: restaurantId },
-        { id: 6, name: 'Double ka Meetha', description: 'Traditional Hyderabadi bread pudding', price: 150, category: 'Desserts', popular: true, spicy: false, vegetarian: true, preparationTime: '10-15 min', rating: 4.7, reviewCount: 94, restaurantId: restaurantId }
+        { id: 1, name: 'Hyderabadi Chicken Biryani', image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&auto=format&fit=crop&q=80', description: 'Authentic Hyderabadi dum biryani with tender chicken', price: 350, category: 'Biryani', popular: true, spicy: true, vegetarian: false, preparationTime: '25-30 min', rating: 4.8, reviewCount: 156, restaurantId: restaurantId },
+        { id: 2, name: 'Mutton Biryani', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80', description: 'Slow-cooked mutton biryani with aromatic spices', price: 450, category: 'Biryani', popular: true, spicy: true, vegetarian: false, preparationTime: '30-35 min', rating: 4.9, reviewCount: 203, restaurantId: restaurantId },
+        { id: 3, name: 'Veg Biryani', image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&auto=format&fit=crop&q=80', description: 'Flavorful vegetable biryani with basmati rice', price: 250, category: 'Biryani', popular: false, spicy: false, vegetarian: true, preparationTime: '20-25 min', rating: 4.3, reviewCount: 89, restaurantId: restaurantId },
+        { id: 4, name: 'Chicken 65', image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80', description: 'Spicy deep-fried chicken appetizer', price: 280, category: 'Starters', popular: true, spicy: true, vegetarian: false, preparationTime: '15-20 min', rating: 4.6, reviewCount: 112, restaurantId: restaurantId },
+        { id: 5, name: 'Mirchi ka Salan', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&auto=format&fit=crop&q=80', description: 'Spicy curry made with green chilies', price: 180, category: 'Curries', popular: false, spicy: true, vegetarian: true, preparationTime: '10-15 min', rating: 4.4, reviewCount: 67, restaurantId: restaurantId },
+        { id: 6, name: 'Double ka Meetha', image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80', description: 'Traditional Hyderabadi bread pudding', price: 150, category: 'Desserts', popular: true, spicy: false, vegetarian: true, preparationTime: '10-15 min', rating: 4.7, reviewCount: 94, restaurantId: restaurantId }
       ];
     }
     // Default dishes
     return [
-      { id: 1, name: 'Special Thali', description: 'Complete meal with assorted dishes', price: 299, category: 'Main Course', popular: true, spicy: false, vegetarian: true, preparationTime: '20-25 min', rating: 4.5, reviewCount: 120, restaurantId: restaurantId },
-      { id: 2, name: 'Paneer Butter Masala', description: 'Cottage cheese in creamy tomato gravy', price: 249, category: 'Main Course', popular: true, spicy: false, vegetarian: true, preparationTime: '15-20 min', rating: 4.6, reviewCount: 89, restaurantId: restaurantId },
-      { id: 3, name: 'Butter Chicken', description: 'Tender chicken in rich butter gravy', price: 329, category: 'Main Course', popular: true, spicy: true, vegetarian: false, preparationTime: '20-25 min', rating: 4.7, reviewCount: 156, restaurantId: restaurantId },
+      { id: 1, name: 'Special Thali', image: 'https://images.unsplash.com/photo-1610057099443-fde8c4d50f91?w=600&auto=format&fit=crop&q=80', description: 'Complete meal with assorted dishes', price: 299, category: 'Main Course', popular: true, spicy: false, vegetarian: true, preparationTime: '20-25 min', rating: 4.5, reviewCount: 120, restaurantId: restaurantId },
+      { id: 2, name: 'Paneer Butter Masala', image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&auto=format&fit=crop&q=80', description: 'Cottage cheese in creamy tomato gravy', price: 249, category: 'Main Course', popular: true, spicy: false, vegetarian: true, preparationTime: '15-20 min', rating: 4.6, reviewCount: 89, restaurantId: restaurantId },
+      { id: 3, name: 'Butter Chicken', image: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80', description: 'Tender chicken in rich butter gravy', price: 329, category: 'Main Course', popular: true, spicy: true, vegetarian: false, preparationTime: '20-25 min', rating: 4.7, reviewCount: 156, restaurantId: restaurantId },
     ];
   };
 
@@ -526,7 +531,7 @@ const RestaurantMenuPage = () => {
                     src={restaurant.image}
                     alt={restaurant.name}
                     className="w-full h-full object-cover"
-                    onError={hideBrokenImage}
+                    onError={(e) => hideBrokenImage(e, getDefaultRestaurantImage(restaurant?.name))}
                   />
                 </div>
               )}
@@ -612,7 +617,7 @@ const RestaurantMenuPage = () => {
                             loading="lazy"
                             decoding="async"
                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            onError={hideBrokenImage}
+                            onError={(e) => hideBrokenImage(e, getDefaultFoodImage(dish?.category, dish?.name))}
                           />
                         ) : (
                           <div className={`w-full h-full bg-gradient-to-br ${

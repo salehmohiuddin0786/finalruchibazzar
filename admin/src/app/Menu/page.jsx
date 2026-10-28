@@ -29,6 +29,42 @@ import Header from "../components/Header";
 
 const API = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000").replace(/\/api\/?$/, "");
 
+const getDefaultFoodImage = (category = "", name = "") => {
+  const text = `${category} ${name}`.toLowerCase();
+  if (text.includes("biryani") || text.includes("dum") || text.includes("rice")) {
+    return "https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("pizza")) {
+    return "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("burger") || text.includes("sandwich")) {
+    return "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("chicken") || text.includes("mutton") || text.includes("curry") || text.includes("meat")) {
+    return "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("paneer") || text.includes("veg") || text.includes("dal")) {
+    return "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("dessert") || text.includes("sweet") || text.includes("cake") || text.includes("ice cream")) {
+    return "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80";
+  }
+  if (text.includes("chinese") || text.includes("noodle") || text.includes("manchurian")) {
+    return "https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&auto=format&fit=crop&q=80";
+  }
+  return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80";
+};
+
+const getMediaUrl = (path, name = "", category = "") => {
+  if (!path) return getDefaultFoodImage(category, name);
+  const val = String(path).trim();
+  if (!val) return getDefaultFoodImage(category, name);
+  if (/^(https?:|data:|blob:)/i.test(val)) return val;
+  if (val.startsWith("/uploads/")) return `${API}${val}`;
+  if (val.startsWith("/")) return `${API}${val}`;
+  return `${API}/uploads/${val}`;
+};
+
 const getToken = () =>
   typeof window !== "undefined"
     ? localStorage.getItem("token") || sessionStorage.getItem("token")
@@ -121,11 +157,7 @@ const DishFormModal = ({ type, onClose, onSubmit, restaurantId, dish }) => {
 
   const [errors, setErrors] = useState({});
   const [imagePreview, setImagePreview] = useState(
-    dish?.image
-      ? dish.image.startsWith("http")
-        ? dish.image
-        : `${API}${dish.image}`
-      : null
+    dish?.image ? getMediaUrl(dish.image, dish.name, dish.category) : null
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -353,11 +385,7 @@ const DishFormModal = ({ type, onClose, onSubmit, restaurantId, dish }) => {
 const EnhancedDishCard = ({ dish, onDelete, onEdit }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const imageUrl = dish.image
-    ? dish.image.startsWith("http")
-      ? dish.image
-      : `${API}${dish.image}`
-    : null;
+  const imageUrl = getMediaUrl(dish.image, dish.name, dish.category);
 
   return (
     <>
@@ -368,6 +396,12 @@ const EnhancedDishCard = ({ dish, onDelete, onEdit }) => {
               src={imageUrl}
               alt={dish.name}
               className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              onError={(e) => {
+                if (e.currentTarget.dataset.fallback !== "true") {
+                  e.currentTarget.dataset.fallback = "true";
+                  e.currentTarget.src = getDefaultFoodImage(dish.category, dish.name);
+                }
+              }}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200">

@@ -8,7 +8,7 @@ import WhyChooseUs from './components/WhyChooseUs';
 import PopularRestaurants from './components/PopularRestaurants';
 import AchievementsSection from './components/AchievementsSection';
 import SpecialOffer from './components/SpecialOffer';
-import { getMediaUrl, hideBrokenImage } from './utils/media';
+import { getMediaUrl, hideBrokenImage, getDefaultFoodImage, getDefaultRestaurantImage } from './utils/media';
 import { 
   Search, Star, Clock, Shield, Truck, ArrowRight, ShoppingBag, Utensils, 
   TrendingUp, Users, Award, Sparkles, Heart, Zap, ChevronRight, 
@@ -446,21 +446,24 @@ const Page = () => {
       const data = await response.json();
       
       // Transform dishes data
-      const transformedDishes = normalizeListResponse(data, "dishes").map((dish, index) => ({
-        id: dish.id,
-        name: dish.name,
-        description: dish.description || 'Delicious dish prepared with fresh ingredients',
-        price: dish.price,
-        image: getMediaUrl(dish.image, apiUrl),
-        restaurant: dish.Restaurant?.name || 'Various Restaurant',
-        rating: dish.rating || (4.0 + Math.random() * 0.9).toFixed(1),
-        deliveryTime: '20-30 min',
-        category: getCategoryFromName(dish.name),
-        popular: index < 4,
-        spicy: Math.random() > 0.6,
-        veg: Math.random() > 0.7,
-        orders: Math.floor(Math.random() * 500) + 100
-      }));
+      const transformedDishes = normalizeListResponse(data, "dishes").map((dish, index) => {
+        const cat = getCategoryFromName(dish.name);
+        return {
+          id: dish.id,
+          name: dish.name,
+          description: dish.description || 'Delicious dish prepared with fresh ingredients',
+          price: dish.price,
+          image: getMediaUrl(dish.image, apiUrl, "food", dish.name, cat),
+          restaurant: dish.Restaurant?.name || 'Various Restaurant',
+          rating: dish.rating || (4.0 + Math.random() * 0.9).toFixed(1),
+          deliveryTime: '20-30 min',
+          category: cat,
+          popular: index < 4,
+          spicy: Math.random() > 0.6,
+          veg: Math.random() > 0.7,
+          orders: Math.floor(Math.random() * 500) + 100
+        };
+      });
       
       setPopularDishes(transformedDishes);
       setLoading(prev => ({ ...prev, dishes: false }));
@@ -492,7 +495,7 @@ const Page = () => {
         deliveryTime: restaurant.deliveryTime || '25-35 min',
         deliveryFee: restaurant.deliveryFee ? `${currencySymbol}${restaurant.deliveryFee}` : 'Free',
         minOrder: restaurant.minOrder ? `${currencySymbol}${restaurant.minOrder}` : `${currencySymbol}99`,
-        image: getMediaUrl(restaurant.coverImage || restaurant.logo || restaurant.image, apiUrl),
+        image: getMediaUrl(restaurant.coverImage || restaurant.logo || restaurant.image, apiUrl, "restaurant", restaurant.name, restaurant.cuisine),
         priceRange: restaurant.priceRange || `${currencySymbol}${currencySymbol}`,
         isOpen: restaurant.isOpen !== undefined ? restaurant.isOpen : true,
         featured: index < 2,
@@ -593,23 +596,23 @@ const Page = () => {
 
   // Fallback data
   const getFallbackDishes = () => [
-    { id: 1, name: 'Margherita Pizza', description: 'Classic pizza with fresh tomatoes, mozzarella, basil', price: 299, category: 'Pizza', rating: 4.8, deliveryTime: '20-25 min', restaurant: 'Pizza Palace', popular: true, spicy: false, veg: true, orders: 1250 },
-    { id: 2, name: 'Chicken Burger', description: 'Grilled chicken patty with lettuce, tomato, special sauce', price: 199, category: 'Burger', rating: 4.7, deliveryTime: '15-20 min', restaurant: 'Burger Hub', popular: true, spicy: true, veg: false, orders: 980 },
-    { id: 3, name: 'Veg Biryani', description: 'Aromatic basmati rice cooked with vegetables and spices', price: 249, category: 'Indian', rating: 4.6, deliveryTime: '25-30 min', restaurant: 'Spice Garden', popular: true, spicy: true, veg: true, orders: 876 },
-    { id: 4, name: 'Chocolate Cake', description: 'Rich and moist chocolate cake with ganache', price: 149, category: 'Desserts', rating: 4.9, deliveryTime: '15-20 min', restaurant: 'Sweet Tooth', popular: true, spicy: false, veg: true, orders: 654 },
-    { id: 5, name: 'Chicken Noodles', description: 'Stir-fried noodles with chicken and vegetables', price: 219, category: 'Chinese', rating: 4.5, deliveryTime: '20-25 min', restaurant: 'Asian Wok', popular: false, spicy: true, veg: false, orders: 543 },
-    { id: 6, name: 'Paneer Tikka', description: 'Grilled cottage cheese with Indian spices', price: 279, category: 'Indian', rating: 4.7, deliveryTime: '20-25 min', restaurant: 'Spice Garden', popular: false, spicy: true, veg: true, orders: 432 },
-    { id: 7, name: 'Cold Coffee', description: 'Refreshing cold coffee with ice cream', price: 129, category: 'Beverages', rating: 4.6, deliveryTime: '10-15 min', restaurant: 'Coffee House', popular: false, spicy: false, veg: true, orders: 321 },
-    { id: 8, name: 'Caesar Salad', description: 'Fresh romaine lettuce with Caesar dressing', price: 179, category: 'Healthy', rating: 4.4, deliveryTime: '10-15 min', restaurant: 'Green Leaf', popular: false, spicy: false, veg: true, orders: 298 }
+    { id: 1, name: 'Margherita Pizza', description: 'Classic pizza with fresh tomatoes, mozzarella, basil', price: 299, image: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80', category: 'Pizza', rating: 4.8, deliveryTime: '20-25 min', restaurant: 'Pizza Palace', popular: true, spicy: false, veg: true, orders: 1250 },
+    { id: 2, name: 'Chicken Burger', description: 'Grilled chicken patty with lettuce, tomato, special sauce', price: 199, image: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&auto=format&fit=crop&q=80', category: 'Burger', rating: 4.7, deliveryTime: '15-20 min', restaurant: 'Burger Hub', popular: true, spicy: true, veg: false, orders: 980 },
+    { id: 3, name: 'Veg Biryani', description: 'Aromatic basmati rice cooked with vegetables and spices', price: 249, image: 'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&auto=format&fit=crop&q=80', category: 'Indian', rating: 4.6, deliveryTime: '25-30 min', restaurant: 'Spice Garden', popular: true, spicy: true, veg: true, orders: 876 },
+    { id: 4, name: 'Chocolate Cake', description: 'Rich and moist chocolate cake with ganache', price: 149, image: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80', category: 'Desserts', rating: 4.9, deliveryTime: '15-20 min', restaurant: 'Sweet Tooth', popular: true, spicy: false, veg: true, orders: 654 },
+    { id: 5, name: 'Chicken Noodles', description: 'Stir-fried noodles with chicken and vegetables', price: 219, image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&auto=format&fit=crop&q=80', category: 'Chinese', rating: 4.5, deliveryTime: '20-25 min', restaurant: 'Asian Wok', popular: false, spicy: true, veg: false, orders: 543 },
+    { id: 6, name: 'Paneer Tikka', description: 'Grilled cottage cheese with Indian spices', price: 279, image: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=600&auto=format&fit=crop&q=80', category: 'Indian', rating: 4.7, deliveryTime: '20-25 min', restaurant: 'Spice Garden', popular: false, spicy: true, veg: true, orders: 432 },
+    { id: 7, name: 'Cold Coffee', description: 'Refreshing cold coffee with ice cream', price: 129, image: 'https://images.unsplash.com/photo-1517256064527-09c73fc73e38?w=600&auto=format&fit=crop&q=80', category: 'Beverages', rating: 4.6, deliveryTime: '10-15 min', restaurant: 'Coffee House', popular: false, spicy: false, veg: true, orders: 321 },
+    { id: 8, name: 'Caesar Salad', description: 'Fresh romaine lettuce with Caesar dressing', price: 179, image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&auto=format&fit=crop&q=80', category: 'Healthy', rating: 4.4, deliveryTime: '10-15 min', restaurant: 'Green Leaf', popular: false, spicy: false, veg: true, orders: 298 }
   ];
 
   const getFallbackRestaurants = () => [
-    { id: 1, name: 'Pizza Palace', cuisine: 'Italian Pizza', rating: 4.8, reviewCount: 1245, deliveryTime: '20-30 min', deliveryFee: 'Free', minOrder: '₹199', image: null, priceRange: '₹₹', isOpen: true, featured: true, offers: ['50% OFF', 'Free Delivery'], discount: 50, distance: 0.8 },
-    { id: 2, name: 'Burger Hub', cuisine: 'American Burger', rating: 4.7, reviewCount: 892, deliveryTime: '15-25 min', deliveryFee: 'Free', minOrder: '₹149', image: null, priceRange: '₹', isOpen: true, featured: true, offers: ['Buy 1 Get 1', 'Free Fries'], discount: 40, distance: 1.2 },
-    { id: 3, name: 'Spice Garden', cuisine: 'Hyderabadi Biryani', rating: 4.6, reviewCount: 1342, deliveryTime: '35-45 min', deliveryFee: '₹20', minOrder: '₹299', image: null, priceRange: '₹₹', isOpen: true, featured: false, offers: ['20% OFF', 'Free Naan'], discount: 20, distance: 2.5 },
-    { id: 4, name: 'Green Leaf Cafe', cuisine: 'Healthy Food', rating: 4.7, reviewCount: 567, deliveryTime: '25-35 min', deliveryFee: 'Free', minOrder: '₹199', image: null, priceRange: '₹₹', isOpen: true, featured: false, offers: ['15% OFF', 'Free Salad'], discount: 15, distance: 1.8 },
-    { id: 5, name: 'Sweet Tooth', cuisine: 'Desserts & Bakery', rating: 4.8, reviewCount: 421, deliveryTime: '20-30 min', deliveryFee: '₹30', minOrder: '₹99', image: null, priceRange: '₹', isOpen: true, featured: false, offers: ['Free Cookie', 'Buy 2 Get 1'], discount: 25, distance: 0.5 },
-    { id: 6, name: 'Asian Wok', cuisine: 'Chinese Cuisine', rating: 4.5, reviewCount: 678, deliveryTime: '25-35 min', deliveryFee: 'Free', minOrder: '₹249', image: null, priceRange: '₹₹', isOpen: true, featured: false, offers: ['30% OFF', 'Free Drink'], discount: 30, distance: 3.1 }
+    { id: 1, name: 'Pizza Palace', cuisine: 'Italian Pizza', rating: 4.8, reviewCount: 1245, deliveryTime: '20-30 min', deliveryFee: 'Free', minOrder: '₹199', image: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80', priceRange: '₹₹', isOpen: true, featured: true, offers: ['50% OFF', 'Free Delivery'], discount: 50, distance: 0.8 },
+    { id: 2, name: 'Burger Hub', cuisine: 'American Burger', rating: 4.7, reviewCount: 892, deliveryTime: '15-25 min', deliveryFee: 'Free', minOrder: '₹149', image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=800&auto=format&fit=crop&q=80', priceRange: '₹', isOpen: true, featured: true, offers: ['Buy 1 Get 1', 'Free Fries'], discount: 40, distance: 1.2 },
+    { id: 3, name: 'Spice Garden', cuisine: 'Hyderabadi Biryani', rating: 4.6, reviewCount: 1342, deliveryTime: '35-45 min', deliveryFee: '₹20', minOrder: '₹299', image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80', priceRange: '₹₹', isOpen: true, featured: false, offers: ['20% OFF', 'Free Naan'], discount: 20, distance: 2.5 },
+    { id: 4, name: 'Green Leaf Cafe', cuisine: 'Healthy Food', rating: 4.7, reviewCount: 567, deliveryTime: '25-35 min', deliveryFee: 'Free', minOrder: '₹199', image: 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&auto=format&fit=crop&q=80', priceRange: '₹₹', isOpen: true, featured: false, offers: ['15% OFF', 'Free Salad'], discount: 15, distance: 1.8 },
+    { id: 5, name: 'Sweet Tooth', cuisine: 'Desserts & Bakery', rating: 4.8, reviewCount: 421, deliveryTime: '20-30 min', deliveryFee: '₹30', minOrder: '₹99', image: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=800&auto=format&fit=crop&q=80', priceRange: '₹', isOpen: true, featured: false, offers: ['Free Cookie', 'Buy 2 Get 1'], discount: 25, distance: 0.5 },
+    { id: 6, name: 'Asian Wok', cuisine: 'Chinese Cuisine', rating: 4.5, reviewCount: 678, deliveryTime: '25-35 min', deliveryFee: 'Free', minOrder: '₹249', image: 'https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?w=800&auto=format&fit=crop&q=80', priceRange: '₹₹', isOpen: true, featured: false, offers: ['30% OFF', 'Free Drink'], discount: 30, distance: 3.1 }
   ];
 
   const getFallbackCategories = () => [
@@ -1027,18 +1030,23 @@ const Page = () => {
                     className="bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-all cursor-pointer group"
                   >
                     <div className="relative h-40">
-                      {getMediaUrl(restaurant.coverImage || restaurant.logo || restaurant.image, apiUrl) ? (
-                        <img
-                          src={getMediaUrl(restaurant.coverImage || restaurant.logo || restaurant.image, apiUrl)}
-                          alt={restaurant.name}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          onError={hideBrokenImage}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                          <ChefHat className="w-12 h-12 text-gray-400" />
-                        </div>
-                      )}
+                      <img
+                        src={getMediaUrl(
+                          restaurant.coverImage || restaurant.logo || restaurant.image,
+                          apiUrl,
+                          "restaurant",
+                          restaurant.name,
+                          restaurant.cuisine
+                        )}
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={(e) =>
+                          hideBrokenImage(
+                            e,
+                            getDefaultRestaurantImage(restaurant.name, restaurant.cuisine)
+                          )
+                        }
+                      />
                       {restaurant.distance && (
                         <div className="absolute top-3 right-3 bg-black/60 backdrop-blur-sm text-white text-xs px-2 py-1 rounded-full">
                           {restaurant.distance} km
@@ -1139,32 +1147,23 @@ const Page = () => {
 
                     {/* Image Container */}
                     <div className="relative h-48 overflow-hidden">
-                      {dish.image ? (
-                        <img
-                          src={dish.image}
-                          alt={dish.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          onError={hideBrokenImage}
-                        />
-                      ) : (
-                        <div className={`w-full h-full bg-gradient-to-br ${
-                          dish.category === 'Pizza' ? 'from-red-100 to-orange-100' :
-                          dish.category === 'Burger' ? 'from-amber-100 to-yellow-100' :
-                          dish.category === 'Indian' ? 'from-orange-100 to-red-100' :
-                          dish.category === 'Chinese' ? 'from-green-100 to-teal-100' :
-                          dish.category === 'Desserts' ? 'from-pink-100 to-rose-100' :
-                          'from-gray-100 to-gray-200'
-                        } flex items-center justify-center`}>
-                          {dish.category === 'Pizza' && <Pizza className="w-16 h-16 text-gray-400" />}
-                          {dish.category === 'Burger' && <Sandwich className="w-16 h-16 text-gray-400" />}
-                          {dish.category === 'Indian' && <Flame className="w-16 h-16 text-gray-400" />}
-                          {dish.category === 'Chinese' && <ChefHat className="w-16 h-16 text-gray-400" />}
-                          {dish.category === 'Desserts' && <Cake className="w-16 h-16 text-gray-400" />}
-                          {!['Pizza','Burger','Indian','Chinese','Desserts'].includes(dish.category) && 
-                            <Utensils className="w-16 h-16 text-gray-400" />
-                          }
-                        </div>
-                      )}
+                      <img
+                        src={getMediaUrl(
+                          dish.image,
+                          apiUrl,
+                          "dish",
+                          dish.name,
+                          dish.category
+                        )}
+                        alt={dish.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) =>
+                          hideBrokenImage(
+                            e,
+                            getDefaultFoodImage(dish.category, dish.name)
+                          )
+                        }
+                      />
 
                       {/* Overlay Gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -1367,18 +1366,23 @@ const Page = () => {
 
                     {/* Image Container */}
                     <div className="relative h-56 overflow-hidden">
-                      {restaurant.image ? (
-                        <img
-                          src={restaurant.image}
-                          alt={restaurant.name}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                          onError={hideBrokenImage}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                          <ChefHat className="w-20 h-20 text-gray-400" />
-                        </div>
-                      )}
+                      <img
+                        src={getMediaUrl(
+                          restaurant.coverImage || restaurant.logo || restaurant.image,
+                          apiUrl,
+                          "restaurant",
+                          restaurant.name,
+                          restaurant.cuisine
+                        )}
+                        alt={restaurant.name}
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        onError={(e) =>
+                          hideBrokenImage(
+                            e,
+                            getDefaultRestaurantImage(restaurant.name, restaurant.cuisine)
+                          )
+                        }
+                      />
 
                       {/* Overlay Gradient */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>

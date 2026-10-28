@@ -173,7 +173,7 @@ export default function Profile() {
           totalReviews: Number(restaurant.totalReviews || 0),
         });
 
-        setProfileImage(getMediaUrl(restaurant.image || restaurant.logo || ""));
+        setProfileImage(getMediaUrl(restaurant.coverImage || restaurant.logo || restaurant.image || ""));
       } catch (err) {
         console.error(err);
         setError("Failed to load profile data.");
@@ -294,7 +294,7 @@ export default function Profile() {
 
       localStorage.setItem("restaurant", JSON.stringify(updatedRestaurant));
       setRestaurantRecord(updatedRestaurant);
-      setProfileImage(getMediaUrl(updatedRestaurant.image || updatedRestaurant.logo || ""));
+      setProfileImage(getMediaUrl(updatedRestaurant.coverImage || updatedRestaurant.logo || updatedRestaurant.image || ""));
       setProfileImageFile(null);
       setDocumentFiles({});
 
@@ -588,7 +588,14 @@ export default function Profile() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
                   <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-full border-4 border-white/40 bg-white/20">
                     {profileImage ? (
-                      <img src={profileImage} alt="Restaurant" className="h-full w-full object-cover" />
+                      <img
+                        src={profileImage}
+                        alt="Restaurant"
+                        className="h-full w-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&auto=format&fit=crop&q=80";
+                        }}
+                      />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
                         <Building2 size={38} />

@@ -40,9 +40,17 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true, limit: "5mb" }));
 
-// ✅ Static uploads (served safely)
+// ✅ Static uploads (served safely for both /uploads and /api/uploads)
 app.use(
   "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    dotfiles: "ignore",
+    index: false,
+    maxAge: "1d",
+  })
+);
+app.use(
+  "/api/uploads",
   express.static(path.join(__dirname, "uploads"), {
     dotfiles: "ignore",
     index: false,
