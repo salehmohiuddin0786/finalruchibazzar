@@ -7,7 +7,81 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:839794263601:android:customerappruchibazaar",
+        "mobilesdk_app_id": "1:839794263601:android:bc96d692cc5773f8887710",
+        "android_client_info": {
+          "package_name": "in.ruchibazaar.delivery"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "839794263601-30229strknp8e5tjh1u5qrsfomvll5b9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.ruchibazaar.delivery",
+            "certificate_hash": "3f01f60c15b62e434530fe6803f11dc5a0bd3b40"
+          }
+        },
+        {
+          "client_id": "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDtuqWifdJamUOHzrB78tu9GB5qEC5uXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "839794263601-0p0r5p4lueahhtsg58vuvl5lvtsakk59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839794263601:android:528eb0bf6ad34f39887710",
+        "android_client_info": {
+          "package_name": "in.ruchibazaar.restaurant"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "839794263601-ll80njklqu30jld1u339mnrtoo71ctgb.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "in.ruchibazaar.restaurant",
+            "certificate_hash": "3f01f60c15b62e434530fe6803f11dc5a0bd3b40"
+          }
+        },
+        {
+          "client_id": "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCDtuqWifdJamUOHzrB78tu9GB5qEC5uXs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "839794263601-0p0r5p4lueahhtsg58vuvl5lvtsakk59.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:839794263601:android:71256dbc3a8dbb93887710",
         "android_client_info": {
           "package_name": "ruchibazaar.com"
         }
