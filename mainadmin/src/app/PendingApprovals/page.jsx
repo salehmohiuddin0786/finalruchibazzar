@@ -98,7 +98,7 @@ export default function PendingApprovals() {
     try {
       setError("");
       setLoading(true);
-      const data = await apiRequest("/restaurants");
+      const data = await apiRequest("/restaurants?all=true");
       setRestaurants(data.restaurants || []);
     } catch (err) {
       setError(err.message || "Failed to load pending approvals");

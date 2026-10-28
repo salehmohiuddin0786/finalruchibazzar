@@ -1,5 +1,6 @@
 const { PLATFORM_COMMISSION_PERCENT } = require("../config/constants");
 const { Earning, Restaurant, Order } = require("../models");
+const { calculateOrderFinancials } = require("./finance.service");
 
 /**
  * Calculate and record financial earnings for an order.
@@ -13,44 +14,34 @@ exports.calculateAndCreateEarning = async (order, customCommissionRate = null) =
       return existing;
     }
 
-    const restaurant = await Restaurant.findByPk(order.restaurantId, {
-      attributes: ["id", "commissionRate", "name"],
-    });
+    const restaurant = await Restaurant.findByPk(order.restaurantId);
 
     const commissionPercent =
       customCommissionRate !== null && customCommissionRate !== undefined
         ? Number(customCommissionRate)
-        : Number(restaurant?.commissionRate || PLATFORM_COMMISSION_PERCENT || 2);
+        : Number(order.commissionRate || restaurant?.commissionRate || PLATFORM_COMMISSION_PERCENT || 2);
 
-    const subtotal = Number(order.subtotal || order.originalAmount || 0);
-    const discount = Number(order.discount || 0);
-    const taxAmount = 0; // 🚫 No GST (0%)
-    const customerDeliveryFee = Number(order.deliveryFee || 15);
-    const platformFee = Number(order.platformFee || 0);
-
-    // Platform commission earned on food subtotal + platform fee (20%)
-    const foodCommission = Math.round(((subtotal * commissionPercent) / 100) * 100) / 100;
-    const totalPlatformCommission = Math.round((foodCommission + platformFee) * 100) / 100;
-
-    // Delivery partner receives 100% of the distance-based delivery fee (min ₹15)
-    const deliveryEarning = customerDeliveryFee;
-
-    // Net restaurant earnings: Food Subtotal - Commission - Discount
-    const restaurantEarning = Math.max(
-      0,
-      Math.round((subtotal - foodCommission - discount) * 100) / 100
-    );
+    const financials = calculateOrderFinancials({
+      foodSubtotal: order.subtotal || order.originalAmount || 0,
+      distanceKm: order.distanceKm,
+      discount: order.discount || 0,
+      discountFundedBy: order.discountFundedBy || (order.restaurantFundedDiscount > 0 ? "restaurant" : order.platformFundedDiscount > 0 ? "platform" : "none"),
+      customCommissionRate: commissionPercent,
+      platformFee: order.platformFee || 0,
+    });
 
     const earning = await Earning.create({
       restaurantId: order.restaurantId,
       orderId: order.id,
-      grossFoodSales: subtotal,
-      taxAmount: taxAmount,
-      discountAmount: discount,
-      commissionRate: commissionPercent,
-      restaurantEarning,
-      platformCommission: totalPlatformCommission,
-      deliveryEarning,
+      grossFoodSales: financials.foodSubtotal,
+      taxAmount: financials.taxAmount,
+      discountAmount: financials.discount,
+      restaurantFundedDiscount: financials.restaurantFundedDiscount,
+      platformFundedDiscount: financials.platformFundedDiscount,
+      commissionRate: financials.commissionRate,
+      restaurantEarning: financials.restaurantNetEarning,
+      platformCommission: financials.platformCommission,
+      deliveryEarning: financials.deliveryPartnerEarning,
       status: "accrued",
     });
 

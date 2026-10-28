@@ -46,13 +46,13 @@ router.put(
 */
 
 router.put("/:id/assign", protect, authorize("admin"), deliveryController.assignDeliveryPartner);
-router.get("/delivery/my-orders", protect, authorize("partner"), deliveryController.getMyDeliveries);
+router.get("/delivery/my-orders", protect, authorize("partner", "delivery"), deliveryController.getMyDeliveries);
 router.post("/:id/delivery/accept", protect, authorize("partner", "delivery"), validateOrderAssignmentParam, deliveryController.acceptAssignment);
 router.post("/:id/delivery/reject", protect, authorize("partner", "delivery"), validateOrderAssignmentParam, deliveryController.rejectAssignment);
-router.put("/:id/pick", protect, authorize("partner"), deliveryController.pickOrder);
-router.put("/:id/start", protect, authorize("partner"), deliveryController.startDelivery);
-router.put("/:id/deliver", protect, authorize("partner"), deliveryController.completeDelivery);
-router.put("/:id/location", protect, authorize("partner"), deliveryController.updateLocation);
+router.put("/:id/pick", protect, authorize("partner", "delivery"), deliveryController.pickOrder);
+router.put("/:id/start", protect, authorize("partner", "delivery"), deliveryController.startDelivery);
+router.put("/:id/deliver", protect, authorize("partner", "delivery"), deliveryController.completeDelivery);
+router.put("/:id/location", protect, authorize("partner", "delivery"), deliveryController.updateLocation);
 
 /*
 ---------------------------------------

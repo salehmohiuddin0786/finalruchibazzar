@@ -8,6 +8,8 @@ module.exports = (sequelize) => {
     grossFoodSales: { type: DataTypes.FLOAT, defaultValue: 0 },
     taxAmount: { type: DataTypes.FLOAT, defaultValue: 0 },
     discountAmount: { type: DataTypes.FLOAT, defaultValue: 0 },
+    restaurantFundedDiscount: { type: DataTypes.FLOAT, defaultValue: 0 },
+    platformFundedDiscount: { type: DataTypes.FLOAT, defaultValue: 0 },
     commissionRate: { type: DataTypes.FLOAT, defaultValue: 2 },
     restaurantEarning: { type: DataTypes.FLOAT, defaultValue: 0 },
     platformCommission: { type: DataTypes.FLOAT, defaultValue: 0 },

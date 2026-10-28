@@ -104,6 +104,41 @@ exports.ensureDeliveryAssignmentSchema = async () => {
         type: Sequelize.STRING,
         allowNull: true,
       });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "distanceKm", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "discountFundedBy", {
+        type: Sequelize.ENUM("restaurant", "platform", "none"),
+        defaultValue: "none",
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "restaurantFundedDiscount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "platformFundedDiscount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "platformCommission", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "restaurantEarning", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "deliveryEarning", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+    }
+
+    if (await tableExists(queryInterface, "Offers")) {
+      await addColumnIfMissing(queryInterface, Sequelize, "Offers", "fundedBy", {
+        type: Sequelize.ENUM("restaurant", "platform"),
+        defaultValue: "restaurant",
+      });
     }
 
     if (await tableExists(queryInterface, "Earnings")) {
@@ -120,6 +155,14 @@ exports.ensureDeliveryAssignmentSchema = async () => {
         defaultValue: 0,
       });
       await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "discountAmount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "restaurantFundedDiscount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "platformFundedDiscount", {
         type: Sequelize.FLOAT,
         defaultValue: 0,
       });
@@ -145,6 +188,25 @@ exports.ensureDeliveryAssignmentSchema = async () => {
       await addColumnIfMissing(queryInterface, Sequelize, "Restaurants", "payoutSchedule", {
         type: Sequelize.STRING,
         defaultValue: "weekly",
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Restaurants", "commissionRate", {
+        type: Sequelize.FLOAT,
+        defaultValue: 2,
+      });
+    }
+
+    if (await tableExists(queryInterface, "Payments")) {
+      await addColumnIfMissing(queryInterface, Sequelize, "Payments", "foodSubtotal", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Payments", "taxAmount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Payments", "deliveryFee", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
       });
     }
 

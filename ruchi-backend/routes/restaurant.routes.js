@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const restaurantController = require("../controllers/restaurant.controller");
-const { protect } = require("../middlewares/auth.middleware");
+const { protect, optionalProtect } = require("../middlewares/auth.middleware");
 const { authorize } = require("../middlewares/role.middleware");
 
 /*
@@ -23,14 +23,14 @@ router.post(
 | GET ALL RESTAURANTS
 |--------------------------------------------------------------------------
 */
-router.get("/", restaurantController.getAllRestaurants);
+router.get("/", optionalProtect, restaurantController.getAllRestaurants);
 
 /*
 |--------------------------------------------------------------------------
 | GET NEARBY RESTAURANTS
 |--------------------------------------------------------------------------
 */
-router.get("/nearby", restaurantController.getNearbyRestaurants);
+router.get("/nearby", optionalProtect, restaurantController.getNearbyRestaurants);
 
 /*
 |--------------------------------------------------------------------------
@@ -64,7 +64,7 @@ router.put(
 | Keep this AFTER fixed routes like /profile and /my-restaurant
 |--------------------------------------------------------------------------
 */
-router.get("/:id", restaurantController.getRestaurantById);
+router.get("/:id", optionalProtect, restaurantController.getRestaurantById);
 
 /*
 |--------------------------------------------------------------------------

@@ -93,8 +93,9 @@ const getAllDishes = async (req, res) => {
       include: [
         {
           model: Restaurant,
-          as: "restaurant",   // 🔥 THIS IS THE FIX
-          attributes: ["id", "name"]
+          as: "restaurant",
+          attributes: ["id", "name", "isApproved"],
+          where: { isApproved: true } // 🛡️ Dishes must belong to an approved restaurant
         }
       ],
       order: [["createdAt", "DESC"]],
@@ -133,6 +134,27 @@ const getDishesByRestaurant = async (req, res) => {
         success: false,
         message: "Invalid restaurantId"
       });
+    }
+
+    const restaurant = await Restaurant.findByPk(restaurantId);
+    if (!restaurant) {
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found"
+      });
+    }
+
+    // 🛡️ Dishes of unapproved restaurants are private to owner and admin
+    if (!restaurant.isApproved) {
+      const isOwner = req.user && req.user.id === restaurant.ownerId;
+      const isAdmin = req.user && (req.user.role === "admin" || req.user.role === "superadmin");
+      if (!isOwner && !isAdmin) {
+        return res.status(403).json({
+          success: false,
+          message: "Restaurant menu is not available while under review.",
+          data: []
+        });
+      }
     }
 
     const dishes = await Dish.findAll({

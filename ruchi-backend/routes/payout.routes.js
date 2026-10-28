@@ -32,6 +32,12 @@ router.put(
   authorize("admin"),
   payoutController.approvePayout
 );
+router.patch(
+  "/admin/:id/approve",
+  protect,
+  authorize("admin"),
+  payoutController.approvePayout
+);
 
 router.put(
   "/admin/:id/confirm",
@@ -39,8 +45,20 @@ router.put(
   authorize("admin"),
   payoutController.confirmPayout
 );
+router.patch(
+  "/admin/:id/confirm",
+  protect,
+  authorize("admin"),
+  payoutController.confirmPayout
+);
 
 router.put(
+  "/admin/:id/reject",
+  protect,
+  authorize("admin"),
+  payoutController.rejectPayout
+);
+router.patch(
   "/admin/:id/reject",
   protect,
   authorize("admin"),

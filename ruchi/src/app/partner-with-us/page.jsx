@@ -56,16 +56,16 @@ export default function PartnerWithUsPage() {
             </div>
 
             <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-              <h3 className="font-semibold text-slate-900 mb-1">Competitive Low Commission</h3>
+              <h3 className="font-semibold text-slate-900 mb-1">Industry-Lowest 2% Commission</h3>
               <p className="text-xs text-slate-600">
-                Fair, transparent commission starting from as low as 12% to 18%, preserving your profit margins.
+                Fair, transparent platform commission at just 2% with 0% GST, keeping 98% of food earnings in your pocket.
               </p>
             </div>
 
             <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
-              <h3 className="font-semibold text-slate-900 mb-1">Fast, Automated Payouts</h3>
+              <h3 className="font-semibold text-slate-900 mb-1">Fast, Verified Payouts</h3>
               <p className="text-xs text-slate-600">
-                Weekly automated direct bank deposits with comprehensive GST settlement invoices and reports.
+                Direct bank settlements with verified bank UTR references and itemized net earnings breakdowns.
               </p>
             </div>
 
@@ -113,7 +113,7 @@ export default function PartnerWithUsPage() {
             <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-start gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
               <div>
-                <strong>GSTIN Certificate:</strong> Goods and Services Tax identification number (mandatory for taxable merchants).
+                <strong>GSTIN Certificate (Optional):</strong> Goods and Services Tax identification number (if registered). Non-GST kitchens are welcome!
               </div>
             </div>
 
@@ -196,12 +196,12 @@ export default function PartnerWithUsPage() {
           <p className="font-bold text-slate-900">Have questions about partnering with us?</p>
           <p className="text-xs sm:text-sm">
             Contact our Merchant Onboarding Desk at{" "}
-            <a href="mailto:partners@ruchibazaar.in" className="text-red-600 hover:underline font-bold">
-              partners@ruchibazaar.in
+            <a href="mailto:support@digitalcrowdtech.in" className="text-red-600 hover:underline font-bold">
+              support@digitalcrowdtech.in
             </a>{" "}
             or call{" "}
-            <a href="tel:+919876543210" className="text-red-600 hover:underline font-bold">
-              +91 98765 43210
+            <a href="tel:+919985960692" className="text-red-600 hover:underline font-bold">
+              +91 9985960692
             </a>.
           </p>
         </section>

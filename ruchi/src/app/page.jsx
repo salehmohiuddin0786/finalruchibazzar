@@ -477,7 +477,9 @@ const Page = () => {
       const response = await fetch(`${apiUrl}/restaurants?limit=6`);
       if (!response.ok) throw new Error('Failed to fetch restaurants');
       const data = await response.json();
-      const restaurants = normalizeListResponse(data, "restaurants");
+      const restaurants = normalizeListResponse(data, "restaurants").filter(
+        (r) => r.isApproved !== false
+      );
       
       // Transform restaurants data
       const transformedRestaurants = restaurants.map((restaurant, index) => ({

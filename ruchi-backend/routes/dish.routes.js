@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../middlewares/upload.middleware");
-const { protect } = require("../middlewares/auth.middleware");
+const { protect, optionalProtect } = require("../middlewares/auth.middleware");
 const { authorize } = require("../middlewares/role.middleware");
 
 const dishController = require("../controllers/dish.controller");
@@ -41,13 +41,14 @@ router.delete(
 // ===============================
 // GET ALL DISHES
 // ===============================
-router.get("/", dishController.getAllDishes);
+router.get("/", optionalProtect, dishController.getAllDishes);
 
 // ===============================
 // GET DISHES BY RESTAURANT
 // ===============================
 router.get(
   "/restaurant/:restaurantId",
+  optionalProtect,
   dishController.getDishesByRestaurant
 );
 

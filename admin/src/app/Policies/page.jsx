@@ -154,23 +154,23 @@ export default function PartnerPoliciesPage() {
 
                   <div className="space-y-3 text-xs sm:text-sm">
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <h3 className="font-bold text-gray-900 mb-1">Standard Commission Rates</h3>
+                      <h3 className="font-bold text-gray-900 mb-1">Flat 2% Platform Commission</h3>
                       <p className="text-gray-600">
-                        Platform commission ranges from <strong>12% to 18%</strong> of the net food bill (excluding GST), depending on order volume and exclusive promotional tier.
+                        Platform commission is fixed at an industry-lowest <strong>2%</strong> on food sales. You retain <strong>98%</strong> of your food subtotal with zero hidden charges.
                       </p>
                     </div>
 
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <h3 className="font-bold text-gray-900 mb-1">Weekly Payout Settlement Cycle</h3>
+                      <h3 className="font-bold text-gray-900 mb-1">Flexible Payout Settlement Cycle</h3>
                       <p className="text-gray-600">
-                        Payouts are calculated every Monday for the preceding week (Monday to Sunday) and credited directly via NEFT/IMPS to your registered bank account by <strong>Wednesday morning</strong>.
+                        Request on-demand payouts anytime (minimum withdrawal: <strong>₹100</strong>) or receive scheduled weekly bank transfers directly via NEFT/IMPS/UPI with authentic bank UTR tracking.
                       </p>
                     </div>
 
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-                      <h3 className="font-bold text-gray-900 mb-1">GST &amp; TCS Compliance</h3>
+                      <h3 className="font-bold text-gray-900 mb-1">Zero GST Policy</h3>
                       <p className="text-gray-600">
-                        As per Section 52 of the CGST Act, Tax Collected at Source (TCS) of 1% is deducted and deposited with the government against your GSTIN. Monthly GST invoices are downloadable under the Earnings tab.
+                        Our platform operates with <strong>0% GST</strong> on food items. You receive the full 98% of your culinary earnings directly into your settlement account.
                       </p>
                     </div>
                   </div>
@@ -261,8 +261,8 @@ export default function PartnerPoliciesPage() {
                         Partner Priority Helpline
                       </h3>
                       <p className="text-gray-600">Dedicated phone line for active kitchen issues:</p>
-                      <a href="tel:+919876543210" className="font-bold text-red-600 hover:underline text-base block">
-                        +91 98765 43210
+                      <a href="tel:+919985960692" className="font-bold text-red-600 hover:underline text-base block">
+                        +91 9985960692
                       </a>
                       <p className="text-gray-500 text-xs">Operating: 8:00 AM – 11:30 PM IST</p>
                     </div>
@@ -270,11 +270,11 @@ export default function PartnerPoliciesPage() {
                     <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-1">
                       <h3 className="font-bold text-gray-900 flex items-center gap-1.5">
                         <Mail className="w-4 h-4 text-red-600" />
-                        Merchant Dispute Email
+                        Merchant Support Email
                       </h3>
                       <p className="text-gray-600">For settlement queries and commission reviews:</p>
-                      <a href="mailto:partnercare@ruchibazaar.in" className="font-bold text-red-600 hover:underline text-base block">
-                        partnercare@ruchibazaar.in
+                      <a href="mailto:support@digitalcrowdtech.in" className="font-bold text-red-600 hover:underline text-base block">
+                        support@digitalcrowdtech.in
                       </a>
                       <p className="text-gray-500 text-xs">Turnaround: 24 to 48 hours</p>
                     </div>

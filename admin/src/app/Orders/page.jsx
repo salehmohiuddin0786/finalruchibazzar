@@ -515,16 +515,30 @@ const OrderCard = ({
                       </tr>
                       {Number(order.discount || 0) > 0 && (
                         <tr>
-                          <td colSpan="3" className="px-4 py-2 text-right text-green-600">Discount:</td>
+                          <td colSpan="3" className="px-4 py-2 text-right text-green-600">
+                            Discount {order.discountFundedBy ? `(${order.discountFundedBy}-funded)` : ""}:
+                          </td>
                           <td className="px-4 py-2 text-right text-green-600">-{formatMoney(order.discount)}</td>
                         </tr>
                       )}
                       <tr>
-                        <td colSpan="3" className="px-4 py-2 text-right text-gray-600">Delivery Fee:</td>
-                        <td className="px-4 py-2 text-right">{formatMoney(order.deliveryFee)}</td>
+                        <td colSpan="3" className="px-4 py-2 text-right text-amber-700">Platform Commission (2%):</td>
+                        <td className="px-4 py-2 text-right text-amber-700 font-medium">
+                          -{formatMoney(order.platformCommission ?? (Number(order.subtotal || 0) * 0.02))}
+                        </td>
+                      </tr>
+                      <tr className="bg-emerald-50/70 font-semibold text-emerald-900 border-y border-emerald-200">
+                        <td colSpan="3" className="px-4 py-2.5 text-right">Net Restaurant Earning (98%):</td>
+                        <td className="px-4 py-2.5 text-right font-bold text-emerald-700">
+                          {formatMoney(order.restaurantEarning ?? (Number(order.subtotal || 0) * 0.98 - Number(order.restaurantFundedDiscount || 0)))}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td colSpan="3" className="px-4 py-2 text-right text-gray-500 text-xs">Delivery Fee (Customer Paid):</td>
+                        <td className="px-4 py-2 text-right text-gray-500 text-xs">{formatMoney(order.deliveryFee)}</td>
                       </tr>
                       <tr className="border-t border-gray-200">
-                        <td colSpan="3" className="px-4 py-3 text-right font-bold text-gray-800">Total:</td>
+                        <td colSpan="3" className="px-4 py-3 text-right font-bold text-gray-800">Total Customer Bill:</td>
                         <td className="px-4 py-3 text-right font-bold text-blue-600 text-lg">
                           {formatMoney(order.totalAmount)}
                         </td>

@@ -136,9 +136,11 @@ const RestaurantsPageContent = () => {
         throw new Error(data.message || "Failed to fetch restaurants");
       }
 
-      const restaurantList = Array.isArray(data)
-        ? data
-        : data.restaurants || data.data || [];
+      const restaurantList = (
+        Array.isArray(data)
+          ? data
+          : data.restaurants || data.data || []
+      ).filter((r) => r.isApproved !== false);
 
       const transformedData = restaurantList.map((restaurant) => ({
         id: restaurant.id,

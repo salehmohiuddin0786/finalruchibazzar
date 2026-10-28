@@ -109,10 +109,16 @@ const RestaurantMenuPage = () => {
   const fetchRestaurantDetails = async () => {
     try {
       const response = await fetch(`${apiUrl}/restaurants/${restaurantId}`);
-      if (!response.ok) throw new Error('Failed to fetch restaurant details');
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to fetch restaurant details');
+      }
       
       const restaurantData = data.restaurant || data.data || data;
+
+      if (restaurantData.isApproved === false) {
+        throw new Error('This restaurant is currently under admin review and not yet available to the public.');
+      }
 
       // Transform restaurant data
       const transformedRestaurant = {

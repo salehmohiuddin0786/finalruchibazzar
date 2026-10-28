@@ -160,6 +160,11 @@ module.exports = (sequelize) => {
       defaultValue: false,
     },
 
+    commissionRate: {
+      type: DataTypes.FLOAT,
+      defaultValue: 2,
+    },
+
     isOpen: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

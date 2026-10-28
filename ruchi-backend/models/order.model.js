@@ -58,6 +58,41 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING,
     },
 
+    discountFundedBy: {
+      type: DataTypes.ENUM("restaurant", "platform", "none"),
+      defaultValue: "none",
+    },
+
+    restaurantFundedDiscount: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
+    platformFundedDiscount: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
+    platformCommission: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
+    restaurantEarning: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
+    deliveryEarning: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
+    distanceKm: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+
     // 💳 PAYMENT
     paymentMethod: {
       type: DataTypes.STRING,

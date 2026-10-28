@@ -17,6 +17,10 @@ const {
   calculateAndCreateEarning,
   reverseOrCancelEarning,
 } = require("../services/commission.service");
+const {
+  calculateDistanceKm,
+  calculateOrderFinancials,
+} = require("../services/finance.service");
 const { sendNotification } = require("../services/notification.service");
 const orderSocket = require("../sockets/order.socket");
 
@@ -101,6 +105,23 @@ const formatOrder = (order) => ({
   paymentMethod: order.paymentMethod || "cash",
   paymentStatus: order.paymentStatus || "pending",
 
+  // FinTech breakdown snapshots
+  restaurantEarning: Number(
+    order.restaurantEarning !== undefined && order.restaurantEarning !== null
+      ? order.restaurantEarning
+      : Number(order.subtotal || order.originalAmount || 0) * 0.98 - Number(order.restaurantFundedDiscount || 0)
+  ),
+  platformCommission: Number(
+    order.platformCommission !== undefined && order.platformCommission !== null
+      ? order.platformCommission
+      : Number(order.subtotal || order.originalAmount || 0) * 0.02
+  ),
+  deliveryEarning: Number(order.deliveryEarning || order.deliveryFee || 0),
+  distanceKm: Number(order.distanceKm || 0),
+  discountFundedBy: order.discountFundedBy || "none",
+  restaurantFundedDiscount: Number(order.restaurantFundedDiscount || 0),
+  platformFundedDiscount: Number(order.platformFundedDiscount || 0),
+
   deliveryAddress: order.deliveryAddress,
   deliveryPartnerId: order.deliveryPartnerId,
   deliveryPartnerName: order.deliveryPartner?.name || null,
@@ -182,14 +203,17 @@ exports.createOrder = async (req, res) => {
       });
     }
 
+    const rawLat = latitude ?? req.body.deliveryLat ?? req.body.lat;
+    const rawLng = longitude ?? req.body.deliveryLng ?? req.body.lng;
+
     const deliveryLat =
-      latitude !== undefined && latitude !== null && latitude !== ""
-        ? Number(latitude)
+      rawLat !== undefined && rawLat !== null && rawLat !== ""
+        ? Number(rawLat)
         : null;
 
     const deliveryLng =
-      longitude !== undefined && longitude !== null && longitude !== ""
-        ? Number(longitude)
+      rawLng !== undefined && rawLng !== null && rawLng !== ""
+        ? Number(rawLng)
         : null;
 
     if (
@@ -267,63 +291,75 @@ exports.createOrder = async (req, res) => {
 
       finalAmount = originalAmount - discount;
       appliedCoupon = offer.couponCode;
+      appliedCouponFundedBy = offer.fundedBy || (offer.restaurantId ? "restaurant" : "platform");
 
       await offer.increment("usedCount", { transaction });
     }
 
-    const subtotal = originalAmount;
-    const netFood = Math.max(0, subtotal - discount);
-
     // 📍 CALCULATE DISTANCE FOR DELIVERY CHARGES
     const restaurant = await Restaurant.findByPk(restaurantId);
-    let distanceKm = null;
-    if (
-      restaurant &&
-      restaurant.latitude &&
-      restaurant.longitude &&
-      deliveryLat &&
-      deliveryLng
-    ) {
-      const toRad = (val) => (val * Math.PI) / 180;
-      const dLat = toRad(deliveryLat - restaurant.latitude);
-      const dLng = toRad(deliveryLng - restaurant.longitude);
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(toRad(restaurant.latitude)) *
-          Math.cos(toRad(deliveryLat)) *
-          Math.sin(dLng / 2) *
-          Math.sin(dLng / 2);
-      distanceKm = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    if (!restaurant) {
+      await transaction.rollback();
+      return res.status(404).json({
+        success: false,
+        message: "Restaurant not found",
+      });
     }
 
-    // 🚚 DISTANCE-BASED DELIVERY FEE:
-    // <= 5 km: ₹15
-    // 6 km: ₹18 (15 + 3)
-    // 7 km: ₹21 (15 + 6)
-    // Beyond 5 km: ₹15 base + ₹3 per additional km
-    const calculateDistanceFee = (dist) => {
-      if (dist === null || dist === undefined || Number.isNaN(dist)) return 15;
-      if (dist <= 5) return 15;
-      return 15 + Math.ceil(dist - 5) * 3;
-    };
+    if (!restaurant.isApproved) {
+      await transaction.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "This restaurant is currently under review and cannot accept orders yet.",
+      });
+    }
 
-    const deliveryFee = calculateDistanceFee(distanceKm);
-    const taxAmount = 0; // 🚫 GST REMOVED: 0% tax liability
-    const platformFee = 0;
-    const finalOrderTotal = Math.round((netFood + taxAmount + deliveryFee + platformFee) * 100) / 100;
+    if (!restaurant.isOpen) {
+      await transaction.rollback();
+      return res.status(400).json({
+        success: false,
+        message: "This restaurant is currently closed for orders.",
+      });
+    }
+
+    const distanceKm = calculateDistanceKm(
+      restaurant.latitude,
+      restaurant.longitude,
+      deliveryLat,
+      deliveryLng
+    );
+
+    // 💰 CENTRALIZED FINANCIAL CALCULATION ENGINE
+    const financials = calculateOrderFinancials({
+      foodSubtotal: originalAmount,
+      distanceKm,
+      discount,
+      discountFundedBy: appliedCoupon ? appliedCouponFundedBy : "none",
+      customCommissionRate: restaurant.commissionRate,
+      platformFee: 0,
+    });
+
+    const finalOrderTotal = financials.customerTotal;
 
     const order = await Order.create(
       {
         userId,
         restaurantId,
         originalAmount,
-        subtotal,
-        taxAmount,
-        deliveryFee,
-        platformFee,
+        subtotal: financials.foodSubtotal,
+        taxAmount: financials.taxAmount,
+        deliveryFee: financials.deliveryFee,
+        platformFee: financials.platformFee,
         totalAmount: finalOrderTotal,
-        discount,
+        discount: financials.discount,
         couponCode: appliedCoupon,
+        discountFundedBy: financials.discountFundedBy,
+        restaurantFundedDiscount: financials.restaurantFundedDiscount,
+        platformFundedDiscount: financials.platformFundedDiscount,
+        platformCommission: financials.platformCommission,
+        restaurantEarning: financials.restaurantNetEarning,
+        deliveryEarning: financials.deliveryPartnerEarning,
+        distanceKm: financials.distanceKm !== null ? financials.distanceKm : 0,
         deliveryAddress,
         deliveryLat,
         deliveryLng,
@@ -354,6 +390,9 @@ exports.createOrder = async (req, res) => {
           : "cash",
         amount: finalOrderTotal,
         netAmount: finalOrderTotal,
+        foodSubtotal: financials.foodSubtotal,
+        taxAmount: financials.taxAmount,
+        deliveryFee: financials.deliveryFee,
         status: "pending",
       },
       { transaction }

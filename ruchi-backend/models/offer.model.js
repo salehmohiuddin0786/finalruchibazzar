@@ -25,6 +25,11 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
 
+    fundedBy: {
+      type: DataTypes.ENUM("restaurant", "platform"),
+      defaultValue: "restaurant",
+    },
+
     // ✅ OPTIONAL (VERY IMPORTANT FEATURES)
     minOrderAmount: {
       type: DataTypes.DECIMAL(10, 2),

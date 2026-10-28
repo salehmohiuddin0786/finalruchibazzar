@@ -332,7 +332,22 @@ exports.createRestaurant = async (req, res) => {
 exports.getAllRestaurants = async (req, res) => {
   try {
     const limit = Number(req.query.limit) || undefined;
+    const { status, all } = req.query;
+
+    const where = {};
+    const isAdmin = req.user && (req.user.role === "admin" || req.user.role === "superadmin");
+
+    if (isAdmin && (all === "true" || status === "all")) {
+      // Admin authorized to view all restaurants
+    } else if (isAdmin && (status === "pending" || status === "unapproved")) {
+      where.isApproved = false;
+    } else {
+      // 🛡️ DEFAULT / CUSTOMER FACING: strictly approved restaurants only
+      where.isApproved = true;
+    }
+
     const restaurants = await Restaurant.findAll({
+      where,
       order: [["createdAt", "DESC"]],
       ...(limit ? { limit } : {}),
     });
@@ -380,7 +395,9 @@ exports.getNearbyRestaurants = async (req, res) => {
       });
     }
 
+    // 🛡️ Only approved restaurants can appear in nearby customer listings
     const restaurants = await Restaurant.findAll({
+      where: { isApproved: true },
       order: [["createdAt", "DESC"]],
     });
 
@@ -483,6 +500,18 @@ exports.getRestaurantById = async (req, res) => {
         success: false,
         message: "Restaurant not found",
       });
+    }
+
+    // 🛡️ If restaurant is not approved yet, only the restaurant owner or an admin may view it
+    if (!restaurant.isApproved) {
+      const isOwner = req.user && req.user.id === restaurant.ownerId;
+      const isAdmin = req.user && (req.user.role === "admin" || req.user.role === "superadmin");
+      if (!isOwner && !isAdmin) {
+        return res.status(404).json({
+          success: false,
+          message: "Restaurant is currently under review and not yet available to the public.",
+        });
+      }
     }
 
     return res.json({

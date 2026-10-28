@@ -24,6 +24,18 @@ module.exports = (sequelize) => {
       allowNull: false,
       defaultValue: 0,
     },
+    foodSubtotal: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    taxAmount: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
+    deliveryFee: {
+      type: DataTypes.FLOAT,
+      defaultValue: 0,
+    },
     currency: {
       type: DataTypes.STRING,
       defaultValue: "INR",
