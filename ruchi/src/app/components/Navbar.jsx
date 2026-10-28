@@ -38,7 +38,7 @@ const Navbar = () => {
   const [showSearchSuggestions, setShowSearchSuggestions] = useState(false);
   const [showLocationMenu, setShowLocationMenu] = useState(false);
   const [cartItemsCount, setCartItemsCount] = useState(0);
-  const [userLocation, setUserLocation] = useState("Select location");
+  const [userLocation, setUserLocation] = useState("Adilabad, Telangana");
   const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const [locationError, setLocationError] = useState(null);
@@ -319,9 +319,6 @@ const Navbar = () => {
 
   const locations = [
     { id: "adilabad", name: "Adilabad, Telangana" },
-    { id: "hyderabad", name: "Hyderabad, Telangana" },
-    { id: "nizamabad", name: "Nizamabad, Telangana" },
-    { id: "warangal", name: "Warangal, Telangana" },
   ];
 
   const handleLocationSelect = (location) => {

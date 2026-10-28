@@ -41,7 +41,7 @@ export default function ContactUsPage() {
               <p className="text-xs text-slate-600 mt-1">Toll-free customer support</p>
             </div>
             <div className="mt-4">
-              <a href="tel:1800123456" className="text-red-600 font-extrabold text-lg block hover:underline">
+              <a href="tel:+919985960692" className="text-red-600 font-extrabold text-lg block hover:underline">
                 +91 9985960692
               </a>
               <span className="text-[11px] text-slate-500">Available 8:00 AM – 11:00 PM</span>
@@ -89,10 +89,10 @@ export default function ContactUsPage() {
               Registered Corporate Address
             </h3>
             <div className="text-xs sm:text-sm text-slate-700 space-y-1">
-              <p className="font-semibold text-slate-900">Ruchi Bazaar Technologies Private Limited</p>
-              <p>Corporate Tower B, 4th Floor, Tech Park Avenue</p>
-              <p>Bandra Kurla Complex (BKC), Mumbai, Maharashtra 400051</p>
-              <p>CIN: U74999MH2025PTC123456</p>
+              <p className="font-semibold text-slate-900">Ruchi Bazaar / Digital Crowd Tech</p>
+              <p>Unit No 203, 2nd Floor Suite No.806, SBR CV Towers</p>
+              <p>Madhapur, Hyderabad – TG, India</p>
+              <p>Phone: +91 9985960692 | Email: support@digitalcrowdtech.in</p>
             </div>
           </div>
 

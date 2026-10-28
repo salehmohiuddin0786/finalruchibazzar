@@ -94,6 +94,7 @@ app.use("/api/delivery-partner", require("./routes/deliveryPartner.routes"));
 
 // 💰 Extra
 app.use("/api/earnings", require("./routes/earning.routes"));
+app.use("/api/payouts", require("./routes/payout.routes"));
 app.use("/api/reviews", require("./routes/review.routes"));
 app.use("/api/offers", require("./routes/offer.routes"));
 app.use("/api/banners", require("./routes/banner.routes"));

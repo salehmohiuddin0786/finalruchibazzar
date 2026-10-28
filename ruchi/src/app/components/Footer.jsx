@@ -138,7 +138,7 @@ const Footer = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">24/7 Customer Support</p>
-                    <a href="tel:+911800123456" className="text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300">
+                    <a href="tel:+919985960692" className="text-lg font-bold bg-gradient-to-r from-red-300 to-red-300 bg-clip-text text-transparent hover:from-red-200 hover:to-red-200 transition-all duration-300">
                       📞 +91 9985960692
                     </a>
                   </div>
@@ -160,8 +160,9 @@ const Footer = () => {
                   </div>
                   <div className="flex-1">
                     <p className="text-sm text-gray-400">Head Office</p>
-                    <p className="text-sm text-[#D1D5DB] font-medium">Bandra Kurla Complex (BKC)</p>
-                    <p className="text-xs text-gray-400">Mumbai, Maharashtra 400051</p>
+                    <p className="text-xs text-[#D1D5DB] font-medium leading-relaxed">
+                      Unit No 203, 2nd Floor Suite No.806, SBR CV Towers, Madhapur, Hyderabad – TG, India
+                    </p>
                   </div>
                 </li>
               </ul>
@@ -187,11 +188,16 @@ const Footer = () => {
                 </div>
                 <p className="text-[#D1D5DB] mb-4 max-w-lg">
                   <Star className="w-4 h-4 inline mr-1 text-yellow-400" />
-                  Order groceries on the go! Faster delivery, exclusive offers, and real-time tracking.
+                  Order food on the go! Faster delivery, exclusive offers, and real-time tracking.
                   <Heart className="w-4 h-4 inline ml-2 text-red-400" />
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                  <button className="flex items-center justify-center bg-black/80 hover:bg-black px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group">
+                  <a
+                    href="https://ruchibazaar.in/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center bg-black/80 hover:bg-black px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group text-white"
+                  >
                     <Apple className="w-5 h-5 mr-2" />
                     <div className="text-left">
                       <div className="text-xs text-gray-400">Download on</div>
@@ -200,8 +206,13 @@ const Footer = () => {
                     <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                     </div>
-                  </button>
-                  <button className="flex items-center justify-center bg-black/80 hover:bg-black px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group">
+                  </a>
+                  <a
+                    href="https://play.google.com/store/apps/details?id=ruchibazaar.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center bg-black/80 hover:bg-black px-6 py-3 rounded-xl transition-all duration-300 hover:scale-105 group text-white"
+                  >
                     <div className="mr-2 text-xl">▶</div>
                     <div className="text-left">
                       <div className="text-xs text-gray-400">Get it on</div>
@@ -210,7 +221,7 @@ const Footer = () => {
                     <div className="ml-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse"></div>
                     </div>
-                  </button>
+                  </a>
                 </div>
               </div>
               <div className="relative">
@@ -242,7 +253,15 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row justify-between items-center mb-6">
             <div className="mb-4 md:mb-0">
               <p className="text-sm text-[#9CA3AF]">
-                © {new Date().getFullYear()} <span className="font-semibold text-red-300">Ruchi Bazaar</span>. All rights reserved.
+                © {new Date().getFullYear()} <span className="font-semibold text-red-300">Ruchi Bazaar</span>. All rights reserved. Copyright to{" "}
+                <a 
+                  href="https://digitalcrowdtech.in/" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="font-medium text-red-300 hover:text-red-200 underline underline-offset-2 transition-colors"
+                >
+                  https://digitalcrowdtech.in/
+                </a>
               </p>
             </div>
             <div className="flex flex-wrap justify-center gap-x-5 gap-y-2">
@@ -291,10 +310,9 @@ const Footer = () => {
               <div className="text-sm text-[#9CA3AF] text-center md:text-right">
                 <div className="flex items-center justify-center md:justify-end">
                   <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse mr-2"></div>
-                  <span>Serving 100+ cities across India</span>
+                  <span>Currently serving only in Adilabad, Telangana</span>
                   <div className="w-2 h-2 bg-red-400 rounded-full animate-pulse ml-2"></div>
                 </div>
-                <div className="text-xs text-gray-600 mt-1">Licensed FSSAI: 12345678901234</div>
               </div>
             </div>
           </div>

@@ -750,18 +750,52 @@ const CheckoutPage = () => {
     }, 0);
   };
 
-  const calculateTax = (value) => {
-    return Math.max(value, 0) * 0.05;
+  const calculateTax = () => 0; // 🚫 GST removed (0%)
+
+  const calculateDistanceKm = (lat1, lng1, lat2, lng2) => {
+    if (!lat1 || !lng1 || !lat2 || !lng2) return null;
+    const toRad = (v) => (v * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLng = toRad(lng2 - lng1);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) *
+        Math.cos(toRad(lat2)) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   };
 
-  const calculateDeliveryFee = (value) => {
-    return value > 500 ? 0 : 40;
+  // 🚚 Distance-based delivery fee:
+  // <= 5 km: ₹15
+  // 6 km: ₹18
+  // 7 km: ₹21
+  // Beyond 5 km: ₹15 base + ₹3/km
+  const calculateDeliveryFee = () => {
+    const restaurantLat =
+      cartItems[0]?.dish?.restaurant?.latitude ||
+      cartItems[0]?.restaurant?.latitude;
+    const restaurantLng =
+      cartItems[0]?.dish?.restaurant?.longitude ||
+      cartItems[0]?.restaurant?.longitude;
+    const customerLat = deliveryDetails.latitude;
+    const customerLng = deliveryDetails.longitude;
+
+    const distance = calculateDistanceKm(
+      restaurantLat,
+      restaurantLng,
+      customerLat,
+      customerLng
+    );
+
+    if (!distance || Number.isNaN(distance) || distance <= 5) return 15;
+    return 15 + Math.ceil(distance - 5) * 3;
   };
 
   const subtotal = calculateSubtotal();
-  const deliveryFee = calculateDeliveryFee(subtotal);
-  const tax = calculateTax(subtotal - promoDiscount);
-  const total = Math.max(subtotal + deliveryFee + tax - promoDiscount, 0);
+  const deliveryFee = calculateDeliveryFee();
+  const tax = 0;
+  const total = Math.max(subtotal + deliveryFee - promoDiscount, 0);
 
   const validatePromoCode = (code) => {
     const offer = availableOffers.find(
@@ -987,6 +1021,7 @@ const CheckoutPage = () => {
       const orderData = {
         items,
         restaurantId,
+        paymentMethod: paymentMethod || "cash",
         deliveryAddress: deliveryDetails.finalAddress || combineAddress(),
         couponCode: appliedPromo?.couponCode || null,
         latitude: deliveryDetails.latitude,
@@ -1176,16 +1211,7 @@ const CheckoutPage = () => {
                   <FiTruck className="text-gray-400" />
                   Delivery Fee
                 </span>
-                {deliveryFee === 0 ? (
-                  <span className="text-green-600 font-medium">FREE</span>
-                ) : (
-                  <span>{formatINR(deliveryFee)}</span>
-                )}
-              </div>
-
-              <div className="flex justify-between text-gray-600">
-                <span>GST (5%)</span>
-                <span>{formatINR(tax)}</span>
+                <span className="font-medium text-gray-800">{formatINR(deliveryFee)}</span>
               </div>
 
               {appliedPromo && promoDiscount > 0 && (
@@ -1198,15 +1224,6 @@ const CheckoutPage = () => {
                 </div>
               )}
             </div>
-
-            {subtotal < 500 && subtotal > 0 && (
-              <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-xl p-3 mb-4">
-                <p className="text-sm text-orange-700 flex items-center gap-2">
-                  <FiAlertCircle className="flex-shrink-0" />
-                  Add {formatINR(500 - subtotal)} more for FREE delivery
-                </p>
-              </div>
-            )}
 
             {!appliedPromo ? (
               <div className="mb-4">

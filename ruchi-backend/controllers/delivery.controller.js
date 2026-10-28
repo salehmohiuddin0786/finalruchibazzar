@@ -65,7 +65,7 @@ const getAssignedOrders = async (user, deliveryStatuses) => {
 const formatCurrency = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
 
 const getDeliveryFee = (order) =>
-  Number(order.earning?.deliveryEarning || Math.max(DELIVERY_EARNING_RATE, Math.round(Number(order.totalAmount || 0) * 0.08)));
+  Number(order.deliveryFee || order.earning?.deliveryEarning || 15);
 
 const formatOrder = (order) => {
   const customer = order.user || {};

@@ -11,7 +11,7 @@ export default function AboutUsPage() {
   return (
     <LegalPageLayout
       title="About Ruchi Bazaar"
-      subtitle="Connecting culinary passion, fresh local groceries, and fast reliable delivery with neighborhoods across India."
+      subtitle="Connecting culinary passion, fresh local groceries, and fast reliable delivery with neighborhoods across Adilabad, Telangana."
       badge="WHO WE ARE"
       lastUpdated="September 2026"
     >

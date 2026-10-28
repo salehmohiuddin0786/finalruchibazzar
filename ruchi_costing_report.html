@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Ruchi Bazaar - Costing & Earnings Breakdown</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 18mm 16mm 18mm 16mm;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      color: #1e293b;
+      background: #ffffff;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+    .header {
+      border-bottom: 3px solid #f97316;
+      padding-bottom: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+    .logo-container h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 800;
+      color: #ea580c;
+      letter-spacing: -0.5px;
+    }
+    .logo-container p {
+      margin: 3px 0 0 0;
+      font-size: 13px;
+      color: #64748b;
+      font-weight: 500;
+    }
+    .meta-box {
+      text-align: right;
+      font-size: 11px;
+      color: #64748b;
+    }
+    .meta-box strong {
+      color: #0f172a;
+      font-size: 12px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-primary {
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #ffedd5;
+    }
+    .badge-success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 1px solid #d1fae5;
+    }
+    .section-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 22px 0 10px 0;
+      padding-bottom: 6px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .rules-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+    .rule-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .rule-card .label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      display: block;
+      margin-bottom: 4px;
+    }
+    .rule-card .value {
+      font-size: 18px;
+      font-weight: 800;
+      color: #0f172a;
+    }
+    .rule-card .sub {
+      font-size: 11px;
+      color: #475569;
+      margin-top: 2px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 18px;
+      font-size: 12px;
+    }
+    th {
+      background: #f1f5f9;
+      color: #334155;
+      font-weight: 700;
+      text-align: left;
+      padding: 9px 12px;
+      border-top: 1px solid #cbd5e1;
+      border-bottom: 1px solid #cbd5e1;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+    td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    .table-container {
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .scenario-box {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      page-break-inside: avoid;
+    }
+    .scenario-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #f1f5f9;
+    }
+    .scenario-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+    .tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 6px;
+      background: #f1f5f9;
+      color: #475569;
+    }
+    .payout-box {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+    }
+    .payout-item {
+      background: #f8fafc;
+      padding: 8px 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+    }
+    .payout-item.restaurant {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+    }
+    .payout-item.driver {
+      background: #eff6ff;
+      border-color: #bfdbfe;
+    }
+    .payout-item.platform {
+      background: #fff7ed;
+      border-color: #fed7aa;
+    }
+    .payout-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #64748b;
+    }
+    .payout-item.restaurant .payout-label { color: #15803d; }
+    .payout-item.driver .payout-label { color: #1d4ed8; }
+    .payout-item.platform .payout-label { color: #c2410c; }
+    .payout-val {
+      font-size: 16px;
+      font-weight: 800;
+      color: #0f172a;
+      margin-top: 2px;
+    }
+    .payout-desc {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .footer {
+      margin-top: 30px;
+      padding-top: 12px;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-container">
+      <h1>Ruchi Bazaar</h1>
+      <p>Official Financial Costing & Partner Earnings Schedule</p>
+    </div>
+    <div class="meta-box">
+      <strong>FINANCIAL POLICY REPORT</strong><br>
+      Date Effective: October 2026<br>
+      Status: <span class="badge badge-success">Active & Verified</span>
+    </div>
+  </div>
+
+  <!-- SUMMARY TILES -->
+  <div class="rules-grid">
+    <div class="rule-card">
+      <span class="label">Platform Commission</span>
+      <div class="value" style="color: #ea580c;">2.0%</div>
+      <div class="sub">Food subtotal deduction</div>
+    </div>
+    <div class="rule-card">
+      <span class="label">Restaurant Payout</span>
+      <div class="value" style="color: #16a34a;">98.0%</div>
+      <div class="sub">Of net food sales</div>
+    </div>
+    <div class="rule-card">
+      <span class="label">Base Delivery Fee</span>
+      <div class="value" style="color: #2563eb;">₹15.00</div>
+      <div class="sub">For distance &le; 5.0 km</div>
+    </div>
+    <div class="rule-card">
+      <span class="label">GST / Tax Rate</span>
+      <div class="value" style="color: #64748b;">₹0.00 (0%)</div>
+      <div class="sub">No tax applied / Exempt</div>
+    </div>
+  </div>
+
+  <!-- SECTION: DISTANCE-BASED DELIVERY SLABS -->
+  <div class="section-title">
+    1. Distance-Based Delivery Fee Schedule
+  </div>
+  <p style="margin: 0 0 10px 0; font-size: 11.5px; color: #475569;">
+    Customer delivery charges are calculated strictly based on road transit distance between the customer address and the restaurant. <strong>100% of this fee is allocated directly to the delivery partner</strong>:
+  </p>
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Distance Radius</th>
+          <th>Customer Delivery Charge</th>
+          <th>Delivery Partner Receives</th>
+          <th>Pricing Logic</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>&le; 5.0 km (Under 5 km)</strong></td>
+          <td><strong style="color: #0f172a;">₹15.00</strong></td>
+          <td><strong style="color: #1d4ed8;">₹15.00 (100%)</strong></td>
+          <td>Flat base rate for all neighborhood deliveries</td>
+        </tr>
+        <tr>
+          <td><strong>5.1 km – 6.0 km (6 km)</strong></td>
+          <td><strong style="color: #0f172a;">₹18.00</strong></td>
+          <td><strong style="color: #1d4ed8;">₹18.00 (100%)</strong></td>
+          <td>Base ₹15 + ₹3 distance increment</td>
+        </tr>
+        <tr>
+          <td><strong>6.1 km – 7.0 km (7 km)</strong></td>
+          <td><strong style="color: #0f172a;">₹21.00</strong></td>
+          <td><strong style="color: #1d4ed8;">₹21.00 (100%)</strong></td>
+          <td>Base ₹15 + ₹6 distance increment</td>
+        </tr>
+        <tr>
+          <td><strong>Beyond 7.0 km</strong></td>
+          <td><strong>₹21.00 + ₹3 / km</strong></td>
+          <td><strong>Full collected fee</strong></td>
+          <td>₹3 for each additional kilometer</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- SECTION: CONCRETE ORDER COSTING SCENARIOS -->
+  <div class="section-title">
+    2. Concrete Order Scenarios & Payout Distribution
+  </div>
+
+  <!-- SCENARIO 1 -->
+  <div class="scenario-box">
+    <div class="scenario-header">
+      <div class="scenario-title">Scenario A: Neighborhood Order Under 5 km (₹200 Food Subtotal)</div>
+      <span class="tag">Transit: 3.5 km | Payment: COD or Online</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Amount</th>
+          <th>Rule & Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Food Subtotal</td>
+          <td>₹200.00</td>
+          <td>Dish prices as listed on restaurant menu</td>
+        </tr>
+        <tr>
+          <td>GST (0%)</td>
+          <td>₹0.00</td>
+          <td>Exempt / No tax charged</td>
+        </tr>
+        <tr>
+          <td>Delivery Fee (&le; 5 km)</td>
+          <td>₹15.00</td>
+          <td>Standard base delivery charge</td>
+        </tr>
+        <tr style="background: #f8fafc; font-weight: 700;">
+          <td>Total Charged to Customer</td>
+          <td style="color: #0f172a; font-size: 13px;">₹215.00</td>
+          <td>Customer invoice total</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="payout-box">
+      <div class="payout-item restaurant">
+        <div class="payout-label">Restaurant Net Earning</div>
+        <div class="payout-val" style="color: #15803d;">₹196.00</div>
+        <div class="payout-desc">98% of food subtotal (₹200 − ₹4)</div>
+      </div>
+      <div class="payout-item driver">
+        <div class="payout-label">Delivery Partner Earning</div>
+        <div class="payout-val" style="color: #1d4ed8;">₹15.00</div>
+        <div class="payout-desc">100% of delivery charge collected</div>
+      </div>
+      <div class="payout-item platform">
+        <div class="payout-label">Ruchi Bazaar Platform</div>
+        <div class="payout-val" style="color: #c2410c;">₹4.00</div>
+        <div class="payout-desc">2.0% platform commission</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO 2 -->
+  <div class="scenario-box">
+    <div class="scenario-header">
+      <div class="scenario-title">Scenario B: Medium Order at 6 km (₹500 Food Subtotal)</div>
+      <span class="tag">Transit: 6.0 km | Payment: COD or Online</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Amount</th>
+          <th>Rule & Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Food Subtotal</td>
+          <td>₹500.00</td>
+          <td>Dish prices as listed on restaurant menu</td>
+        </tr>
+        <tr>
+          <td>GST (0%)</td>
+          <td>₹0.00</td>
+          <td>Exempt / No tax charged</td>
+        </tr>
+        <tr>
+          <td>Delivery Fee (6 km)</td>
+          <td>₹18.00</td>
+          <td>Base ₹15 + ₹3 increment</td>
+        </tr>
+        <tr style="background: #f8fafc; font-weight: 700;">
+          <td>Total Charged to Customer</td>
+          <td style="color: #0f172a; font-size: 13px;">₹518.00</td>
+          <td>Customer invoice total</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="payout-box">
+      <div class="payout-item restaurant">
+        <div class="payout-label">Restaurant Net Earning</div>
+        <div class="payout-val" style="color: #15803d;">₹490.00</div>
+        <div class="payout-desc">98% of food subtotal (₹500 − ₹10)</div>
+      </div>
+      <div class="payout-item driver">
+        <div class="payout-label">Delivery Partner Earning</div>
+        <div class="payout-val" style="color: #1d4ed8;">₹18.00</div>
+        <div class="payout-desc">100% of delivery charge collected</div>
+      </div>
+      <div class="payout-item platform">
+        <div class="payout-label">Ruchi Bazaar Platform</div>
+        <div class="payout-val" style="color: #c2410c;">₹10.00</div>
+        <div class="payout-desc">2.0% platform commission</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO 3 -->
+  <div class="scenario-box">
+    <div class="scenario-header">
+      <div class="scenario-title">Scenario C: Large Order at 7 km with ₹50 Coupon (₹1,000 Food Subtotal)</div>
+      <span class="tag">Transit: 7.0 km | Payment: COD or Online</span>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th>Amount</th>
+          <th>Rule & Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Food Subtotal</td>
+          <td>₹1,000.00</td>
+          <td>Dish prices as listed on restaurant menu</td>
+        </tr>
+        <tr>
+          <td>Promo Coupon Discount</td>
+          <td style="color: #dc2626;">-₹50.00</td>
+          <td>Voucher deducted from customer bill</td>
+        </tr>
+        <tr>
+          <td>GST (0%)</td>
+          <td>₹0.00</td>
+          <td>Exempt / No tax charged</td>
+        </tr>
+        <tr>
+          <td>Delivery Fee (7 km)</td>
+          <td>₹21.00</td>
+          <td>Base ₹15 + ₹6 increment</td>
+        </tr>
+        <tr style="background: #f8fafc; font-weight: 700;">
+          <td>Total Charged to Customer</td>
+          <td style="color: #0f172a; font-size: 13px;">₹971.00</td>
+          <td>Customer invoice total</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="payout-box">
+      <div class="payout-item restaurant">
+        <div class="payout-label">Restaurant Net Earning</div>
+        <div class="payout-val" style="color: #15803d;">₹930.00</div>
+        <div class="payout-desc">₹1,000 − ₹20 commission (2%) − ₹50 discount</div>
+      </div>
+      <div class="payout-item driver">
+        <div class="payout-label">Delivery Partner Earning</div>
+        <div class="payout-val" style="color: #1d4ed8;">₹21.00</div>
+        <div class="payout-desc">100% of delivery charge collected</div>
+      </div>
+      <div class="payout-item platform">
+        <div class="payout-label">Ruchi Bazaar Platform</div>
+        <div class="payout-val" style="color: #c2410c;">₹20.00</div>
+        <div class="payout-desc">2.0% platform commission on ₹1,000</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: SETTLEMENT PROCEDURES -->
+  <div class="section-title">
+    3. Settlement & Payout Guarantees
+  </div>
+  <ul style="padding-left: 20px; font-size: 11.5px; color: #475569; line-height: 1.6;">
+    <li><strong>Zero Delivery Deficit:</strong> 100% of distance-based delivery fees collected from customers are credited to the delivery partner's wallet.</li>
+    <li><strong>Restaurant Settlement Requests:</strong> Restaurants can request withdrawals at any time once their accrued balance reaches ₹100. Payouts are transferred via NEFT/IMPS/UPI.</li>
+    <li><strong>Verified Bank UTR:</strong> No payout is marked as confirmed without a valid Bank UTR (Unique Transaction Reference) number recorded on the main administration ledger.</li>
+    <li><strong>Order Cancellation Protection:</strong> If an order is cancelled before fulfillment, accrued earnings are automatically reversed to prevent erroneous overpayments.</li>
+  </ul>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div>Ruchi Bazaar &bull; Operations & Finance Division</div>
+    <div>Strictly Reconciled Double-Entry Ledger System &bull; Confidential</div>
+  </div>
+
+</body>
+</html>

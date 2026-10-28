@@ -78,6 +78,74 @@ exports.ensureDeliveryAssignmentSchema = async () => {
         type: Sequelize.DATE,
         allowNull: true,
       });
+
+      // 💳 FINTECH & PAYMENT FIELDS
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "subtotal", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "taxAmount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "deliveryFee", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "platformFee", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "paymentMethod", {
+        type: Sequelize.STRING,
+        defaultValue: "cash",
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Orders", "gatewayTransactionId", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      });
+    }
+
+    if (await tableExists(queryInterface, "Earnings")) {
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "restaurantId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "grossFoodSales", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "taxAmount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "discountAmount", {
+        type: Sequelize.FLOAT,
+        defaultValue: 0,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "commissionRate", {
+        type: Sequelize.FLOAT,
+        defaultValue: 2,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "status", {
+        type: Sequelize.ENUM("accrued", "settled", "reversed", "cancelled"),
+        defaultValue: "accrued",
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "settlementId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      });
+      await addColumnIfMissing(queryInterface, Sequelize, "Earnings", "payoutId", {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      });
+    }
+
+    if (await tableExists(queryInterface, "Restaurants")) {
+      await addColumnIfMissing(queryInterface, Sequelize, "Restaurants", "payoutSchedule", {
+        type: Sequelize.STRING,
+        defaultValue: "weekly",
+      });
     }
 
     if (await tableExists(queryInterface, "Users")) {

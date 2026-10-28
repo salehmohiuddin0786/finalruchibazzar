@@ -8,6 +8,8 @@ const Order = require("./order.model")(sequelize);
 const OrderItem = require("./orderItem.model")(sequelize);
 const DeliveryPartner = require("./deliveryPartner.model")(sequelize);
 const Earning = require("./earning.model")(sequelize);
+const Payment = require("./payment.model")(sequelize);
+const Payout = require("./payout.model")(sequelize);
 const Review = require("./review.model")(sequelize);
 const Offer = require("./offer.model")(sequelize);
 const Banner = require("./banner.model")(sequelize);
@@ -61,6 +63,15 @@ const initAssociations = () => {
   Order.hasOne(Earning, { foreignKey: "orderId", as: "earning" });
   Earning.belongsTo(Order, { foreignKey: "orderId", as: "order" });
 
+  Order.hasOne(Payment, { foreignKey: "orderId", as: "payment" });
+  Payment.belongsTo(Order, { foreignKey: "orderId", as: "order" });
+
+  Restaurant.hasMany(Payout, { foreignKey: "restaurantId", as: "payouts" });
+  Payout.belongsTo(Restaurant, { foreignKey: "restaurantId", as: "restaurant" });
+
+  Restaurant.hasMany(Earning, { foreignKey: "restaurantId", as: "earnings" });
+  Earning.belongsTo(Restaurant, { foreignKey: "restaurantId", as: "restaurant" });
+
   DeliveryPartner.hasMany(Order, {
     foreignKey: "deliveryPartnerId",
     as: "deliveries",
@@ -96,6 +107,8 @@ module.exports = {
   OrderItem,
   DeliveryPartner,
   Earning,
+  Payment,
+  Payout,
   Review,
   Offer,
   Banner,

@@ -8,10 +8,15 @@ const {
   Dish,
   DeliveryPartner,
   UserAddress,
+  Payment,
+  Earning,
 } = require("../models");
 
 const { ORDER_STATUS, DELIVERY_STATUS } = require("../config/constants");
-const { calculateAndCreateEarning } = require("../services/commission.service");
+const {
+  calculateAndCreateEarning,
+  reverseOrCancelEarning,
+} = require("../services/commission.service");
 const { sendNotification } = require("../services/notification.service");
 const orderSocket = require("../sockets/order.socket");
 
@@ -89,8 +94,12 @@ const formatOrder = (order) => ({
 
   totalAmount: Number(order.totalAmount || 0),
   discount: Number(order.discount || 0),
-  subtotal: Number(order.originalAmount || 0),
-  deliveryFee: 0,
+  subtotal: Number(order.subtotal || order.originalAmount || 0),
+  taxAmount: Number(order.taxAmount || 0),
+  deliveryFee: Number(order.deliveryFee || 0),
+  platformFee: Number(order.platformFee || 0),
+  paymentMethod: order.paymentMethod || "cash",
+  paymentStatus: order.paymentStatus || "pending",
 
   deliveryAddress: order.deliveryAddress,
   deliveryPartnerId: order.deliveryPartnerId,
@@ -146,6 +155,7 @@ exports.createOrder = async (req, res) => {
       latitude,
       longitude,
       savedAddress,
+      paymentMethod = "cash",
     } = req.body;
 
     if (!req.user || req.user.role !== "customer") {
@@ -261,22 +271,66 @@ exports.createOrder = async (req, res) => {
       await offer.increment("usedCount", { transaction });
     }
 
+    const subtotal = originalAmount;
+    const netFood = Math.max(0, subtotal - discount);
+
+    // 📍 CALCULATE DISTANCE FOR DELIVERY CHARGES
+    const restaurant = await Restaurant.findByPk(restaurantId);
+    let distanceKm = null;
+    if (
+      restaurant &&
+      restaurant.latitude &&
+      restaurant.longitude &&
+      deliveryLat &&
+      deliveryLng
+    ) {
+      const toRad = (val) => (val * Math.PI) / 180;
+      const dLat = toRad(deliveryLat - restaurant.latitude);
+      const dLng = toRad(deliveryLng - restaurant.longitude);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(restaurant.latitude)) *
+          Math.cos(toRad(deliveryLat)) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      distanceKm = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+
+    // 🚚 DISTANCE-BASED DELIVERY FEE:
+    // <= 5 km: ₹15
+    // 6 km: ₹18 (15 + 3)
+    // 7 km: ₹21 (15 + 6)
+    // Beyond 5 km: ₹15 base + ₹3 per additional km
+    const calculateDistanceFee = (dist) => {
+      if (dist === null || dist === undefined || Number.isNaN(dist)) return 15;
+      if (dist <= 5) return 15;
+      return 15 + Math.ceil(dist - 5) * 3;
+    };
+
+    const deliveryFee = calculateDistanceFee(distanceKm);
+    const taxAmount = 0; // 🚫 GST REMOVED: 0% tax liability
+    const platformFee = 0;
+    const finalOrderTotal = Math.round((netFood + taxAmount + deliveryFee + platformFee) * 100) / 100;
+
     const order = await Order.create(
       {
         userId,
         restaurantId,
         originalAmount,
-        totalAmount: finalAmount,
+        subtotal,
+        taxAmount,
+        deliveryFee,
+        platformFee,
+        totalAmount: finalOrderTotal,
         discount,
         couponCode: appliedCoupon,
         deliveryAddress,
-
-        // ✅ Save latitude and longitude here
         deliveryLat,
         deliveryLng,
-
+        paymentMethod: paymentMethod || "cash",
         status: ORDER_STATUS.PENDING,
         deliveryStatus: DELIVERY_STATUS.NOT_ASSIGNED,
+        paymentStatus: "pending",
       },
       { transaction }
     );
@@ -288,6 +342,20 @@ exports.createOrder = async (req, res) => {
         quantity: Number(item.quantity || 1),
         price: Number(item.price || 0),
       })),
+      { transaction }
+    );
+
+    await Payment.create(
+      {
+        orderId: order.id,
+        userId,
+        paymentMethod: ["cash", "upi", "card", "netbanking"].includes(paymentMethod)
+          ? paymentMethod
+          : "cash",
+        amount: finalOrderTotal,
+        netAmount: finalOrderTotal,
+        status: "pending",
+      },
       { transaction }
     );
 
@@ -529,6 +597,23 @@ exports.updateOrderStatus = async (req, res) => {
 
     const updates = { status };
     let assignedPartner = null;
+
+    // 💰 FINTECH STATUS SYNCHRONIZATION
+    if (status === ORDER_STATUS.CANCELLED) {
+      reverseOrCancelEarning(order.id, "Order cancelled").catch(() => {});
+      Payment.update(
+        { status: "refunded", failureReason: "Order cancelled" },
+        { where: { orderId: order.id } }
+      ).catch(() => {});
+      updates.paymentStatus = "failed";
+    } else if (status === ORDER_STATUS.DELIVERED) {
+      updates.paymentStatus = "success";
+      updates.deliveredAt = new Date();
+      Payment.update(
+        { status: "success", paidAt: new Date() },
+        { where: { orderId: order.id } }
+      ).catch(() => {});
+    }
 
     if (deliveryPartnerId) {
       assignedPartner = await DeliveryPartner.findByPk(deliveryPartnerId);

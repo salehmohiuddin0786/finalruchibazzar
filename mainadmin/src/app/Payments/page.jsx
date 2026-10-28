@@ -127,31 +127,46 @@ export default function Payments() {
     },
     { 
       key: "order", 
-      label: "Order",
+      label: "Order & Restaurant",
       render: (row) => (
-        <div className="flex items-center gap-2">
-          <ReceiptText className="h-3.5 w-3.5 text-slate-400" />
-          <span className="text-sm font-medium text-slate-700">#{row.order || "N/A"}</span>
+        <div>
+          <div className="flex items-center gap-1.5">
+            <ReceiptText className="h-3.5 w-3.5 text-slate-400" />
+            <span className="text-sm font-semibold text-slate-800">#{row.order || "N/A"}</span>
+          </div>
+          <p className="text-xs text-slate-500 mt-0.5">{row.restaurant || "Restaurant"} • {row.customer || "Customer"}</p>
         </div>
       )
     },
     { 
       key: "method", 
-      label: "Method",
+      label: "Method & Ref",
       render: (row) => {
         const Icon = getPaymentIcon(row.method);
         return (
-          <div className="flex items-center gap-1.5">
-            <Icon className="h-3.5 w-3.5 text-slate-500" />
-            <span className="text-sm text-slate-700">{row.method || "Not specified"}</span>
+          <div>
+            <div className="flex items-center gap-1.5">
+              <Icon className="h-3.5 w-3.5 text-slate-500" />
+              <span className="text-sm font-medium text-slate-700">{row.method || "Not specified"}</span>
+            </div>
+            <p className="font-mono text-[10px] text-slate-400 mt-0.5">{row.gatewayTransactionId || "Local/COD"}</p>
           </div>
         );
       }
     },
     { 
       key: "amount", 
-      label: "Amount",
-      render: (row) => <AmountWithTrend amount={row.amount} />
+      label: "Invoice & Breakdown",
+      render: (row) => (
+        <div>
+          <AmountWithTrend amount={row.amount} />
+          {row.subtotal && (
+            <p className="text-[10px] text-slate-400">
+              Food: {row.subtotal} | Delivery: {row.delivery || "₹15"}
+            </p>
+          )}
+        </div>
+      )
     },
     { 
       key: "status", 

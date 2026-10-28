@@ -34,8 +34,8 @@ export default function DeliveryPolicyPage() {
             <h2>1. Serviceable Delivery Areas</h2>
           </div>
           <p className="text-slate-700">
-            We currently deliver across metropolitan and suburban zones in Tier 1 and Tier 2 cities. 
-            Before browsing, enter your delivery address or allow GPS geolocation on the home page to view merchants that actively deliver to your exact pincode.
+            We currently deliver exclusively across Adilabad, Telangana. 
+            Before browsing, enter your delivery address or allow GPS geolocation on the home page to view merchants that actively deliver to your exact location in Adilabad.
           </p>
           <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 text-xs sm:text-sm text-slate-700">
             <strong>Out of Range Delivery:</strong> Restaurants and grocery stores typically operate within a radius of <strong>7 to 10 kilometers</strong>. Long-distance deliveries may feature special extended delivery partners and slightly increased delivery times.

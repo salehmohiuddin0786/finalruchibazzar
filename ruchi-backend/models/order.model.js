@@ -20,6 +20,30 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
 
+    subtotal: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+    },
+
+    taxAmount: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+    },
+
+    deliveryFee: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+    },
+
+    platformFee: {
+      type: DataTypes.FLOAT,
+      allowNull: true,
+      defaultValue: 0,
+    },
+
     totalAmount: {
       type: DataTypes.FLOAT,
       allowNull: false,
@@ -32,6 +56,17 @@ module.exports = (sequelize) => {
 
     couponCode: {
       type: DataTypes.STRING,
+    },
+
+    // 💳 PAYMENT
+    paymentMethod: {
+      type: DataTypes.STRING,
+      defaultValue: "cash",
+    },
+
+    gatewayTransactionId: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
 
     // 📦 ORDER STATUS

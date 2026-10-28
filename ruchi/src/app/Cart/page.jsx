@@ -305,14 +305,14 @@ const CartPage = () => {
     }, 0);
   };
 
-  const calculateTax = (value) => value * 0.05;
+  const calculateTax = () => 0; // 🚫 No GST (0%)
 
-  const calculateDeliveryFee = (value) => (value > 500 ? 0 : 40);
+  const calculateDeliveryFee = () => 15; // 🚚 Base fee (<= 5 km: ₹15)
 
   const subtotal = calculateSubtotal();
-  const deliveryFee = calculateDeliveryFee(subtotal);
-  const tax = calculateTax(Math.max(subtotal - promoDiscount, 0));
-  const total = Math.max(subtotal + deliveryFee + tax - promoDiscount, 0);
+  const deliveryFee = calculateDeliveryFee();
+  const tax = 0;
+  const total = Math.max(subtotal + deliveryFee - promoDiscount, 0);
 
   const itemCount = cartItems.reduce(
     (count, item) => count + Number(item.quantity || 0),
@@ -798,28 +798,14 @@ const CartPage = () => {
                     </div>
 
                     <div className="flex justify-between text-gray-600">
-                      <span>Tax (5%)</span>
-                      <span>
-                        {currencySymbol}
-                        {tax.toFixed(2)}
-                      </span>
-                    </div>
-
-                    <div className="flex justify-between text-gray-600">
                       <span className="flex items-center gap-1">
                         <Truck className="w-4 h-4" />
                         Delivery Fee
                       </span>
-                      {deliveryFee === 0 ? (
-                        <span className="text-green-600 font-medium">
-                          FREE
-                        </span>
-                      ) : (
-                        <span>
-                          {currencySymbol}
-                          {deliveryFee.toFixed(2)}
-                        </span>
-                      )}
+                      <span>
+                        {currencySymbol}
+                        {deliveryFee.toFixed(2)}
+                      </span>
                     </div>
 
                     {promoApplied && (

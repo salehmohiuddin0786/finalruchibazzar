@@ -122,7 +122,7 @@ export default function GrievancePage() {
                   </a>
                 </p>
                 <p><strong>Hours:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
-                <p><strong>Address:</strong> Corporate Tower B, 4th Floor, BKC, Mumbai, Maharashtra 400051</p>
+                <p><strong>Address:</strong> Unit No 203, 2nd Floor Suite No.806, SBR CV Towers, Madhapur, Hyderabad – TG, India</p>
               </div>
             </div>
 
@@ -147,7 +147,7 @@ export default function GrievancePage() {
                   </a>
                 </p>
                 <p><strong>Hours:</strong> Mon–Fri, 10:00 AM – 6:00 PM IST</p>
-                <p><strong>Address:</strong> Corporate Tower B, 4th Floor, BKC, Mumbai, Maharashtra 400051</p>
+                <p><strong>Address:</strong> Unit No 203, 2nd Floor Suite No.806, SBR CV Towers, Madhapur, Hyderabad – TG, India</p>
               </div>
             </div>
           </div>

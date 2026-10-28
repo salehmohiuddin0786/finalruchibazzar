@@ -26,7 +26,12 @@ const SpecialOffer = () => {
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center mb-6 sm:mb-10">
-                <button className="group bg-black hover:bg-gray-900 px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-105 shadow-2xl">
+                <a
+                  href="https://play.google.com/store/apps/details?id=ruchibazaar.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-black hover:bg-gray-900 px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-105 shadow-2xl text-white"
+                >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-400 to-red-500 rounded-xl flex items-center justify-center shrink-0">
                     <Play className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                   </div>
@@ -35,9 +40,14 @@ const SpecialOffer = () => {
                     <div className="text-lg sm:text-2xl">Google Play</div>
                   </div>
                   <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all hidden xs:block" />
-                </button>
+                </a>
                 
-                <button className="group bg-black hover:bg-gray-900 px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-105 shadow-2xl">
+                <a
+                  href="https://ruchibazaar.in/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group bg-black hover:bg-gray-900 px-6 sm:px-10 py-3.5 sm:py-4 rounded-xl font-bold flex items-center justify-center gap-3 sm:gap-4 transition-all hover:scale-105 shadow-2xl text-white"
+                >
                   <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-red-400 to-red-500 rounded-xl flex items-center justify-center shrink-0">
                     <AppleIcon className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
                   </div>
@@ -46,7 +56,7 @@ const SpecialOffer = () => {
                     <div className="text-lg sm:text-2xl">App Store</div>
                   </div>
                   <ArrowRight className="w-5 h-5 sm:w-6 sm:h-6 opacity-0 group-hover:opacity-100 group-hover:translate-x-2 transition-all hidden xs:block" />
-                </button>
+                </a>
               </div>
               
               <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 sm:p-6 inline-block max-w-full">

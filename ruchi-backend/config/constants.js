@@ -38,7 +38,7 @@ const PAYMENT_STATUS = {
 };
 
 // Commission %
-const PLATFORM_COMMISSION_PERCENT = 20;
+const PLATFORM_COMMISSION_PERCENT = 2;
 
 // Pagination Default
 const DEFAULT_PAGE_SIZE = 10;

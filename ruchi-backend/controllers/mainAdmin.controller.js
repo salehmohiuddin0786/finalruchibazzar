@@ -8,6 +8,8 @@ const {
   Restaurant,
   Review,
   User,
+  Payment,
+  Payout,
 } = require("../models");
 
 const money = (value) => `₹${Number(value || 0).toLocaleString("en-IN")}`;
@@ -404,17 +406,74 @@ exports.getOrders = async (req, res) => {
 
 exports.getPayments = async (req, res) => {
   try {
-    const orders = await Order.findAll({ order: [["createdAt", "DESC"]], limit: 200 });
+    const payments = await Payment.findAll({
+      include: [
+        {
+          model: Order,
+          as: "order",
+          include: [
+            { model: Restaurant, as: "restaurant", attributes: ["id", "name"] },
+            { model: User, as: "user", attributes: ["id", "name", "phone"] },
+          ],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 200,
+    });
+
+    if (payments.length === 0) {
+      const orders = await Order.findAll({
+        include: [
+          { model: Restaurant, as: "restaurant", attributes: ["id", "name"] },
+          { model: User, as: "user", attributes: ["id", "name"] },
+        ],
+        order: [["createdAt", "DESC"]],
+        limit: 200,
+      });
+
+      return res.json({
+        success: true,
+        rows: orders.map((order) => ({
+          id: `PAY-${order.id}`,
+          orderId: order.id,
+          order: `ORD-${order.id}`,
+          customer: order.user?.name || "Customer",
+          restaurant: order.restaurant?.name || "Restaurant",
+          method: String(order.paymentMethod || "cash").toUpperCase(),
+          amount: money(order.totalAmount),
+          amountRaw: Number(order.totalAmount || 0),
+          subtotal: money(order.subtotal || order.originalAmount),
+          tax: money(order.taxAmount),
+          delivery: money(order.deliveryFee),
+          status: ["paid", "completed", "success"].includes(order.paymentStatus) ? "Approved" : "Pending",
+          paymentStatus: order.paymentStatus,
+          settlement: titleCase(order.paymentStatus),
+          date: formatDateTime(order.createdAt),
+        })),
+      });
+    }
 
     return res.json({
       success: true,
-      rows: orders.map((order) => ({
-        id: `PAY-${order.id}`,
-        order: `ORD-${order.id}`,
-        method: order.paymentStatus === "cod" ? "COD" : "Online",
-        amount: money(order.totalAmount),
-        status: ["paid", "completed", "success"].includes(order.paymentStatus) ? "Approved" : "Pending",
-        settlement: titleCase(order.paymentStatus),
+      rows: payments.map((p) => ({
+        id: `PAY-${p.id}`,
+        paymentId: p.id,
+        orderId: p.orderId,
+        order: `ORD-${p.orderId}`,
+        customer: p.order?.user?.name || "Customer",
+        restaurant: p.order?.restaurant?.name || "Restaurant",
+        method: String(p.paymentMethod || "cash").toUpperCase(),
+        amount: money(p.amount),
+        amountRaw: Number(p.amount || 0),
+        subtotal: money(p.order?.subtotal || p.order?.originalAmount || p.amount),
+        tax: money(p.order?.taxAmount || 0),
+        delivery: money(p.order?.deliveryFee || 0),
+        status: p.status === "success" ? "Approved" : titleCase(p.status),
+        paymentStatus: p.status,
+        settlement: titleCase(p.status),
+        gatewayTransactionId: p.gatewayTransactionId || "N/A (Cash/Local)",
+        paidAt: p.paidAt ? formatDateTime(p.paidAt) : "Pending",
+        date: formatDateTime(p.createdAt),
       })),
     });
   } catch (error) {
@@ -424,6 +483,43 @@ exports.getPayments = async (req, res) => {
 
 exports.getPayouts = async (req, res) => {
   try {
+    const payouts = await Payout.findAll({
+      include: [
+        {
+          model: Restaurant,
+          as: "restaurant",
+          attributes: ["id", "name", "ownerName", "restaurantPhone", "city"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 200,
+    });
+
+    if (payouts.length > 0) {
+      return res.json({
+        success: true,
+        rows: payouts.map((p) => ({
+          id: p.id,
+          payoutNumber: p.payoutNumber,
+          account: p.restaurant?.name || `Restaurant #${p.restaurantId}`,
+          city: p.restaurant?.city || "Adilabad",
+          type: "Restaurant",
+          schedule: "Weekly",
+          pending: money(p.amount),
+          amountRaw: Number(p.amount || 0),
+          approvedAmount: p.approvedAmount ? money(p.approvedAmount) : money(p.amount),
+          status: titleCase(p.status),
+          rawStatus: p.status,
+          beneficiary: p.beneficiaryName || "N/A",
+          accountNumberMasked: p.accountNumberMasked || "N/A",
+          ifscCode: p.ifscCode || "N/A",
+          utrNumber: p.utrNumber || "Unverified",
+          reconciliationStatus: p.reconciliationStatus || "unverified",
+          date: formatDateTime(p.createdAt),
+        })),
+      });
+    }
+
     const earnings = await Earning.findAll({
       include: [{ model: Order, as: "order", include: [{ model: Restaurant, as: "restaurant" }], required: false }],
       order: [["createdAt", "DESC"]],
@@ -434,13 +530,19 @@ exports.getPayouts = async (req, res) => {
       success: true,
       rows: earnings.map((earning) => ({
         id: earning.id,
-        account: earning.order?.restaurant?.name || `Order #${earning.orderId || earning.id}`,
+        payoutNumber: `EARN-${earning.id}`,
+        account: earning.order?.restaurant?.name || `Restaurant #${earning.restaurantId || earning.orderId}`,
         type: "Restaurant",
         schedule: "Weekly",
         pending: money(earning.restaurantEarning),
+        amountRaw: Number(earning.restaurantEarning || 0),
         commission: money(earning.platformCommission),
         delivery: money(earning.deliveryEarning),
-        status: "Pending",
+        status: earning.status === "settled" ? "Paid" : "Pending",
+        rawStatus: earning.status === "settled" ? "paid" : "pending",
+        utrNumber: "Awaiting Payout Request",
+        reconciliationStatus: "unverified",
+        date: formatDateTime(earning.createdAt),
       })),
     });
   } catch (error) {
@@ -492,7 +594,7 @@ exports.getEarnings = async (req, res) => {
         return {
           name: restaurant.name,
           revenue,
-          commission: revenue * 0.1,
+          commission: revenue * 0.02,
           orders: restaurantOrders.length,
         };
       }),

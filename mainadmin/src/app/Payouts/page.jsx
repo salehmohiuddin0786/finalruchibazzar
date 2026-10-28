@@ -1,49 +1,59 @@
 "use client";
 
+import { useState } from "react";
 import { 
   CalendarClock, 
   Landmark, 
   Store, 
-  Truck,
-  Clock,
-  CheckCircle2,
-  AlertCircle,
-  TrendingUp,
-  IndianRupee,
-  Calendar,
-  Banknote,
-  Building2,
-  UserCheck,
-  Download,
-  Filter,
-  ArrowUpRight,
-  ArrowDownRight
+  Truck, 
+  Clock, 
+  CheckCircle2, 
+  AlertCircle, 
+  TrendingUp, 
+  IndianRupee, 
+  Calendar, 
+  Banknote, 
+  Building2, 
+  Download, 
+  Filter, 
+  ShieldCheck, 
+  X, 
+  FileCheck, 
+  ArrowRight,
+  RefreshCw,
+  AlertTriangle
 } from "lucide-react";
 import { AdminFeaturePage } from "../components/AdminFeaturePage";
 import { money, parseCurrency } from "../data/mainAdmin";
 import { useMainAdminData } from "../lib/useMainAdminData";
+import { apiRequest } from "../lib/api";
 
 export default function Payouts() {
   const { rows, data, loading, error, refresh } = useMainAdminData("/mainadmin/payouts");
-  const summary = data?.summary || {};
   
+  // State for Payout Actions Modal
+  const [selectedPayout, setSelectedPayout] = useState(null);
+  const [utrNumber, setUtrNumber] = useState("");
+  const [paymentMode, setPaymentMode] = useState("NEFT");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [actionSuccess, setActionSuccess] = useState("");
+
+  // State for Reconciliation Report Modal
+  const [showReconModal, setShowReconModal] = useState(false);
+  const [reconData, setReconData] = useState(null);
+  const [loadingRecon, setLoadingRecon] = useState(false);
+
   // Calculate payout metrics
   const restaurantPayouts = rows.filter((row) => row.type === "Restaurant");
   const partnerPayouts = rows.filter((row) => row.type === "Delivery Partner");
-  const pendingPayouts = rows.filter((row) => row.status === "Pending");
-  const approvedPayouts = rows.filter((row) => row.status === "Approved");
+  const pendingPayouts = rows.filter((row) => row.rawStatus === "pending" || row.status === "Pending" || row.status === "Pending Review");
+  const approvedPayouts = rows.filter((row) => row.rawStatus === "approved" || row.status === "Approved" || row.status === "Paid");
   
   const totalPendingAmount = pendingPayouts.reduce((sum, row) => sum + parseCurrency(row.pending || row.amount), 0);
   const totalApprovedAmount = approvedPayouts.reduce((sum, row) => sum + parseCurrency(row.pending || row.amount), 0);
   const totalRestaurantAmount = restaurantPayouts.reduce((sum, row) => sum + parseCurrency(row.pending || row.amount), 0);
   const totalPartnerAmount = partnerPayouts.reduce((sum, row) => sum + parseCurrency(row.pending || row.amount), 0);
-  
-  // Payout schedule distribution
-  const scheduleDistribution = {};
-  rows.forEach(row => {
-    const schedule = row.schedule || "Unscheduled";
-    scheduleDistribution[schedule] = (scheduleDistribution[schedule] || 0) + 1;
-  });
   
   // Approval rate
   const approvalRate = rows.length > 0 ? Math.round((approvedPayouts.length / rows.length) * 100) : 0;
@@ -58,21 +68,21 @@ export default function Payouts() {
       gradient: "from-blue-500 to-blue-600"
     },
     { 
-      label: "Restaurant Settlements", 
-      value: restaurantPayouts.length, 
-      change: money(totalRestaurantAmount),
+      label: "Restaurant Liabilities", 
+      value: money(totalRestaurantAmount),
+      change: `${restaurantPayouts.length} accounts`,
       icon: Store,
       gradient: "from-emerald-500 to-emerald-600"
     },
     { 
       label: "Partner Settlements", 
-      value: partnerPayouts.length, 
-      change: money(totalPartnerAmount),
+      value: money(totalPartnerAmount),
+      change: `${partnerPayouts.length} accounts`,
       icon: Truck,
       gradient: "from-amber-500 to-amber-600"
     },
     { 
-      label: "Pending Approval", 
+      label: "Pending Payout Requests", 
       value: pendingPayouts.length, 
       change: money(totalPendingAmount),
       icon: CalendarClock,
@@ -80,82 +90,118 @@ export default function Payouts() {
     },
   ];
 
-  // Helper to get type icon and color
-  const getTypeConfig = (type) => {
-    const configs = {
-      "Restaurant": { icon: Store, color: "emerald", bg: "emerald-50", text: "emerald-700" },
-      "Delivery Partner": { icon: Truck, color: "amber", bg: "amber-50", text: "amber-700" },
-      "Platform": { icon: Building2, color: "blue", bg: "blue-50", text: "blue-700" }
-    };
-    return configs[type] || { icon: Landmark, color: "slate", bg: "slate-50", text: "slate-700" };
+  const handleApprove = async (row) => {
+    setActionError("");
+    setIsSubmitting(true);
+    try {
+      await apiRequest(`/payouts/admin/${row.id}/approve`, {
+        method: "PUT",
+        body: JSON.stringify({ approvedAmount: row.amountRaw || parseCurrency(row.pending) }),
+      });
+      setActionSuccess(`Payout #${row.payoutNumber || row.id} approved.`);
+      refresh();
+      setTimeout(() => setActionSuccess(""), 4000);
+    } catch (err) {
+      setActionError(err.message || "Approval failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Helper to get schedule icon
-  const getScheduleIcon = (schedule) => {
-    if (!schedule) return Calendar;
-    const scheduleLower = schedule.toLowerCase();
-    if (scheduleLower.includes("weekly")) return Calendar;
-    if (scheduleLower.includes("monthly")) return CalendarClock;
-    if (scheduleLower.includes("daily")) return Clock;
-    return Calendar;
+  const handleConfirmDisbursal = async (e) => {
+    e.preventDefault();
+    if (!utrNumber || utrNumber.trim() === "") {
+      setActionError("UTR Number / Bank Transfer Reference is strictly required.");
+      return;
+    }
+    setActionError("");
+    setIsSubmitting(true);
+    try {
+      await apiRequest(`/payouts/admin/${selectedPayout.id}/confirm`, {
+        method: "PUT",
+        body: JSON.stringify({ utrNumber: utrNumber.trim(), paymentMode }),
+      });
+      setActionSuccess(`Payout confirmed as PAID with UTR: ${utrNumber}`);
+      setSelectedPayout(null);
+      setUtrNumber("");
+      refresh();
+      setTimeout(() => setActionSuccess(""), 4000);
+    } catch (err) {
+      setActionError(err.message || "Failed to confirm bank transfer.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
-  // Enhanced columns with custom rendering
+  const fetchReconciliationReport = async () => {
+    setLoadingRecon(true);
+    setShowReconModal(true);
+    try {
+      const result = await apiRequest("/payouts/admin/reconciliation");
+      setReconData(result);
+    } catch (err) {
+      console.error("Reconciliation fetch error:", err);
+    } finally {
+      setLoadingRecon(false);
+    }
+  };
+
   const enhancedColumns = [
     { 
       key: "account", 
-      label: "Account",
+      label: "Restaurant / Recipient",
       render: (row) => (
         <div className="flex items-center gap-3">
-          <div className={`flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-${getTypeConfig(row.type).color}-500 to-${getTypeConfig(row.type).color}-600 text-sm font-semibold text-white shadow-md`}>
-            {row.account?.charAt(0) || row.type?.charAt(0) || "A"}
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 text-sm font-semibold text-white shadow-md">
+            {row.account?.charAt(0) || "R"}
           </div>
           <div>
-            <p className="font-medium text-slate-900">{row.account || "Not specified"}</p>
-            <p className="text-xs text-slate-500">ID: {String(row.id || "").slice(-6) || "N/A"}</p>
+            <p className="font-semibold text-slate-900">{row.account || "Not specified"}</p>
+            <p className="text-xs text-slate-500 font-mono">{row.payoutNumber || `ID: ${row.id}`}</p>
           </div>
         </div>
       )
     },
     { 
-      key: "type", 
-      label: "Type",
-      render: (row) => {
-        const config = getTypeConfig(row.type);
-        const Icon = config.icon;
-        return (
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-${config.bg} text-${config.text}`}>
-            <Icon className="h-3 w-3" />
-            {row.type}
-          </span>
-        );
-      }
-    },
-    { 
-      key: "schedule", 
-      label: "Schedule",
-      render: (row) => {
-        const ScheduleIcon = getScheduleIcon(row.schedule);
-        return (
-          <div className="flex items-center gap-1.5">
-            <ScheduleIcon className="h-3.5 w-3.5 text-slate-400" />
-            <span className="text-sm text-slate-700">{row.schedule || "Not scheduled"}</span>
-          </div>
-        );
-      }
-    },
-    { 
       key: "pending", 
       label: "Amount",
       render: (row) => {
-        const amount = parseCurrency(row.pending || row.amount);
+        const amount = row.amountRaw || parseCurrency(row.pending || row.amount);
         return (
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 font-bold text-emerald-600">
             <IndianRupee className="h-3.5 w-3.5 text-emerald-500" />
-            <span className="font-semibold text-emerald-600">{money(amount)}</span>
+            <span>{money(amount)}</span>
           </div>
         );
       }
+    },
+    { 
+      key: "beneficiary", 
+      label: "Bank Account (Masked)",
+      render: (row) => (
+        <div>
+          <p className="text-xs font-semibold text-slate-800">{row.accountNumberMasked || "UPI / Direct"}</p>
+          <p className="text-[11px] text-slate-400">{row.ifscCode ? `IFSC: ${row.ifscCode}` : "Direct settlement"}</p>
+        </div>
+      )
+    },
+    { 
+      key: "utrNumber", 
+      label: "Bank UTR / Reference",
+      render: (row) => (
+        <div>
+          <span className="font-mono text-xs text-slate-700 block">{row.utrNumber || "—"}</span>
+          {row.rawStatus === "paid" && row.utrNumber ? (
+            <span className="inline-flex items-center gap-1 text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+              <ShieldCheck className="h-3 w-3" /> Bank Confirmed
+            </span>
+          ) : (
+            <span className="text-[10px] text-amber-600 font-medium bg-amber-50 px-2 py-0.5 rounded border border-amber-200">
+              Unverified
+            </span>
+          )}
+        </div>
+      )
     },
     { 
       key: "status", 
@@ -163,269 +209,114 @@ export default function Payouts() {
       badge: true,
       render: (row) => {
         const statusConfig = {
-          Approved: { color: "emerald", icon: CheckCircle2, label: "Approved" },
-          Pending: { color: "amber", icon: Clock, label: "Pending Review" },
-          Rejected: { color: "rose", icon: AlertCircle, label: "Rejected" },
-          Processed: { color: "blue", icon: CheckCircle2, label: "Processed" }
+          Paid: { color: "emerald", icon: CheckCircle2, label: "Paid" },
+          Approved: { color: "blue", icon: CheckCircle2, label: "Approved" },
+          Pending: { color: "amber", icon: Clock, label: "Pending" },
+          Failed: { color: "rose", icon: AlertCircle, label: "Failed" },
         };
         const config = statusConfig[row.status] || statusConfig.Pending;
         const StatusIcon = config.icon;
         
         return (
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-${config.color}-50 text-${config.color}-700`}>
+          <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium bg-${config.color}-50 text-${config.color}-700 border border-${config.color}-200`}>
             <StatusIcon className="h-3 w-3" />
             {config.label}
           </span>
         );
       }
     },
+    { 
+      key: "actions", 
+      label: "FinTech Actions",
+      render: (row) => (
+        <div className="flex items-center gap-2">
+          {(row.rawStatus === "pending" || row.status === "Pending") && (
+            <button
+              onClick={() => handleApprove(row)}
+              disabled={isSubmitting}
+              className="px-2.5 py-1 bg-blue-600 text-white rounded-lg text-xs font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              Approve
+            </button>
+          )}
+
+          {(row.rawStatus === "approved" || row.status === "Approved") && (
+            <button
+              onClick={() => {
+                setSelectedPayout(row);
+                setUtrNumber("");
+              }}
+              className="px-2.5 py-1 bg-emerald-600 text-white rounded-lg text-xs font-semibold hover:bg-emerald-700 transition-colors shadow-sm flex items-center gap-1"
+            >
+              <span>Disburse (Enter UTR)</span>
+              <ArrowRight className="h-3 w-3" />
+            </button>
+          )}
+
+          {row.rawStatus === "paid" && (
+            <span className="text-xs text-emerald-600 font-semibold flex items-center gap-1">
+              <CheckCircle2 className="h-3.5 w-3.5" /> Disbursed
+            </span>
+          )}
+        </div>
+      )
+    },
   ];
-
-  // Payout Summary Cards
-  const PayoutSummary = () => {
-    if (loading || rows.length === 0) return null;
-
-    return (
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-emerald-50/50 to-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-emerald-100 p-2">
-              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-wide text-emerald-600">Approval Rate</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-emerald-600">{approvalRate}%</p>
-          <p className="text-xs text-slate-500">{approvedPayouts.length} payouts approved</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-blue-50/50 to-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-blue-100 p-2">
-              <TrendingUp className="h-4 w-4 text-blue-600" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">Total Disbursed</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-blue-600">{money(totalApprovedAmount)}</p>
-          <p className="text-xs text-slate-500">Across all payouts</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-amber-50/50 to-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-amber-100 p-2">
-              <Clock className="h-4 w-4 text-amber-600" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-wide text-amber-600">Pending Rate</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-amber-600">{pendingRate}%</p>
-          <p className="text-xs text-slate-500">{pendingPayouts.length} pending</p>
-        </div>
-
-        <div className="rounded-xl border border-slate-200 bg-gradient-to-br from-purple-50/50 to-white p-4">
-          <div className="flex items-center gap-2">
-            <div className="rounded-lg bg-purple-100 p-2">
-              <Banknote className="h-4 w-4 text-purple-600" />
-            </div>
-            <span className="text-xs font-semibold uppercase tracking-wide text-purple-600">Avg. Payout</span>
-          </div>
-          <p className="mt-2 text-2xl font-bold text-purple-600">
-            {money(totalApprovedAmount / (approvedPayouts.length || 1))}
-          </p>
-          <p className="text-xs text-slate-500">Per transaction</p>
-        </div>
-      </div>
-    );
-  };
-
-  // Schedule Distribution Component
-  const ScheduleDistribution = () => {
-    if (loading || rows.length === 0) return null;
-
-    const schedules = Object.entries(scheduleDistribution);
-    const total = rows.length;
-
-    return (
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-slate-900">Payout Schedule</h3>
-            <p className="text-xs text-slate-500">Distribution by payout frequency</p>
-          </div>
-          <CalendarClock className="h-4 w-4 text-slate-400" />
-        </div>
-        <div className="space-y-3">
-          {schedules.map(([schedule, count]) => {
-            const percentage = ((count / total) * 100).toFixed(1);
-            const ScheduleIcon = getScheduleIcon(schedule);
-            return (
-              <div key={schedule}>
-                <div className="mb-1 flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <ScheduleIcon className="h-3.5 w-3.5 text-slate-500" />
-                    <span className="font-medium text-slate-700">{schedule}</span>
-                  </div>
-                  <span className="text-xs text-slate-500">{percentage}%</span>
-                </div>
-                <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-                  <div 
-                    className="h-full rounded-full bg-gradient-to-r from-blue-500 to-blue-400 transition-all"
-                    style={{ width: `${percentage}%` }}
-                  />
-                </div>
-                <p className="mt-1 text-xs font-semibold text-slate-600">{count} payouts</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  // Upcoming Payouts Component
-  const UpcomingPayouts = () => {
-    if (loading || rows.length === 0) return null;
-
-    const upcoming = rows
-      .filter(row => row.status === "Pending")
-      .sort((a, b) => new Date(a.scheduleDate) - new Date(b.scheduleDate))
-      .slice(0, 4);
-
-    if (upcoming.length === 0) return null;
-
-    return (
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-5">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-slate-900">Upcoming Payouts</h3>
-            <p className="text-xs text-slate-500">Scheduled for disbursement</p>
-          </div>
-          <Calendar className="h-4 w-4 text-slate-400" />
-        </div>
-        <div className="space-y-3">
-          {upcoming.map((payout, idx) => {
-            const config = getTypeConfig(payout.type);
-            const Icon = config.icon;
-            return (
-              <div key={payout.id} className="flex items-center justify-between gap-3 rounded-lg border border-slate-100 p-3 transition-all hover:bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className={`rounded-lg bg-${config.bg} p-2`}>
-                    <Icon className={`h-4 w-4 text-${config.text}`} />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-slate-900">{payout.account}</p>
-                    <p className="text-xs text-slate-500">{payout.schedule}</p>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold text-emerald-600">{money(payout.pending || payout.amount)}</p>
-                  <p className="text-xs text-slate-500">{payout.scheduleDate || "TBD"}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    );
-  };
-
-  // Quick Actions Bar
-  const QuickActionsBar = () => {
-    if (loading || rows.length === 0) return null;
-
-    return (
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white/80 backdrop-blur-sm p-3">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-slate-100 p-2">
-            <Landmark className="h-4 w-4 text-slate-600" />
-          </div>
-          <div>
-            <p className="text-sm font-medium text-slate-700">Payout Overview</p>
-            <p className="text-xs text-slate-500">
-              {restaurantPayouts.length} restaurants • {partnerPayouts.length} partners • {pendingPayouts.length} pending
-            </p>
-          </div>
-        </div>
-        <div className="flex gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-medium text-slate-700 transition-all hover:bg-slate-50">
-            <Download className="h-3.5 w-3.5" />
-            Export
-          </button>
-          <button className="inline-flex items-center gap-1.5 rounded-lg bg-slate-800 px-3 py-1.5 text-xs font-medium text-white transition-all hover:bg-slate-900">
-            <Filter className="h-3.5 w-3.5" />
-            Process Payouts
-          </button>
-        </div>
-      </div>
-    );
-  };
-
-  // Amount Distribution Bar
-  const AmountDistribution = () => {
-    if (loading || rows.length === 0) return null;
-
-    const totalAmount = totalRestaurantAmount + totalPartnerAmount;
-    const restaurantPercentage = totalAmount > 0 ? (totalRestaurantAmount / totalAmount) * 100 : 0;
-    const partnerPercentage = totalAmount > 0 ? (totalPartnerAmount / totalAmount) * 100 : 0;
-
-    return (
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <div>
-            <h3 className="font-semibold text-slate-900">Amount Distribution</h3>
-            <p className="text-xs text-slate-500">By recipient type</p>
-          </div>
-          <IndianRupee className="h-4 w-4 text-slate-400" />
-        </div>
-        <div className="mb-3 flex h-3 overflow-hidden rounded-full bg-slate-100">
-          <div 
-            className="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 transition-all"
-            style={{ width: `${restaurantPercentage}%` }}
-          />
-          <div 
-            className="h-full bg-gradient-to-r from-amber-500 to-amber-400 transition-all"
-            style={{ width: `${partnerPercentage}%` }}
-          />
-        </div>
-        <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-emerald-500" />
-            <span className="text-slate-600">Restaurants</span>
-            <span className="font-semibold text-slate-800">{restaurantPercentage.toFixed(1)}%</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-amber-500" />
-            <span className="text-slate-600">Partners</span>
-            <span className="font-semibold text-slate-800">{partnerPercentage.toFixed(1)}%</span>
-          </div>
-        </div>
-      </div>
-    );
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100/50">
+      {/* Alert Banners */}
+      {actionError && (
+        <div className="p-4 bg-rose-50 border-b border-rose-200 text-rose-700 text-sm flex items-center justify-between px-6">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="h-4 w-4" />
+            <span>{actionError}</span>
+          </div>
+          <button onClick={() => setActionError("")}><X className="h-4 w-4" /></button>
+        </div>
+      )}
+
+      {actionSuccess && (
+        <div className="p-4 bg-emerald-50 border-b border-emerald-200 text-emerald-700 text-sm flex items-center justify-between px-6">
+          <div className="flex items-center gap-2 font-medium">
+            <CheckCircle2 className="h-4 w-4" />
+            <span>{actionSuccess}</span>
+          </div>
+          <button onClick={() => setActionSuccess("")}><X className="h-4 w-4" /></button>
+        </div>
+      )}
+
       <AdminFeaturePage
-        title="Payouts"
-        description="Live restaurant earning, platform commission, and delivery payout records from the backend. Track settlements and manage disbursements."
+        title="Restaurant Settlements & Payouts"
+        description="Verify restaurant earnings, approve withdrawal requests, and confirm bank transfers with verified UTR reference numbers."
         stats={stats}
         rows={rows}
-        filters={["All", "Pending", "Approved", "Processed"]}
+        filters={["All", "Pending", "Approved", "Paid"]}
         columns={enhancedColumns}
         loading={loading}
         error={error}
         onRefresh={refresh}
       >
-        {/* Analytics Section */}
-        {!loading && rows.length > 0 && (
-          <div className="space-y-4">
-            <PayoutSummary />
-            <div className="grid gap-4 lg:grid-cols-2">
-              <ScheduleDistribution />
-              <AmountDistribution />
+        {/* Quick Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 bg-white rounded-2xl border border-slate-200 shadow-sm mb-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600">
+              <ShieldCheck className="h-5 w-5" />
             </div>
-            <UpcomingPayouts />
-            <QuickActionsBar />
+            <div>
+              <h4 className="text-sm font-bold text-slate-800">Double-Entry Reconciliation Audit</h4>
+              <p className="text-xs text-slate-500">Scan database for cash shortfalls, unpaid orders, or missing UTRs</p>
+            </div>
           </div>
-        )}
+
+          <button
+            onClick={fetchReconciliationReport}
+            className="px-4 py-2 bg-gradient-to-r from-slate-800 to-slate-900 text-white rounded-xl text-xs font-semibold hover:shadow-md transition-all flex items-center gap-2"
+          >
+            <FileCheck className="h-4 w-4 text-emerald-400" />
+            <span>Run Reconciliation Audit</span>
+          </button>
+        </div>
 
         {/* Empty State */}
         {!loading && rows.length === 0 && !error && (
@@ -434,16 +325,195 @@ export default function Payouts() {
               <Landmark className="h-8 w-8 text-blue-600" />
             </div>
             <h3 className="text-lg font-semibold text-slate-800">No payout records found</h3>
-            <p className="mt-1 text-sm text-slate-500">Payout transactions will appear here once settlements are processed.</p>
-            <button
-              onClick={refresh}
-              className="mt-4 inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-slate-800 to-slate-900 px-4 py-2 text-sm font-medium text-white transition-all hover:shadow-lg"
-            >
-              Refresh
-            </button>
+            <p className="mt-1 text-sm text-slate-500">Payout transactions will appear here when restaurants submit withdrawal requests.</p>
           </div>
         )}
       </AdminFeaturePage>
+
+      {/* MODAL 1: ENTER UTR NUMBER FOR BANK CONFIRMATION */}
+      {selectedPayout && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl border border-slate-100 animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                  <Banknote className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Confirm Bank Disbursal</h3>
+                  <p className="text-xs text-slate-500">Enter Bank UTR / Transfer Reference</p>
+                </div>
+              </div>
+              <button onClick={() => setSelectedPayout(null)} className="text-slate-400 hover:text-slate-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-4 space-y-1 text-xs">
+              <div className="flex justify-between">
+                <span className="text-slate-400">Recipient:</span>
+                <span className="font-bold text-slate-800">{selectedPayout.account}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Amount:</span>
+                <span className="font-bold text-emerald-600 text-sm">
+                  {money(selectedPayout.amountRaw || selectedPayout.amount)}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-slate-400">Account:</span>
+                <span className="font-mono text-slate-700">{selectedPayout.accountNumberMasked || "Direct UPI"}</span>
+              </div>
+            </div>
+
+            <form onSubmit={handleConfirmDisbursal} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Bank UTR / Transaction Reference *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. HDFC000192837482"
+                  value={utrNumber}
+                  onChange={(e) => setUtrNumber(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl font-mono text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+                <p className="text-[11px] text-slate-400 mt-1">
+                  Required by FinTech compliance rules to mark payout as Bank Confirmed.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  Transfer Mode
+                </label>
+                <select
+                  value={paymentMode}
+                  onChange={(e) => setPaymentMode(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  <option value="NEFT">NEFT (National Electronic Funds Transfer)</option>
+                  <option value="IMPS">IMPS (Immediate Payment Service)</option>
+                  <option value="RTGS">RTGS (Real Time Gross Settlement)</option>
+                  <option value="UPI">UPI (Unified Payments Interface)</option>
+                </select>
+              </div>
+
+              <div className="flex gap-3 pt-3">
+                <button
+                  type="button"
+                  onClick={() => setSelectedPayout(null)}
+                  className="flex-1 px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="flex-1 px-4 py-2.5 bg-emerald-600 text-white rounded-xl text-sm font-semibold hover:bg-emerald-700 transition-colors shadow-md disabled:opacity-50"
+                >
+                  {isSubmitting ? "Confirming..." : "Confirm & Save UTR"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: RECONCILIATION AUDIT REPORT */}
+      {showReconModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl border border-slate-100 max-h-[90vh] flex flex-col animate-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <ShieldCheck className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-slate-900">Reconciliation Audit Report</h3>
+                  <p className="text-xs text-slate-500">Cross-checking Orders, Payments, Earnings & Payouts</p>
+                </div>
+              </div>
+              <button onClick={() => setShowReconModal(false)} className="text-slate-400 hover:text-slate-600">
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto py-4 space-y-4">
+              {loadingRecon ? (
+                <div className="p-12 text-center text-slate-400">
+                  <RefreshCw className="h-8 w-8 animate-spin mx-auto mb-2 text-indigo-600" />
+                  <p className="text-sm font-medium text-slate-600">Auditing all financial records...</p>
+                </div>
+              ) : reconData ? (
+                <>
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                      <span className="text-xs text-slate-400 block">Orders Audited</span>
+                      <span className="text-lg font-bold text-slate-800">{reconData.totalAuditedOrders}</span>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                      <span className="text-xs text-slate-400 block">Total Discrepancies</span>
+                      <span className={`text-lg font-bold ${reconData.totalDiscrepancies > 0 ? "text-rose-600" : "text-emerald-600"}`}>
+                        {reconData.totalDiscrepancies}
+                      </span>
+                    </div>
+                    <div className="p-3 bg-slate-50 rounded-xl border border-slate-100 text-center">
+                      <span className="text-xs text-slate-400 block">Critical Flags</span>
+                      <span className={`text-lg font-bold ${reconData.criticalCount > 0 ? "text-rose-600" : "text-slate-800"}`}>
+                        {reconData.criticalCount}
+                      </span>
+                    </div>
+                  </div>
+
+                  {reconData.discrepancies?.length === 0 ? (
+                    <div className="p-8 text-center text-emerald-700 bg-emerald-50 rounded-2xl border border-emerald-100">
+                      <CheckCircle2 className="h-10 w-10 mx-auto mb-2 text-emerald-600" />
+                      <p className="font-bold text-base">Perfect Reconciliation</p>
+                      <p className="text-xs text-emerald-600 mt-1">
+                        All orders, payments, and payout records match external bank criteria. Zero leaks detected.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+                        Detected Discrepancies ({reconData.discrepancies.length})
+                      </h4>
+                      {reconData.discrepancies.map((disc, idx) => (
+                        <div key={idx} className="p-3.5 bg-rose-50/60 rounded-xl border border-rose-100 space-y-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-rose-800">{disc.type}</span>
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-200 text-rose-900">
+                              {disc.severity}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-700">{disc.description}</p>
+                          <div className="p-2 bg-white/80 rounded-lg text-[11px] text-slate-600 mt-1">
+                            <span className="font-bold text-indigo-700">Recommended Resolution: </span>
+                            {disc.recommendedAction}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="p-8 text-center text-slate-400">Failed to load reconciliation data.</div>
+              )}
+            </div>
+
+            <div className="pt-3 border-t border-slate-100 text-right">
+              <button
+                onClick={() => setShowReconModal(false)}
+                className="px-5 py-2 bg-slate-800 text-white rounded-xl text-xs font-semibold hover:bg-slate-900"
+              >
+                Close Report
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
