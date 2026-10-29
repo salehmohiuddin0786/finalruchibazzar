@@ -1271,12 +1271,29 @@ const Page = () => {
                 <p className="text-white/90 mb-6">
                   Having issues with your order? Our support team is here 24/7!
                 </p>
-                <a href="tel:1800123456">
-                  <button className="w-full bg-white/20 backdrop-blur-sm text-white py-3 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center justify-center gap-2 border border-white/30">
-                    <Phone className="w-4 h-4" />
-                    Call Support
+                <div className="space-y-2.5">
+                  <button
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        if (typeof window.openTawkChat === "function") {
+                          window.openTawkChat();
+                        } else {
+                          window.dispatchEvent(new CustomEvent("open-tawk-chat"));
+                        }
+                      }
+                    }}
+                    className="w-full bg-white text-orange-600 py-3 rounded-xl font-bold hover:bg-orange-50 transition-all flex items-center justify-center gap-2 shadow-lg active:scale-98"
+                  >
+                    <MessageCircle className="w-4 h-4 text-orange-600" />
+                    Chat Live Support
                   </button>
-                </a>
+                  <a href="tel:1800123456" className="block">
+                    <button className="w-full bg-white/20 backdrop-blur-sm text-white py-3 rounded-xl font-semibold hover:bg-white/30 transition-all flex items-center justify-center gap-2 border border-white/30">
+                      <Phone className="w-4 h-4" />
+                      Call Support
+                    </button>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
