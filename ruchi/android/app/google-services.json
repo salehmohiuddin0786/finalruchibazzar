@@ -88,6 +88,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "839794263601-5fiv1e8d4sjq4s38ptdkibahdn3iusj6.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ruchibazaar.com",
+            "certificate_hash": "70bf7d9cf91b9dec6be2af4b7190198d334d5541"
+          }
+        },
+        {
+          "client_id": "839794263601-ulesq3uhme3i1fpeler41em5n7g3e054.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "ruchibazaar.com",
+            "certificate_hash": "eb8846edd5dc6ab7005d16cf06f25c136170947c"
+          }
+        },
+        {
           "client_id": "839794263601-2pk8ea39dvhk4pis940n89qimuuq879b.apps.googleusercontent.com",
           "client_type": 3
         }
