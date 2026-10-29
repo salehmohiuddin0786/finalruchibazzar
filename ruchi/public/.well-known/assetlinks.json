@@ -1,0 +1,14 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "ruchibazaar.com",
+      "sha256_cert_fingerprints": [
+        "8E:78:9A:8E:2A:8F:A4:D6:CD:5D:3A:7F:44:10:86:83:DD:C2:FA:89:79:10:F2:8B:64:D6:A1:90:0A:6C:E0:AD",
+        "7D:1D:F1:91:6A:03:43:7B:57:D0:BB:9E:07:3D:35:62:C6:7D:5C:78:9D:00:87:C2:65:E8:9D:0E:73:8D:57:46",
+        "5B:BE:E5:F6:83:67:BB:B9:C4:87:42:D7:02:EB:50:5E:A6:5E:74:26:54:29:E4:01:70:1C:4F:04:54:08:EF:B9"
+      ]
+    }
+  }
+]
