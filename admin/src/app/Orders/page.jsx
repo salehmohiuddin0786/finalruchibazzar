@@ -32,7 +32,17 @@ import {
 import Header from "../components/Header";
 import Sidebar from "../components/Sidebar";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const getEffectiveApiUrl = () => {
+  if (typeof window !== "undefined") {
+    const host = window.location.hostname;
+    if (host.includes("ruchibazaar.in") || host.includes("ruchibazaar.com")) {
+      return "https://api.ruchibazaar.in/api";
+    }
+  }
+  return process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+};
+
+const API_URL = getEffectiveApiUrl();
 const SOCKET_URL = API_URL.replace(/\/api\/?$/, "");
 
 const ensureSocketIo = () =>
@@ -43,7 +53,9 @@ const ensureSocketIo = () =>
     const existingScript = document.querySelector("script[data-ruchi-socket]");
     if (existingScript) {
       existingScript.addEventListener("load", () => resolve(window.io), { once: true });
-      existingScript.addEventListener("error", reject, { once: true });
+      existingScript.addEventListener("error", () => {
+        loadCdnSocket().then(resolve).catch(reject);
+      }, { once: true });
       return;
     }
 
@@ -51,6 +63,19 @@ const ensureSocketIo = () =>
     script.src = `${SOCKET_URL}/socket.io/socket.io.js`;
     script.async = true;
     script.dataset.ruchiSocket = "true";
+    script.onload = () => resolve(window.io);
+    script.onerror = () => {
+      loadCdnSocket().then(resolve).catch(reject);
+    };
+    document.body.appendChild(script);
+  });
+
+const loadCdnSocket = () =>
+  new Promise((resolve, reject) => {
+    if (window.io) return resolve(window.io);
+    const script = document.createElement("script");
+    script.src = "https://cdn.socket.io/4.7.5/socket.io.min.js";
+    script.async = true;
     script.onload = () => resolve(window.io);
     script.onerror = () => reject(new Error("Unable to load live tracking"));
     document.body.appendChild(script);
@@ -992,12 +1017,19 @@ const Orders = () => {
         socket.on("deliveryAssigned", () => fetchOrders(false, pagination.page, true));
         socket.on("orderStatusUpdated", () => fetchOrders(false, pagination.page, true));
         socket.on("newOrder", () => fetchOrders(false, pagination.page, true));
+        socket.on("adminNewOrder", () => fetchOrders(false, pagination.page, true));
       })
       .catch((err) => console.error("Live tracking socket error:", err));
+
+    const handleWindowOrderReceived = () => {
+      fetchOrders(false, pagination.page, true);
+    };
+    window.addEventListener("ruchi-order-received", handleWindowOrderReceived);
 
     return () => {
       cancelled = true;
       if (socket) socket.disconnect();
+      window.removeEventListener("ruchi-order-received", handleWindowOrderReceived);
     };
   }, [restaurantData?.id, fetchOrders, pagination.page]);
 

@@ -87,8 +87,22 @@ exports.initSocket = (server) => {
 
 exports.emitOrderCreated = (order) => {
   if (!io || !order) return;
-  io.to(`restaurant_${order.restaurantId}`).emit("newOrder", order);
-  io.to(`user_${order.userId}`).emit("orderPlaced", order);
+  console.log(`📡 Socket: Emitting newOrder for Order #${order.id || order.orderId} (Restaurant: ${order.restaurantId})`);
+
+  // Specific restaurant room
+  if (order.restaurantId) {
+    io.to(`restaurant_${order.restaurantId}`).emit("newOrder", order);
+  }
+
+  // Admin room and general broadcasts so open partner/admin portals receive the alert
+  io.to("admin").emit("newOrder", order);
+  io.to("admin").emit("adminNewOrder", order);
+  io.emit("adminNewOrder", order);
+
+  // User room for customer live updates
+  if (order.userId) {
+    io.to(`user_${order.userId}`).emit("orderPlaced", order);
+  }
 };
 
 exports.emitOrderStatusUpdate = (order) => {

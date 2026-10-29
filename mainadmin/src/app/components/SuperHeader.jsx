@@ -44,6 +44,7 @@ const SuperHeader = ({ onMenuClick }) => {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const [realtimeNotifications, setRealtimeNotifications] = useState([]);
   const sessionSnapshot = useSyncExternalStore(
     subscribeToMainAdminSession,
     getMainAdminSessionSnapshot,
@@ -54,6 +55,27 @@ const SuperHeader = ({ onMenuClick }) => {
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
   const searchRef = useRef(null);
+
+  useEffect(() => {
+    const handleAdminOrder = (e) => {
+      const order = e.detail;
+      if (!order) return;
+      const orderId = order.id || order.orderId;
+      setRealtimeNotifications((prev) => [
+        {
+          id: `live-${orderId}-${Date.now()}`,
+          title: `🔔 New Order #${order.orderNumber || orderId}`,
+          message: `${order.restaurant?.name || order.restaurantName || "Restaurant"} • ₹${order.totalAmount || order.total || order.amount || 0}`,
+          time: "Just now",
+          type: "order",
+          read: false,
+        },
+        ...prev.filter((item) => !item.id.startsWith(`live-${orderId}-`)),
+      ]);
+    };
+    window.addEventListener("ruchi-admin-order-received", handleAdminOrder);
+    return () => window.removeEventListener("ruchi-admin-order-received", handleAdminOrder);
+  }, []);
 
   // Update time every minute
   useEffect(() => {
@@ -80,14 +102,17 @@ const SuperHeader = ({ onMenuClick }) => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const notifications = notificationRows.map((row, index) => ({
-    id: row.id || index + 1,
-    title: row.title,
-    message: `${row.channel || "Notification"} for ${row.audience || "Admins"}`,
-    time: row.status || "Live",
-    type: row.channel === "Email" ? "order" : row.channel === "SMS" ? "payment" : "vendor",
-    read: row.status === "Sent",
-  }));
+  const notifications = [
+    ...realtimeNotifications,
+    ...notificationRows.map((row, index) => ({
+      id: row.id || index + 1,
+      title: row.title,
+      message: `${row.channel || "Notification"} for ${row.audience || "Admins"}`,
+      time: row.status || "Live",
+      type: row.channel === "Email" ? "order" : row.channel === "SMS" ? "payment" : "vendor",
+      read: row.status === "Sent",
+    })),
+  ];
 
   const unreadCount = notifications.filter((n) => !n.read).length;
   const adminName = session?.user?.name || "Super Admin";

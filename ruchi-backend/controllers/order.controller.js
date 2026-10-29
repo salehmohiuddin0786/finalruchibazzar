@@ -41,7 +41,7 @@ const findLinkedUserForPartner = async (partner) => {
 const isPlaceholderPhone = (phone) => {
   if (!phone) return true;
   const clean = String(phone).replace(/\D/g, "");
-  return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+  return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean) || clean.startsWith("00000") || clean.startsWith("99999");
 };
 
 const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude, longitude, savedAddress }) => {
@@ -57,8 +57,21 @@ const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude,
     where: { userId, street },
   });
 
-  const rawContactPhone = String(savedAddress?.phone || savedAddress?.contactNumber || "").replace(/\D/g, "");
-  const validContactPhone = rawContactPhone.length === 10 && /^[6-9]\d{9}$/.test(rawContactPhone) ? rawContactPhone : "";
+  let cleanDigits = String(savedAddress?.phone || savedAddress?.contactNumber || "").replace(/\D/g, "");
+  if (cleanDigits.length > 10) {
+    if (cleanDigits.startsWith("91") && cleanDigits.length === 12) {
+      cleanDigits = cleanDigits.slice(2);
+    } else {
+      const firstTen = cleanDigits.slice(0, 10);
+      if (/^[6-9]\d{9}$/.test(firstTen)) {
+        cleanDigits = firstTen;
+      } else {
+        const lastTen = cleanDigits.slice(-10);
+        if (/^[6-9]\d{9}$/.test(lastTen)) cleanDigits = lastTen;
+      }
+    }
+  }
+  const validContactPhone = cleanDigits.length === 10 && /^[6-9]\d{9}$/.test(cleanDigits) ? cleanDigits : "";
 
   const payload = {
     userId,
@@ -68,13 +81,13 @@ const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude,
     state: savedAddress?.state || savedAddress?.stateName || "",
     zipCode: savedAddress?.zipCode || savedAddress?.pincode || "",
     landmark: savedAddress?.landmark || savedAddress?.colonyName || "",
-    phone: validContactPhone || savedAddress?.phone || savedAddress?.contactNumber || "",
+    phone: validContactPhone || cleanDigits || "",
     contactName: savedAddress?.contactName || "",
     latitude: latitude === "" || latitude === undefined ? null : latitude,
     longitude: longitude === "" || longitude === undefined ? null : longitude,
   };
 
-  // If user currently has placeholder phone or no phone, adopt valid contact phone
+  // If user currently has placeholder or invalid phone, adopt valid contact phone
   if (validContactPhone) {
     try {
       const user = await User.findByPk(userId);
@@ -93,13 +106,14 @@ const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude,
     }
   }
 
+  const defaultAddress = await UserAddress.findOne({ where: { userId, isDefault: true } });
   if (existing) {
+    if (!defaultAddress) payload.isDefault = true;
     await existing.update(payload);
     return;
   }
 
-  const count = await UserAddress.count({ where: { userId } });
-  await UserAddress.create({ ...payload, isDefault: count === 0 });
+  await UserAddress.create({ ...payload, isDefault: !defaultAddress });
 };
 
 /*
@@ -471,9 +485,33 @@ exports.createOrder = async (req, res) => {
       console.error("CREATE ORDER LOOKUP ERROR:", lookupError.message);
     }
 
+    const formattedOrder = formatOrder(fullOrder || order);
+
+    // 🔔 Real-time socket alert to partner and admin panels
+    try {
+      orderSocket.emitOrderCreated(formattedOrder);
+    } catch (socketError) {
+      console.error("ORDER CREATION SOCKET EMIT ERROR:", socketError.message);
+    }
+
+    // 🔔 Notify restaurant partner
+    if (order.restaurantId) {
+      Restaurant.findByPk(order.restaurantId)
+        .then((rest) => {
+          if (rest?.ownerId) {
+            sendNotification({
+              userId: rest.ownerId,
+              title: "🔔 New Order Received!",
+              message: `Order #${order.id} received for ${rest.name || "your restaurant"} (₹${finalOrderTotal})`,
+            }).catch(() => {});
+          }
+        })
+        .catch(() => {});
+    }
+
     return res.status(201).json({
       success: true,
-      order: formatOrder(fullOrder || order),
+      order: formattedOrder,
     });
   } catch (error) {
     if (!committed && !transaction.finished) {

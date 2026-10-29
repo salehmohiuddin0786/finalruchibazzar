@@ -18,6 +18,15 @@ const Header = ({ title, subtitle, onMenuClick, sidebarOpen }) => {
   const [restaurantName, setRestaurantName] = useState("");
   const [userName, setUserName] = useState("");
   const [userInitial, setUserInitial] = useState("P");
+  const [unreadOrders, setUnreadOrders] = useState(0);
+
+  useEffect(() => {
+    const handleOrderEvent = () => {
+      setUnreadOrders((prev) => prev + 1);
+    };
+    window.addEventListener("ruchi-order-received", handleOrderEvent);
+    return () => window.removeEventListener("ruchi-order-received", handleOrderEvent);
+  }, []);
 
   useEffect(() => {
     const loadUserData = () => {
@@ -111,9 +120,22 @@ const Header = ({ title, subtitle, onMenuClick, sidebarOpen }) => {
 
           {/* Right */}
           <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-            <button className="relative p-2 rounded-lg hover:bg-gray-100">
+            <button
+              onClick={() => {
+                setUnreadOrders(0);
+                router.push("/Orders");
+              }}
+              className="relative p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              title="View Orders & Alerts"
+            >
               <Bell className="w-5 h-5 text-gray-600" />
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              {unreadOrders > 0 ? (
+                <span className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 bg-red-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-bounce">
+                  {unreadOrders}
+                </span>
+              ) : (
+                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+              )}
             </button>
 
             <div className="relative">

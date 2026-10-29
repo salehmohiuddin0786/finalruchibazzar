@@ -224,13 +224,17 @@ const Page = () => {
       // Fallback address from active/past orders if profile address is empty
       const latestOrder = activeOrdersList[0] || pastOrdersList[0];
       if (latestOrder && latestOrder.deliveryAddressText) {
-        setDeliveryAddress(prev => ({
-          name: prev.name && prev.name !== 'User Name' ? prev.name : (latestOrder.customerDetails?.name || 'Customer'),
-          address: prev.address && prev.address !== 'No address saved' ? prev.address : latestOrder.deliveryAddressText,
-          city: prev.city || '',
-          phone: !isFakePlaceholderPhone(prev.phone) ? prev.phone : (latestOrder.customerPhone || ''),
-          default: true
-        }));
+        setDeliveryAddress(prev => {
+          const hasRealAddress = prev.address && prev.address !== 'No address saved';
+          const validOrderAddress = latestOrder.deliveryAddressText !== 'Delivery address on file' ? latestOrder.deliveryAddressText : '';
+          return {
+            name: prev.name && prev.name !== 'User Name' ? prev.name : (latestOrder.customerDetails?.name || 'Customer'),
+            address: hasRealAddress ? prev.address : (validOrderAddress || latestOrder.deliveryAddressText || 'No address saved'),
+            city: prev.city || '',
+            phone: sanitizeIndianPhone(prev.phone) || sanitizeIndianPhone(latestOrder.customerPhone) || '',
+            default: true
+          };
+        });
       }
 
       console.log(`Active: ${activeOrdersList.length}, Past: ${pastOrdersList.length}`);
@@ -254,10 +258,24 @@ const Page = () => {
     return <ShoppingBag className="w-4 h-4" />;
   };
 
-  const isFakePlaceholderPhone = (phone) => {
-    if (!phone) return true;
+  const sanitizeIndianPhone = (phone) => {
+    if (!phone) return '';
     const clean = String(phone).replace(/\D/g, '');
-    return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+    if (clean.length === 10 && /^[6-9]\d{9}$/.test(clean)) return clean;
+    if (clean.length > 10) {
+      if (clean.startsWith('91') && clean.length === 12) {
+        return clean.slice(2);
+      }
+      const firstTen = clean.slice(0, 10);
+      if (/^[6-9]\d{9}$/.test(firstTen)) return firstTen;
+      const lastTen = clean.slice(-10);
+      if (/^[6-9]\d{9}$/.test(lastTen)) return lastTen;
+    }
+    return '';
+  };
+
+  const isFakePlaceholderPhone = (phone) => {
+    return !sanitizeIndianPhone(phone);
   };
 
   // Transform backend order data to frontend format - FIXED for your structure
@@ -624,14 +642,18 @@ const Page = () => {
         if (response.ok) {
           const userData = await response.json();
           const user = userData.user || userData;
-          const cleanPhone = !isFakePlaceholderPhone(user.phone) ? user.phone : '';
-          setDeliveryAddress(prev => ({
-            name: user.name && user.name !== 'User Name' ? user.name : prev.name || 'Customer',
-            address: user.address && user.address !== 'No address saved' ? user.address : prev.address || 'No address saved',
-            city: user.city || prev.city || '',
-            phone: cleanPhone || prev.phone || '',
-            default: true
-          }));
+          const cleanPhone = sanitizeIndianPhone(user.phone);
+          const userAddr = user.address && user.address !== 'No address saved' ? user.address : '';
+          setDeliveryAddress(prev => {
+            const hasPrev = prev.address && prev.address !== 'No address saved';
+            return {
+              name: user.name && user.name !== 'User Name' ? user.name : prev.name || 'Customer',
+              address: userAddr || (hasPrev ? prev.address : 'No address saved'),
+              city: user.city || prev.city || '',
+              phone: cleanPhone || sanitizeIndianPhone(prev.phone) || '',
+              default: true
+            };
+          });
         }
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -1177,14 +1199,20 @@ const Page = () => {
                       </div>
                       <div className="flex-1">
                         <p className="font-bold text-gray-900 text-lg">{deliveryAddress.name || 'Your Address'}</p>
-                        <p className="text-gray-600 mt-1 leading-relaxed">{deliveryAddress.address || 'No address saved'}</p>
+                        <p className="text-gray-600 mt-1 leading-relaxed">
+                          {deliveryAddress.address && deliveryAddress.address !== 'No address saved'
+                            ? deliveryAddress.address
+                            : (orders.active[0]?.deliveryAddressText && orders.active[0]?.deliveryAddressText !== 'Delivery address on file' ? orders.active[0]?.deliveryAddressText : null) ||
+                              (orders.past[0]?.deliveryAddressText && orders.past[0]?.deliveryAddressText !== 'Delivery address on file' ? orders.past[0]?.deliveryAddressText : null) ||
+                              'No address saved'}
+                        </p>
                         {deliveryAddress.city && <p className="text-gray-600">{deliveryAddress.city}</p>}
-                        {deliveryAddress.phone && !isFakePlaceholderPhone(deliveryAddress.phone) && (
+                        {sanitizeIndianPhone(deliveryAddress.phone || orders.active[0]?.customerPhone || orders.past[0]?.customerPhone) ? (
                           <div className="flex items-center gap-2 mt-3 text-gray-700 font-medium">
                             <Phone className="w-4 h-4 text-orange-500" />
-                            <span>{deliveryAddress.phone}</span>
+                            <span>{sanitizeIndianPhone(deliveryAddress.phone || orders.active[0]?.customerPhone || orders.past[0]?.customerPhone)}</span>
                           </div>
-                        )}
+                        ) : null}
                       </div>
                     </div>
                   </div>
