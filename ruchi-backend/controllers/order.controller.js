@@ -38,6 +38,12 @@ const findLinkedUserForPartner = async (partner) => {
   });
 };
 
+const isPlaceholderPhone = (phone) => {
+  if (!phone) return true;
+  const clean = String(phone).replace(/\D/g, "");
+  return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+};
+
 const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude, longitude, savedAddress }) => {
   const street =
     savedAddress?.street ||
@@ -51,6 +57,9 @@ const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude,
     where: { userId, street },
   });
 
+  const rawContactPhone = String(savedAddress?.phone || savedAddress?.contactNumber || "").replace(/\D/g, "");
+  const validContactPhone = rawContactPhone.length === 10 && /^[6-9]\d{9}$/.test(rawContactPhone) ? rawContactPhone : "";
+
   const payload = {
     userId,
     type: savedAddress?.type || "home",
@@ -59,11 +68,30 @@ const saveCustomerAddressFromOrder = async ({ userId, deliveryAddress, latitude,
     state: savedAddress?.state || savedAddress?.stateName || "",
     zipCode: savedAddress?.zipCode || savedAddress?.pincode || "",
     landmark: savedAddress?.landmark || savedAddress?.colonyName || "",
-    phone: savedAddress?.phone || savedAddress?.contactNumber || "",
+    phone: validContactPhone || savedAddress?.phone || savedAddress?.contactNumber || "",
     contactName: savedAddress?.contactName || "",
     latitude: latitude === "" || latitude === undefined ? null : latitude,
     longitude: longitude === "" || longitude === undefined ? null : longitude,
   };
+
+  // If user currently has placeholder phone or no phone, adopt valid contact phone
+  if (validContactPhone) {
+    try {
+      const user = await User.findByPk(userId);
+      if (user && (!user.phone || isPlaceholderPhone(user.phone))) {
+        const phoneTaken = await User.findOne({ where: { phone: validContactPhone } });
+        if (!phoneTaken || phoneTaken.id === user.id) {
+          user.phone = validContactPhone;
+          if (payload.contactName && (!user.name || user.name === "Google User")) {
+            user.name = payload.contactName;
+          }
+          await user.save();
+        }
+      }
+    } catch (e) {
+      console.warn("Could not auto-update user phone from order:", e.message);
+    }
+  }
 
   if (existing) {
     await existing.update(payload);
@@ -139,10 +167,15 @@ const formatOrder = (order) => ({
   deliveryLng: order.deliveryLng,
 
   customerDetails: {
-    name: order.user?.name || "N/A",
-    phone: order.user?.phone || "N/A",
+    name: order.user?.name || "Customer",
+    phone: !isPlaceholderPhone(order.user?.phone)
+      ? order.user?.phone
+      : (order.savedAddress?.phone || (typeof order.deliveryAddress === "object" ? order.deliveryAddress?.phone : "") || "N/A"),
     email: order.user?.email || "N/A",
   },
+  customerPhone: !isPlaceholderPhone(order.user?.phone)
+    ? order.user?.phone
+    : (order.savedAddress?.phone || (typeof order.deliveryAddress === "object" ? order.deliveryAddress?.phone : "") || ""),
 
   restaurant: order.restaurant || null,
 

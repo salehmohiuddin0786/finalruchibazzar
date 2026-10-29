@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getMediaUrl, hideBrokenImage, getDefaultFoodImage, getDefaultRestaurantImage } from '../utils/media';
 
 const Page = () => {
   const router = useRouter();
@@ -58,7 +59,11 @@ const Page = () => {
   const [copiedId, setCopiedId] = useState(null);
   const [userRole, setUserRole] = useState(null);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:7000/api';
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== 'undefined' && window.location.hostname.includes('ruchibazaar.in')
+      ? 'https://api.ruchibazaar.in/api'
+      : 'http://localhost:7000/api');
   const socketUrl = apiUrl.replace(/\/api\/?$/, '');
 
   const ensureSocketIo = () =>
@@ -216,6 +221,18 @@ const Page = () => {
         past: pastOrdersList
       });
 
+      // Fallback address from active/past orders if profile address is empty
+      const latestOrder = activeOrdersList[0] || pastOrdersList[0];
+      if (latestOrder && latestOrder.deliveryAddressText) {
+        setDeliveryAddress(prev => ({
+          name: prev.name && prev.name !== 'User Name' ? prev.name : (latestOrder.customerDetails?.name || 'Customer'),
+          address: prev.address && prev.address !== 'No address saved' ? prev.address : latestOrder.deliveryAddressText,
+          city: prev.city || '',
+          phone: !isFakePlaceholderPhone(prev.phone) ? prev.phone : (latestOrder.customerPhone || ''),
+          default: true
+        }));
+      }
+
       console.log(`Active: ${activeOrdersList.length}, Past: ${pastOrdersList.length}`);
 
     } catch (err) {
@@ -237,19 +254,26 @@ const Page = () => {
     return <ShoppingBag className="w-4 h-4" />;
   };
 
+  const isFakePlaceholderPhone = (phone) => {
+    if (!phone) return true;
+    const clean = String(phone).replace(/\D/g, '');
+    return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+  };
+
   // Transform backend order data to frontend format - FIXED for your structure
   const transformOrderData = (order) => {
-    console.log('Transforming order:', order);
-    
     // Handle OrderItems from your backend
     let items = [];
     
     if (order.OrderItems && Array.isArray(order.OrderItems)) {
       items = order.OrderItems.map(item => {
-        // Get dish name from the item or use a default
-        const dishName = item.dish?.name || `Item ${item.dishId}`;
+        const dishName = item.dish?.name || item.name || `Item ${item.dishId}`;
+        const dishImage = item.dish?.image || item.dish?.imageUrl || item.image || item.imageUrl || null;
+        const category = item.dish?.category || item.category || '';
         return {
           name: dishName,
+          image: dishImage,
+          category: category,
           quantity: item.quantity || 1,
           price: item.price || 0,
           totalPrice: (item.price || 0) * (item.quantity || 1),
@@ -258,13 +282,20 @@ const Page = () => {
         };
       });
     } else if (order.items && Array.isArray(order.items)) {
-      items = order.items.map(item => ({
-        name: item.name || 'Unknown Item',
-        quantity: item.quantity || 1,
-        price: item.price || 0,
-        totalPrice: (item.price || 0) * (item.quantity || 1),
-        icon: getFoodIcon(item.name)
-      }));
+      items = order.items.map(item => {
+        const dishName = item.dish?.name || item.name || 'Unknown Item';
+        const dishImage = item.dish?.image || item.dish?.imageUrl || item.image || item.imageUrl || null;
+        const category = item.dish?.category || item.category || '';
+        return {
+          name: dishName,
+          image: dishImage,
+          category: category,
+          quantity: item.quantity || 1,
+          price: item.price || 0,
+          totalPrice: (item.price || 0) * (item.quantity || 1),
+          icon: getFoodIcon(dishName)
+        };
+      });
     }
 
     // Calculate totals
@@ -275,22 +306,33 @@ const Page = () => {
 
     // Parse delivery address if it's a string
     let deliveryAddress = order.deliveryAddress;
+    let deliveryAddressString = '';
     if (typeof deliveryAddress === 'string') {
       try {
-        deliveryAddress = JSON.parse(deliveryAddress);
+        const parsed = JSON.parse(deliveryAddress);
+        deliveryAddress = parsed;
+        deliveryAddressString = parsed.street || parsed.address || parsed.finalAddress || deliveryAddress;
       } catch (e) {
+        deliveryAddressString = deliveryAddress;
         deliveryAddress = { address: deliveryAddress };
       }
+    } else if (deliveryAddress && typeof deliveryAddress === 'object') {
+      deliveryAddressString = deliveryAddress.street || deliveryAddress.address || deliveryAddress.finalAddress || '';
+      if (deliveryAddress.city) deliveryAddressString += `, ${deliveryAddress.city}`;
     }
 
-    // Get restaurant name (you might need to fetch this separately)
     const restaurantName = order.restaurant?.name || order.restaurantName || 'Restaurant';
+    const restaurantImage = order.restaurant?.coverImage || order.restaurant?.logo || order.restaurant?.image || null;
+
+    const rawCustomerPhone = order.customerDetails?.phone || order.savedAddress?.phone || order.user?.phone || deliveryAddress?.phone || '';
+    const customerPhone = !isFakePlaceholderPhone(rawCustomerPhone) ? rawCustomerPhone : '';
 
     return {
       id: order.orderId || `#ORD-${order.id}`,
       orderId: order.id,
       type: 'Restaurant',
       restaurant: restaurantName,
+      restaurantImage: restaurantImage,
       items: items,
       subtotal: subtotal,
       tax: tax,
@@ -313,6 +355,9 @@ const Page = () => {
       orderStatus: order.status,
       createdAt: order.createdAt,
       deliveryAddress: deliveryAddress,
+      deliveryAddressText: deliveryAddressString || 'Delivery address on file',
+      customerPhone: customerPhone,
+      customerDetails: order.customerDetails || null,
       paymentMethod: order.paymentMethod || { type: 'cash', text: 'Cash on Delivery' },
       paymentStatus: order.paymentStatus || 'pending',
       discount: order.discount || 0,
@@ -579,13 +624,14 @@ const Page = () => {
         if (response.ok) {
           const userData = await response.json();
           const user = userData.user || userData;
-          setDeliveryAddress({
-            name: user.name || 'User Name',
-            address: user.address || 'No address saved',
-            city: user.city || '',
-            phone: user.phone || '',
+          const cleanPhone = !isFakePlaceholderPhone(user.phone) ? user.phone : '';
+          setDeliveryAddress(prev => ({
+            name: user.name && user.name !== 'User Name' ? user.name : prev.name || 'Customer',
+            address: user.address && user.address !== 'No address saved' ? user.address : prev.address || 'No address saved',
+            city: user.city || prev.city || '',
+            phone: cleanPhone || prev.phone || '',
             default: true
-          });
+          }));
         }
       } catch (err) {
         console.error('Error fetching profile:', err);
@@ -812,9 +858,18 @@ const Page = () => {
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="flex items-start gap-4 flex-1">
-                          <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500">
-                            <Utensils className="w-5 h-5 text-white" />
-                          </div>
+                          {order.restaurantImage ? (
+                            <img
+                              src={getMediaUrl(order.restaurantImage, apiUrl, "restaurant", order.restaurant)}
+                              alt={order.restaurant}
+                              className="w-12 h-12 rounded-2xl object-cover border border-orange-200 flex-shrink-0"
+                              onError={(e) => hideBrokenImage(e, getDefaultRestaurantImage(order.restaurant))}
+                            />
+                          ) : (
+                            <div className="p-3 rounded-2xl bg-gradient-to-br from-orange-400 to-orange-500 flex-shrink-0">
+                              <Utensils className="w-5 h-5 text-white" />
+                            </div>
+                          )}
                           
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
@@ -878,23 +933,51 @@ const Page = () => {
                           </h4>
                           <div className="space-y-4">
                             {order.items.map((item, index) => (
-                              <div key={index} className="flex items-center gap-3 p-3 bg-orange-50/50 rounded-xl">
-                                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center flex-shrink-0">
-                                  {item.icon}
+                              <div key={index} className="flex items-center gap-3 p-3 bg-orange-50/50 rounded-2xl border border-orange-100/60">
+                                <div className="w-14 h-14 bg-orange-100 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-orange-200/60 shadow-sm">
+                                  {item.image ? (
+                                    <img
+                                      src={getMediaUrl(item.image, apiUrl, "food", item.name, item.category)}
+                                      alt={item.name}
+                                      className="w-full h-full object-cover"
+                                      onError={(e) => hideBrokenImage(e, getDefaultFoodImage(item.category, item.name))}
+                                    />
+                                  ) : (
+                                    item.icon
+                                  )}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex justify-between items-start">
                                     <div>
-                                      <p className="font-semibold text-gray-900">{item.name}</p>
-                                      <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                                      <p className="font-semibold text-gray-900 text-sm leading-snug">{item.name}</p>
+                                      <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity}</p>
                                     </div>
-                                    <span className="font-semibold text-orange-600">
+                                    <span className="font-bold text-orange-600 text-sm">
                                       {formatINR(item.price * item.quantity)}
                                     </span>
                                   </div>
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        </div>
+
+                        {/* Delivery Address & Contact (Mobile) */}
+                        <div className="mb-6 p-4 bg-orange-50/70 rounded-2xl border border-orange-100">
+                          <div className="flex items-start gap-3">
+                            <div className="p-2 bg-orange-100 text-orange-600 rounded-xl mt-0.5 flex-shrink-0">
+                              <MapPin className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1 text-sm">
+                              <p className="font-bold text-gray-900">Delivering to</p>
+                              <p className="text-gray-700 mt-1 font-medium leading-relaxed">{order.deliveryAddressText}</p>
+                              {order.customerPhone && (
+                                <p className="text-gray-600 text-xs mt-1.5 flex items-center gap-1.5 font-medium">
+                                  <Phone className="w-3.5 h-3.5 text-orange-500" />
+                                  <span>Contact: {order.customerPhone}</span>
+                                </p>
+                              )}
+                            </div>
                           </div>
                         </div>
 
@@ -961,21 +1044,56 @@ const Page = () => {
                       </h4>
                       <div className="space-y-3 mb-6">
                         {order.items.map((item, index) => (
-                          <div key={index} className="flex items-center justify-between p-3 bg-orange-50/50 rounded-xl">
-                            <div className="flex items-center gap-3">
-                              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                                {item.icon}
+                          <div key={index} className="flex items-center justify-between p-3.5 bg-orange-50/50 rounded-2xl border border-orange-100/60">
+                            <div className="flex items-center gap-3.5">
+                              <div className="w-14 h-14 bg-orange-100 rounded-xl overflow-hidden flex items-center justify-center flex-shrink-0 border border-orange-200/60 shadow-sm">
+                                {item.image ? (
+                                  <img
+                                    src={getMediaUrl(item.image, apiUrl, "food", item.name, item.category)}
+                                    alt={item.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => hideBrokenImage(e, getDefaultFoodImage(item.category, item.name))}
+                                  />
+                                ) : (
+                                  item.icon
+                                )}
                               </div>
                               <div>
-                                <p className="font-semibold text-gray-900">{item.name}</p>
-                                <p className="text-xs text-gray-500">Quantity: {item.quantity}</p>
+                                <p className="font-semibold text-gray-900 text-base">{item.name}</p>
+                                <p className="text-xs text-gray-500 mt-0.5 font-medium">Quantity: {item.quantity}</p>
                               </div>
                             </div>
-                            <span className="font-semibold text-orange-600">
+                            <span className="font-bold text-orange-600 text-base">
                               {formatINR(item.price * item.quantity)}
                             </span>
                           </div>
                         ))}
+                      </div>
+
+                      {/* Delivery Address & Contact (Desktop) */}
+                      <div className="mb-6 p-4 bg-orange-50/70 rounded-2xl border border-orange-100">
+                        <div className="flex items-start gap-3">
+                          <div className="p-2.5 bg-orange-100 text-orange-600 rounded-xl mt-0.5 flex-shrink-0">
+                            <MapPin className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 text-sm">
+                            <div className="flex items-center justify-between mb-1">
+                              <p className="font-bold text-gray-900">Delivering to</p>
+                              {order.paymentMethod && (
+                                <span className="text-xs font-semibold text-orange-700 bg-orange-100/80 px-2 py-0.5 rounded-md">
+                                  {typeof order.paymentMethod === 'string' ? order.paymentMethod : (order.paymentMethod.text || 'Cash on Delivery')}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-gray-700 font-medium leading-relaxed">{order.deliveryAddressText}</p>
+                            {order.customerPhone && (
+                              <p className="text-gray-600 text-xs mt-2 flex items-center gap-1.5 font-medium">
+                                <Phone className="w-3.5 h-3.5 text-orange-500" />
+                                <span>Contact: {order.customerPhone}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
                       </div>
 
                       {renderLiveTracking(order)}
@@ -1058,12 +1176,12 @@ const Page = () => {
                         <Home className="w-6 h-6" />
                       </div>
                       <div className="flex-1">
-                        <p className="font-bold text-gray-900 text-lg">{deliveryAddress.name || 'Add Address'}</p>
-                        <p className="text-gray-600 mt-1">{deliveryAddress.address || 'No address saved'}</p>
+                        <p className="font-bold text-gray-900 text-lg">{deliveryAddress.name || 'Your Address'}</p>
+                        <p className="text-gray-600 mt-1 leading-relaxed">{deliveryAddress.address || 'No address saved'}</p>
                         {deliveryAddress.city && <p className="text-gray-600">{deliveryAddress.city}</p>}
-                        {deliveryAddress.phone && (
-                          <div className="flex items-center gap-2 mt-3 text-gray-600">
-                            <Phone className="w-4 h-4" />
+                        {deliveryAddress.phone && !isFakePlaceholderPhone(deliveryAddress.phone) && (
+                          <div className="flex items-center gap-2 mt-3 text-gray-700 font-medium">
+                            <Phone className="w-4 h-4 text-orange-500" />
                             <span>{deliveryAddress.phone}</span>
                           </div>
                         )}

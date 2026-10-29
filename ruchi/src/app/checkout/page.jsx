@@ -297,7 +297,18 @@ const CheckoutPage = () => {
 
   const [validationErrors, setValidationErrors] = useState({});
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+  const apiUrl =
+    process.env.NEXT_PUBLIC_API_URL ||
+    (typeof window !== "undefined" && window.location.hostname.includes("ruchibazaar.in")
+      ? "https://api.ruchibazaar.in/api"
+      : "http://localhost:7000/api");
+
+  // Automatically scroll smoothly to top whenever step changes
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [activeStep]);
 
   const getAuthToken = () => {
     if (typeof window !== "undefined") {
@@ -681,10 +692,16 @@ const CheckoutPage = () => {
     const user = getUserData();
 
     if (user) {
+      const isPlaceholder = (p) => {
+        if (!p) return true;
+        const c = String(p).replace(/\D/g, "");
+        return c.length !== 10 || !/^[6-9]\d{9}$/.test(c);
+      };
+
       setDeliveryDetails((prev) => ({
         ...prev,
-        contactName: user.name || "",
-        contactNumber: user.phone || "",
+        contactName: user.name && user.name !== "Google User" ? user.name : "",
+        contactNumber: !isPlaceholder(user.phone) ? user.phone : "",
       }));
     }
 
@@ -909,11 +926,11 @@ const CheckoutPage = () => {
       errors.contactName = "Contact name is required";
     }
 
-    if (
-      deliveryDetails.contactNumber &&
-      !/^[6-9]\d{9}$/.test(deliveryDetails.contactNumber)
-    ) {
-      errors.contactNumber = "Please enter a valid 10-digit Indian mobile number";
+    const cleanContact = String(deliveryDetails.contactNumber || "").replace(/\D/g, "");
+    if (!cleanContact) {
+      errors.contactNumber = "Mobile number is required for order delivery";
+    } else if (cleanContact.length !== 10 || !/^[6-9]\d{9}$/.test(cleanContact)) {
+      errors.contactNumber = "Please enter a valid 10-digit Indian mobile number (e.g. 9876543210)";
     }
 
     setValidationErrors(errors);
@@ -1067,6 +1084,21 @@ const CheckoutPage = () => {
       setCreatedOrder(order.order || order);
       setOrderSuccess(true);
       setActiveStep(3);
+
+      // Persist real contact phone to profile if it was entered
+      if (token && deliveryDetails.contactNumber) {
+        const cleanPhone = String(deliveryDetails.contactNumber).replace(/\D/g, "");
+        if (cleanPhone.length === 10) {
+          fetch(`${apiUrl}/users/profile`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({ phone: cleanPhone }),
+          }).catch(() => {});
+        }
+      }
 
       localStorage.removeItem("cartId");
       savePromoCode(null, null);

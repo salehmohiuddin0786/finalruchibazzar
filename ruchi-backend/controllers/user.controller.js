@@ -15,11 +15,19 @@ const normalizeAddressPayload = (body, userId) => ({
   isDefault: Boolean(body.isDefault),
 });
 
-const formatUser = (user) => ({
+const isPlaceholderPhone = (phone) => {
+  if (!phone) return true;
+  const clean = String(phone).replace(/\D/g, "");
+  return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+};
+
+const formatUser = (user, address = null) => ({
   id: user.id,
   name: user.name,
   email: user.email,
-  phone: user.phone,
+  phone: isPlaceholderPhone(user.phone) ? "" : user.phone,
+  needsPhone: isPlaceholderPhone(user.phone),
+  address: address,
   role: user.role,
   isVerified: user.isVerified,
   authProvider: user.authProvider,
@@ -75,9 +83,25 @@ exports.getProfile = async (req, res) => {
       });
     }
 
+    const defaultAddress = await UserAddress.findOne({
+      where: { userId: user.id },
+      order: [["isDefault", "DESC"], ["updatedAt", "DESC"]],
+    });
+
+    let addressStreet = defaultAddress?.street || null;
+    let userPhone = user.phone;
+
+    // If user has a placeholder phone but entered a real phone in address, adopt it
+    if (isPlaceholderPhone(userPhone) && defaultAddress?.phone && !isPlaceholderPhone(defaultAddress.phone)) {
+      userPhone = defaultAddress.phone;
+      await user.update({ phone: defaultAddress.phone });
+    }
+
+    const formattedUser = formatUser({ ...user.toJSON(), phone: userPhone }, addressStreet);
+
     res.json({
       message: "Profile fetched successfully",
-      user,
+      user: formattedUser,
       restaurant,
     });
 
@@ -118,19 +142,27 @@ exports.updateProfile = async (req, res) => {
     }
 
     // ✅ Update fields safely
-    if (phone && phone !== user.phone) {
-      const exists = await User.findOne({ where: { phone } });
-
-      if (exists) {
+    if (phone) {
+      const cleanPhone = String(phone).replace(/\D/g, "");
+      if (cleanPhone.length !== 10 || !/^[6-9]\d{9}$/.test(cleanPhone)) {
         return res.status(400).json({
-          message: "Phone already in use",
+          message: "Please enter a valid 10-digit Indian mobile number (starting with 6, 7, 8, or 9)",
         });
+      }
+      if (cleanPhone !== user.phone) {
+        const exists = await User.findOne({ where: { phone: cleanPhone } });
+
+        if (exists && exists.id !== user.id) {
+          return res.status(400).json({
+            message: "Phone number is already registered with another account",
+          });
+        }
+        user.phone = cleanPhone;
       }
     }
 
     if (name) user.name = name;
     if (email) user.email = email;
-    if (phone) user.phone = phone;
 
     await user.save();
 

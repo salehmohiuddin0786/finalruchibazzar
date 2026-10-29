@@ -85,6 +85,12 @@ const verifyFirebaseGoogleToken = async (idToken) => {
   return firebaseUser;
 };
 
+const isPlaceholderPhone = (phone) => {
+  if (!phone) return true;
+  const clean = String(phone).replace(/\D/g, "");
+  return clean.length !== 10 || !/^[6-9]\d{9}$/.test(clean);
+};
+
 const makeGooglePlaceholderPhone = (firebaseUid) => {
   const hash = crypto.createHash("sha256").update(firebaseUid).digest("hex");
   const numeric = BigInt(`0x${hash}`).toString().slice(0, 14);
@@ -95,7 +101,8 @@ const formatUserResponse = (user) => ({
   id: user.id,
   name: user.name,
   email: user.email,
-  phone: user.phone,
+  phone: isPlaceholderPhone(user.phone) ? "" : user.phone,
+  needsPhone: isPlaceholderPhone(user.phone),
   role: user.role,
   isVerified: user.isVerified,
 });

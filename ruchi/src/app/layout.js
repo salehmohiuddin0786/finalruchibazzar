@@ -3,6 +3,7 @@ import Script from "next/script";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import LiveChatWidget from "./components/LiveChatWidget.jsx";
+import PhoneVerificationModal from "./components/PhoneVerificationModal.jsx";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -145,6 +146,7 @@ export default function RootLayout({ children }) {
       >
         <AuthProvider>
           {children}
+          <PhoneVerificationModal />
           <LiveChatWidget />
         </AuthProvider>
         <Script src="https://accounts.google.com/gsi/client" strategy="afterInteractive" />

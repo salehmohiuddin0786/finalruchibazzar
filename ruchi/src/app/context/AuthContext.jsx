@@ -6,7 +6,11 @@ import axios from "axios";
 
 /* ================= API ================= */
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:7000/api";
+const API_URL =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" && window.location.hostname.includes("ruchibazaar.in")
+    ? "https://api.ruchibazaar.in/api"
+    : "http://localhost:7000/api");
 
 const api = axios.create({
   baseURL: API_URL,
@@ -155,6 +159,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /* ================= UPDATE USER ================= */
+
+  const updateUser = (updatedFields) => {
+    setUser((prev) => {
+      const merged = { ...prev, ...updatedFields };
+      try {
+        localStorage.setItem("user", JSON.stringify(merged));
+      } catch (e) {}
+      return merged;
+    });
+  };
+
   /* ================= LOGOUT ================= */
 
   const logout = () => {
@@ -172,6 +188,7 @@ export const AuthProvider = ({ children }) => {
         user,
         login,
         register,
+        updateUser,
         logout,
         loading,
         isAuthenticated: !!user,
